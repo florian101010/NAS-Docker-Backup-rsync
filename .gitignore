@@ -110,3 +110,10 @@ NOTES.personal
 
 # Backup script specific temporary directories
 /volume*/docker-nas/logs/docker_backup_*.log
+test_commands.txt
+fix_commands.txt
+test_rsync_flags.sh
+test_rsync_only.sh
+UGREEN_NAS_COMPATIBILITY_FIX.md
+docker_backup_usage.md
+docs/DE/DOCKER_PERMISSIONS_GUIDE.md
