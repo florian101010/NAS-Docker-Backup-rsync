@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "=== RSYNC FIX VALIDATION TEST ==="
+echo "=== RSYNC FIX - VALIDATION TEST ==="
 echo "Testing the new rsync fixes in docker_backup.sh"
 echo ""
 
