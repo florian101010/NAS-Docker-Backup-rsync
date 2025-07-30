@@ -122,4 +122,3 @@ docs/DE/DOCKER_PERMISSIONS_GUIDE.md
 config/local.conf
 config/*.local
 *.personal.sh
-docker_backup_de.sh
