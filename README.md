@@ -17,6 +17,7 @@ A robust, production-ready backup solution for Docker-based NAS systems with adv
 - **📈 Advanced Monitoring**: Container status tracking, backup verification, and detailed progress reporting
 - **🎯 Smart Recovery**: Automatic container restart even on backup failures with signal handling
 - **🔄 Incremental Backups**: rsync-based with intelligent flag validation and multi-tier fallback
+- **🔐 Backup Encryption**: GPG-based encryption support for secure backup storage
 - **⚙️ Highly Configurable**: Extensive command-line options for timeouts, buffers, and behavior
 
 ## 📋 Requirements
@@ -124,6 +125,7 @@ LOG_DIR="/path/to/your/logs"
 - File and directory count verification
 - ACL and extended attributes support (when available)
 - Detailed error reporting with specific rsync exit code analysis
+- GPG encryption support for secure backup storage
 
 ## 📊 Monitoring & Logging
 
@@ -173,6 +175,45 @@ ls -la /path/to/backup/destination
 # Fix permissions if needed
 sudo chown -R $(whoami):$(id -gn) /path/to/backup/destination
 ```
+
+## 🔐 Backup Encryption
+
+The script supports backup encryption for secure storage of sensitive data.
+
+### Quick Encryption Setup
+
+```bash
+# 1. Create normal backup
+./docker_backup.sh --auto
+
+# 2. Encrypt backup with GPG
+tar -czf - /path/to/backup/ | \
+gpg --symmetric --cipher-algo AES256 \
+> backup_encrypted_$(date +%Y%m%d_%H%M%S).tar.gz.gpg
+
+# 3. Secure password storage for automation
+echo "YOUR_SECURE_PASSWORD" | sudo tee /path/to/.backup_password
+sudo chmod 600 /path/to/.backup_password
+```
+
+### Automated Encrypted Backups
+
+```bash
+# Cron job for daily encrypted backups
+0 2 * * * /path/to/docker_backup.sh --auto && \
+tar -czf - /path/to/backup/ | \
+gpg --symmetric --cipher-algo AES256 --passphrase-file /path/to/.backup_password \
+> /path/to/backup_encrypted_$(date +\%Y\%m\%d_\%H\%M\%S).tar.gz.gpg
+```
+
+### Restoring Encrypted Backups
+
+```bash
+# Decrypt and restore
+gpg --decrypt backup_encrypted_YYYYMMDD_HHMMSS.tar.gz.gpg | tar -xzf - -C /
+```
+
+**📖 For detailed encryption documentation, see [Backup Encryption Guide](docs/EN/MANUAL_EN.md#backup-encryption)**
 
 ## 🤝 Contributing
 
