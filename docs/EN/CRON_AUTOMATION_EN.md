@@ -79,7 +79,7 @@ sudo cp docker_backup.sh /usr/local/bin/docker_backup.sh
 sudo chmod +x /usr/local/bin/docker_backup.sh
 
 # Or keep in current directory
-chmod +x /volume1/docker-nas/docker_backup.sh
+chmod +x /path/to/docker_backup.sh
 ```
 
 ### 2. Test Environment Variables
@@ -88,22 +88,22 @@ Cron runs with minimal environment. Test the script:
 
 ```bash
 # Simulate cron-like environment
-env -i HOME="$HOME" PATH="/usr/bin:/bin" /volume1/docker-nas/docker_backup.sh --dry-run
+env -i HOME="$HOME" PATH="/usr/bin:/bin" /path/to/docker_backup.sh --dry-run
 ```
 
 ### 3. Check Permissions
 
 ```bash
 # Script permissions
-ls -la /volume1/docker-nas/docker_backup.sh
+ls -la /path/to/docker_backup.sh
 # Should be: -rwxr-xr-x or -rwx------
 
 # Log directory permissions
-ls -ld /volume1/docker-nas/logs/
+ls -ld /path/to/logs/
 # Should be: drwxr-xr-x or drwx------
 
 # Backup target permissions
-ls -ld /volume2/@home/florian/Backups/
+ls -ld /path/to/backup/destination/
 # Should be: drwxr-xr-x or drwx------
 ```
 
@@ -142,27 +142,27 @@ crontab -l
 
 ```bash
 # Daily at 2:00 AM - Fast backup
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop
+0 2 * * * /path/to/docker_backup.sh --auto --use-stop
 
 # Daily at 3:00 AM - Complete backup
-0 3 * * * /volume1/docker-nas/docker_backup.sh --auto
+0 3 * * * /path/to/docker_backup.sh --auto
 ```
 
 #### Weekly Backup
 
 ```bash
 # Sundays at 1:00 AM - Complete backup with ACL
-0 1 * * 0 /volume1/docker-nas/docker_backup.sh --auto --preserve-acl
+0 1 * * 0 /path/to/docker_backup.sh --auto --preserve-acl
 ```
 
 #### Multi-Backup Strategy
 
 ```bash
 # Daily fast backup (Monday-Saturday)
-0 2 * * 1-6 /volume1/docker-nas/docker_backup.sh --auto --use-stop --parallel 4
+0 2 * * 1-6 /path/to/docker_backup.sh --auto --use-stop --parallel 4
 
 # Sundays complete backup
-0 1 * * 0 /volume1/docker-nas/docker_backup.sh --auto --preserve-acl --parallel 2
+0 1 * * 0 /path/to/docker_backup.sh --auto --preserve-acl --parallel 2
 ```
 
 ---
@@ -175,7 +175,7 @@ crontab -l
 
 ```bash
 # Crontab entry
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop >> /volume1/docker-nas/logs/cron_backup.log 2>&1
+0 2 * * * /path/to/docker_backup.sh --auto --use-stop >> /path/to/logs/cron_backup.log 2>&1
 ```
 
 **Advantages**:
@@ -193,13 +193,13 @@ crontab -l
 
 ```bash
 # Monday-Friday: Fast backups
-0 2 * * 1-5 /volume1/docker-nas/docker_backup.sh --auto --use-stop --parallel 4 --buffer-percent 15
+0 2 * * 1-5 /path/to/docker_backup.sh --auto --use-stop --parallel 4 --buffer-percent 15
 
 # Saturday: Backup with verification
-0 1 * * 6 /volume1/docker-nas/docker_backup.sh --auto --parallel 2 --buffer-percent 25
+0 1 * * 6 /path/to/docker_backup.sh --auto --parallel 2 --buffer-percent 25
 
 # Sunday: Complete backup with ACL
-0 0 * * 0 /volume1/docker-nas/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 120
+0 0 * * 0 /path/to/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 120
 ```
 
 **Advantages**:
@@ -213,13 +213,13 @@ crontab -l
 
 ```bash
 # Every 6 hours: Fast backups
-0 */6 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop --parallel 6 --no-verify
+0 */6 * * * /path/to/docker_backup.sh --auto --use-stop --parallel 6 --no-verify
 
 # Daily at 2:00: Complete backup
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --parallel 4 --buffer-percent 20
+0 2 * * * /path/to/docker_backup.sh --auto --parallel 4 --buffer-percent 20
 
 # Weekly: Backup with ACL and encryption
-0 1 * * 0 /volume1/docker-nas/docker_backup.sh --auto --preserve-acl && /volume1/docker-nas/encrypt_backup.sh
+0 1 * * 0 /path/to/docker_backup.sh --auto --preserve-acl && /path/to/encrypt_backup.sh
 ```
 
 **Advantages**:
@@ -238,10 +238,10 @@ crontab -l
 
 ```bash
 # Daily encrypted backup
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --parallel 4 && tar -czf - /volume2/@home/florian/Backups/docker-nas-backup-rsync/ | gpg --symmetric --cipher-algo AES256 --passphrase-file /volume1/docker-nas/.backup_password > /volume2/@home/florian/Backups/docker-backup-encrypted_$(date +\%Y\%m\%d_\%H\%M\%S).tar.gz.gpg && rm -rf /volume2/@home/florian/Backups/docker-nas-backup-rsync/
+0 2 * * * /path/to/docker_backup.sh --auto --parallel 4 && tar -czf - /path/to/backup/destination/ | gpg --symmetric --cipher-algo AES256 --passphrase-file /path/to/.backup_password > /path/to/backup/destination/docker-backup-encrypted_$(date +\%Y\%m\%d_\%H\%M\%S).tar.gz.gpg && rm -rf /path/to/backup/destination/
 
 # Weekly cleanup of old encrypted backups
-0 3 * * 0 find /volume2/@home/florian/Backups/ -name "docker-backup-encrypted_*.tar.gz.gpg" -mtime +30 -delete
+0 3 * * 0 find /path/to/backup/destination/ -name "docker-backup-encrypted_*.tar.gz.gpg" -mtime +30 -delete
 ```
 
 ---
@@ -254,20 +254,20 @@ crontab -l
 
 ```bash
 # Simple logging to file
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto >> /volume1/docker-nas/logs/cron_backup.log 2>&1
+0 2 * * * /path/to/docker_backup.sh --auto >> /path/to/logs/cron_backup.log 2>&1
 ```
 
 #### Advanced Logging Options
 
 ```bash
 # With timestamp and rotation
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto >> /volume1/docker-nas/logs/cron_backup_$(date +\%Y\%m).log 2>&1
+0 2 * * * /path/to/docker_backup.sh --auto >> /path/to/logs/cron_backup_$(date +\%Y\%m).log 2>&1
 
 # Use system logger
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto 2>&1 | logger -t docker_backup
+0 2 * * * /path/to/docker_backup.sh --auto 2>&1 | logger -t docker_backup
 
 # Separate logs for success and error
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto >> /volume1/docker-nas/logs/cron_backup_success.log 2>> /volume1/docker-nas/logs/cron_backup_error.log
+0 2 * * * /path/to/docker_backup.sh --auto >> /path/to/logs/cron_backup_success.log 2>> /path/to/logs/cron_backup_error.log
 ```
 
 ### Set up Log Rotation
@@ -276,10 +276,10 @@ crontab -l
 
 ```bash
 # Cron job for log cleanup (daily at 4:00)
-0 4 * * * find /volume1/docker-nas/logs/ -name "cron_backup*.log" -mtime +30 -delete
+0 4 * * * find /path/to/logs/ -name "cron_backup*.log" -mtime +30 -delete
 
 # Compression of old logs
-0 4 * * 0 gzip /volume1/docker-nas/logs/cron_backup_$(date -d '1 week ago' +\%Y\%m\%d)*.log 2>/dev/null
+0 4 * * 0 gzip /path/to/logs/cron_backup_$(date -d '1 week ago' +\%Y\%m\%d)*.log 2>/dev/null
 ```
 
 #### Configure Logrotate
@@ -287,7 +287,7 @@ crontab -l
 ```bash
 # Create /etc/logrotate.d/docker-backup
 sudo tee /etc/logrotate.d/docker-backup << EOF
-/volume1/docker-nas/logs/cron_backup*.log {
+/path/to/logs/cron_backup*.log {
     daily
     rotate 30
     compress
@@ -305,21 +305,21 @@ EOF
 
 ```bash
 # Send email on errors (requires mailutils)
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto || echo "Docker Backup failed on $(date)" | mail -s "Backup Error" admin@example.com
+0 2 * * * /path/to/docker_backup.sh --auto || echo "Docker Backup failed on $(date)" | mail -s "Backup Error" admin@example.com
 ```
 
 #### Webhook Notifications
 
 ```bash
 # Success/Error webhook
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto && curl -X POST "https://hooks.slack.com/services/YOUR/WEBHOOK/URL" -d '{"text":"Docker Backup successful"}' || curl -X POST "https://hooks.slack.com/services/YOUR/WEBHOOK/URL" -d '{"text":"Docker Backup failed"}'
+0 2 * * * /path/to/docker_backup.sh --auto && curl -X POST "https://hooks.slack.com/services/YOUR/WEBHOOK/URL" -d '{"text":"Docker Backup successful"}' || curl -X POST "https://hooks.slack.com/services/YOUR/WEBHOOK/URL" -d '{"text":"Docker Backup failed"}'
 ```
 
 #### Create Status File
 
 ```bash
 # Status file for monitoring
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto && echo "SUCCESS $(date)" > /volume1/docker-nas/logs/last_backup_status || echo "FAILED $(date)" > /volume1/docker-nas/logs/last_backup_status
+0 2 * * * /path/to/docker_backup.sh --auto && echo "SUCCESS $(date)" > /path/to/logs/last_backup_status || echo "FAILED $(date)" > /path/to/logs/last_backup_status
 ```
 
 ---
@@ -343,10 +343,10 @@ sudo ls -la /var/log/cron*
 
 ```bash
 # Use absolute paths
-0 2 * * * /usr/bin/env bash /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * /usr/bin/env bash /path/to/docker_backup.sh --auto
 
 # Set PATH explicitly
-0 2 * * * PATH=/usr/local/bin:/usr/bin:/bin /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * PATH=/usr/local/bin:/usr/bin:/bin /path/to/docker_backup.sh --auto
 ```
 
 ### Backup Security
@@ -357,17 +357,17 @@ The script (Version 3.4.9+) automatically prevents duplicate execution:
 
 ```bash
 # Multiple cron jobs are safe
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --parallel 4
-30 2 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop
+0 2 * * * /path/to/docker_backup.sh --auto --parallel 4
+30 2 * * * /path/to/docker_backup.sh --auto --use-stop
 ```
 
 #### Secure Password Management
 
 ```bash
 # Password file for encrypted backups
-echo "SECURE_PASSWORD" | sudo tee /volume1/docker-nas/.backup_password
-sudo chmod 600 /volume1/docker-nas/.backup_password
-sudo chown root:root /volume1/docker-nas/.backup_password
+echo "SECURE_PASSWORD" | sudo tee /path/to/.backup_password
+sudo chmod 600 /path/to/.backup_password
+sudo chown root:root /path/to/.backup_password
 ```
 
 ---
@@ -405,20 +405,20 @@ crontab -l | crontab -
 **Diagnosis**:
 ```bash
 # Test environment
-env -i HOME="$HOME" PATH="/usr/bin:/bin" /volume1/docker-nas/docker_backup.sh --dry-run
+env -i HOME="$HOME" PATH="/usr/bin:/bin" /path/to/docker_backup.sh --dry-run
 
 # Check permissions
-ls -la /volume1/docker-nas/docker_backup.sh
+ls -la /path/to/docker_backup.sh
 ```
 
 **Solutions**:
 ```bash
 # Use full paths
-0 2 * * * /usr/bin/env bash /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * /usr/bin/env bash /path/to/docker_backup.sh --auto
 
 # Set PATH in crontab
 PATH=/usr/local/bin:/usr/bin:/bin
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * /path/to/docker_backup.sh --auto
 ```
 
 #### Problem: Sudo password required
@@ -441,17 +441,17 @@ sudo visudo
 **Diagnosis**:
 ```bash
 # Check log directory
-ls -ld /volume1/docker-nas/logs/
+ls -ld /path/to/logs/
 
 # Test write permissions
-touch /volume1/docker-nas/logs/test.log
+touch /path/to/logs/test.log
 ```
 
 **Solution**:
 ```bash
 # Create log directory
-mkdir -p /volume1/docker-nas/logs/
-chmod 755 /volume1/docker-nas/logs/
+mkdir -p /path/to/logs/
+chmod 755 /path/to/logs/
 ```
 
 ### Debug Techniques
@@ -460,7 +460,7 @@ chmod 755 /volume1/docker-nas/logs/
 
 ```bash
 # Create debug cron job
-* * * * * /volume1/docker-nas/docker_backup.sh --dry-run >> /tmp/cron_debug.log 2>&1
+* * * * * /path/to/docker_backup.sh --dry-run >> /tmp/cron_debug.log 2>&1
 
 # Check after 2-3 minutes
 cat /tmp/cron_debug.log
@@ -489,31 +489,31 @@ diff /tmp/interactive_env.txt /tmp/cron_env.txt
 
 ```bash
 # Extend script for change detection
-0 2 * * * [ "$(find /volume1/docker-nas/data -newer /volume1/docker-nas/logs/last_backup_marker 2>/dev/null | wc -l)" -gt 0 ] && /volume1/docker-nas/docker_backup.sh --auto && touch /volume1/docker-nas/logs/last_backup_marker
+0 2 * * * [ "$(find /path/to/data -newer /path/to/logs/last_backup_marker 2>/dev/null | wc -l)" -gt 0 ] && /path/to/docker_backup.sh --auto && touch /path/to/logs/last_backup_marker
 ```
 
 #### Backup based on system load
 
 ```bash
 # Only at low load
-0 2 * * * [ "$(uptime | awk '{print $10}' | cut -d',' -f1)" \< "2.0" ] && /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * [ "$(uptime | awk '{print $10}' | cut -d',' -f1)" \< "2.0" ] && /path/to/docker_backup.sh --auto
 ```
 
 ### Multi-Destination Backups
 
 ```bash
 # Backup to multiple targets
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto && rsync -av /volume2/@home/florian/Backups/docker-nas-backup-rsync/ /mnt/external_backup/docker-nas-backup-$(date +\%Y\%m\%d)/
+0 2 * * * /path/to/docker_backup.sh --auto && rsync -av /path/to/backup/destination/ /mnt/external_backup/docker-nas-backup-$(date +\%Y\%m\%d)/
 ```
 
 ### Backup Rotation
 
 ```bash
 # Automatic backup rotation
-0 3 * * * find /volume2/@home/florian/Backups/ -name "docker-nas-backup-*" -type d -mtime +7 -exec rm -rf {} \;
+0 3 * * * find /path/to/backup/destination/ -name "docker-nas-backup-*" -type d -mtime +7 -exec rm -rf {} \;
 
 # Backup archiving
-0 4 * * 0 tar -czf /volume2/@home/florian/Archives/docker-backup-$(date +\%Y\%m\%d).tar.gz /volume2/@home/florian/Backups/docker-nas-backup-rsync/ && rm -rf /volume2/@home/florian/Backups/docker-nas-backup-rsync/
+0 4 * * 0 tar -czf /path/to/archives/docker-backup-$(date +\%Y\%m\%d).tar.gz /path/to/backup/destination/ && rm -rf /path/to/backup/destination/
 ```
 
 ---
@@ -531,13 +531,13 @@ diff /tmp/interactive_env.txt /tmp/cron_env.txt
 
 ```bash
 # Reduce CPU priority
-0 2 * * * nice -n 10 /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * nice -n 10 /path/to/docker_backup.sh --auto
 
 # Reduce IO priority (ionice)
-0 2 * * * ionice -c 3 /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * ionice -c 3 /path/to/docker_backup.sh --auto
 
 # Combined
-0 2 * * * nice -n 10 ionice -c 3 /volume1/docker-nas/docker_backup.sh --auto --parallel 2
+0 2 * * * nice -n 10 ionice -c 3 /path/to/docker_backup.sh --auto --parallel 2
 ```
 
 ### Monitoring Best Practices
@@ -558,13 +558,13 @@ diff /tmp/interactive_env.txt /tmp/cron_env.txt
 
 ```bash
 # Monthly crontab review
-0 0 1 * * crontab -l > /volume1/docker-nas/logs/crontab_backup_$(date +\%Y\%m).txt
+0 0 1 * * crontab -l > /path/to/logs/crontab_backup_$(date +\%Y\%m).txt
 
 # Quarterly backup test
-0 2 1 */3 * /volume1/docker-nas/docker_backup.sh --dry-run --verbose >> /volume1/docker-nas/logs/quarterly_test.log 2>&1
+0 2 1 */3 * /path/to/docker_backup.sh --dry-run --verbose >> /path/to/logs/quarterly_test.log 2>&1
 
 # Annual configuration backup
-0 1 1 1 * tar -czf /volume1/docker-nas/backups/cron_config_$(date +\%Y).tar.gz /var/spool/cron/crontabs/ /etc/cron.d/ /volume1/docker-nas/
+0 1 1 1 * tar -czf /path/to/backups/cron_config_$(date +\%Y).tar.gz /var/spool/cron/crontabs/ /etc/cron.d/ /path/to/
 ```
 
 ---
@@ -575,37 +575,37 @@ diff /tmp/interactive_env.txt /tmp/cron_env.txt
 
 ```bash
 # Simple daily backups
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop >> /volume1/docker-nas/logs/cron_backup.log 2>&1
+0 2 * * * /path/to/docker_backup.sh --auto --use-stop >> /path/to/logs/cron_backup.log 2>&1
 
 # Weekly log cleanup
-0 3 * * 0 find /volume1/docker-nas/logs/ -name "*.log" -mtime +14 -delete
+0 3 * * 0 find /path/to/logs/ -name "*.log" -mtime +14 -delete
 ```
 
 ### Medium Installation (5-15 containers)
 
 ```bash
 # Differentiated backup strategy
-0 2 * * 1-6 /volume1/docker-nas/docker_backup.sh --auto --use-stop --parallel 2 --buffer-percent 15
-0 1 * * 0 /volume1/docker-nas/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 90
+0 2 * * 1-6 /path/to/docker_backup.sh --auto --use-stop --parallel 2 --buffer-percent 15
+0 1 * * 0 /path/to/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 90
 
 # Monitoring and cleanup
-0 3 * * * echo "Backup Status: $(tail -1 /volume1/docker-nas/logs/docker_backup_*.log | grep -o 'successful\|failed')" | logger -t docker_backup_monitor
-0 4 * * 0 find /volume1/docker-nas/logs/ -name "*.log" -mtime +30 -delete
+0 3 * * * echo "Backup Status: $(tail -1 /path/to/logs/docker_backup_*.log | grep -o 'successful\|failed')" | logger -t docker_backup_monitor
+0 4 * * 0 find /path/to/logs/ -name "*.log" -mtime +30 -delete
 ```
 
 ### Large Installation (15+ containers)
 
 ```bash
 # High-frequency, optimized backups
-0 */8 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop --parallel 6 --no-verify --buffer-percent 10
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --parallel 4 --buffer-percent 20
-0 1 * * 0 /volume1/docker-nas/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 120
+0 */8 * * * /path/to/docker_backup.sh --auto --use-stop --parallel 6 --no-verify --buffer-percent 10
+0 2 * * * /path/to/docker_backup.sh --auto --parallel 4 --buffer-percent 20
+0 1 * * 0 /path/to/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 120
 
 # Advanced monitoring
-*/15 * * * * [ -f /volume1/docker-nas/logs/last_backup_status ] && [ "$(find /volume1/docker-nas/logs/last_backup_status -mmin +480)" ] && echo "ALERT: Backup overdue" | mail -s "Backup Alert" admin@example.com
+*/15 * * * * [ -f /path/to/logs/last_backup_status ] && [ "$(find /path/to/logs/last_backup_status -mmin +480)" ] && echo "ALERT: Backup overdue" | mail -s "Backup Alert" admin@example.com
 
 # Automatic optimization
-0 5 * * 0 nice -n 15 ionice -c 3 find /volume2/@home/florian/Backups/ -type f -name "*.log" -exec gzip {} \;
+0 5 * * 0 nice -n 15 ionice -c 3 find /path/to/backup/destination/ -type f -name "*.log" -exec gzip {} \;
 ```
 
 ---
