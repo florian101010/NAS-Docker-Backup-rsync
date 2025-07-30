@@ -117,3 +117,8 @@ test_rsync_only.sh
 UGREEN_NAS_COMPATIBILITY_FIX.md
 docker_backup_usage.md
 docs/DE/DOCKER_PERMISSIONS_GUIDE.md
+
+# Local configuration files
+config/local.conf
+config/*.local
+*.personal.sh
