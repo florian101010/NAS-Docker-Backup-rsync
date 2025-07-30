@@ -1,0 +1,164 @@
+name: Test Docker NAS Backup Script
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        scandir: '.'
+        format: gcc
+        severity: warning
+      env:
+        SHELLCHECK_OPTS: -e SC1091 -e SC2034
+
+  syntax-test:
+    name: Bash Syntax Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Test Bash Syntax
+      run: |
+        bash -n docker_backup.sh
+        bash -n test_rsync_fix.sh
+
+  basic-functionality:
+    name: Basic Functionality Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Make scripts executable
+      run: |
+        chmod +x docker_backup.sh
+        chmod +x test_rsync_fix.sh
+    
+    - name: Test help output
+      run: |
+        ./docker_backup.sh --help
+    
+    - name: Test rsync compatibility
+      run: |
+        ./test_rsync_fix.sh
+    
+    - name: Test dry-run mode
+      run: |
+        # Create minimal test environment
+        sudo mkdir -p /volume1/docker-nas/{data,stacks,logs}
+        sudo mkdir -p /volume2/@home/florian/Backups
+        
+        # Create test stack
+        sudo mkdir -p /volume1/docker-nas/stacks/test-stack
+        sudo tee /volume1/docker-nas/stacks/test-stack/docker-compose.yml > /dev/null <<EOF
+        version: '3.8'
+        services:
+          test:
+            image: alpine:latest
+            command: sleep 1
+        EOF
+        
+        # Test dry-run
+        sudo ./docker_backup.sh --dry-run --auto
+    
+    - name: Test parameter validation
+      run: |
+        # Test invalid parameters (should fail)
+        ! ./docker_backup.sh --parallel 0 2>/dev/null
+        ! ./docker_backup.sh --timeout-stop abc 2>/dev/null
+        ! ./docker_backup.sh --buffer-percent 5 2>/dev/null
+        
+        # Test valid parameters (should succeed)
+        ./docker_backup.sh --help >/dev/null
+        echo "Parameter validation tests passed"
+
+  docker-integration:
+    name: Docker Integration Test
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker
+      run: |
+        # Docker is already available in GitHub Actions
+        docker --version
+        docker-compose --version || docker compose version
+    
+    - name: Make scripts executable
+      run: |
+        chmod +x docker_backup.sh
+        chmod +x test_rsync_fix.sh
+    
+    - name: Create test environment
+      run: |
+        # Create directory structure
+        sudo mkdir -p /volume1/docker-nas/{data,stacks,logs}
+        sudo mkdir -p /volume2/@home/florian/Backups
+        
+        # Create test Docker stack
+        sudo mkdir -p /volume1/docker-nas/stacks/test-stack
+        sudo tee /volume1/docker-nas/stacks/test-stack/docker-compose.yml > /dev/null <<EOF
+        version: '3.8'
+        services:
+          test-service:
+            image: alpine:latest
+            command: sleep 30
+            restart: unless-stopped
+        EOF
+        
+        # Start test stack
+        cd /volume1/docker-nas/stacks/test-stack
+        sudo docker compose up -d
+        sleep 5
+        sudo docker compose ps
+    
+    - name: Test backup script with real Docker
+      run: |
+        # Test with actual Docker containers
+        sudo ./docker_backup.sh --dry-run --auto --parallel 2
+        
+        # Test skip-backup mode (only container restart)
+        sudo ./docker_backup.sh --skip-backup --auto --parallel 2
+    
+    - name: Cleanup
+      run: |
+        # Stop test containers
+        cd /volume1/docker-nas/stacks/test-stack
+        sudo docker compose down || true
+
+  multi-os-test:
+    name: Multi-OS Compatibility
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Test on ${{ matrix.os }}
+      run: |
+        chmod +x docker_backup.sh test_rsync_fix.sh
+        
+        # Test basic functionality
+        ./docker_backup.sh --help
+        
+        # Test rsync compatibility
+        ./test_rsync_fix.sh
+        
+        # Test bash syntax
+        bash -n docker_backup.sh
+        bash -n test_rsync_fix.sh
