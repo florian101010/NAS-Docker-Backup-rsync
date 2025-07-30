@@ -1,0 +1,112 @@
+# Docker Backup Script .gitignore
+
+# Log files
+*.log
+logs/
+docker_backup_*.log
+
+# Lock files
+*.lock
+/tmp/docker_backup.lock
+
+# Backup files and directories
+*.backup
+*.bak
+backups/
+backup-*/
+*-backup/
+docker-nas-backup-*/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+.tmp/
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+*.sublime-*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test output
+test_output/
+test_results/
+*.test
+
+# Compressed files (potential backup archives)
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.7z
+*.rar
+
+# GPG encrypted files (backup encryption)
+*.gpg
+*.asc
+
+# rsync temporary files
+.rsync_temp/
+*.rsync-*
+
+# ACL test files
+.acl_test_*
+
+# Runtime files
+*.pid
+*.sock
+
+# Cache directories
+.cache/
+cache/
+
+# Local configuration overrides
+config.local
+*.local.sh
+
+# Docker-related temporary files
+docker-compose.override.yml
+.dockerignore.local
+
+# Backup verification temporary files
+.backup_verify_*
+.size_check_*
+
+# Script execution logs
+execution_*.log
+cron_*.log
+
+# Personal notes and TODO files
+TODO.personal
+NOTES.personal
+*.personal
+
+# IDE and development files
+.vscode/settings.json
+.idea/workspace.xml
+*.iml
+
+# OS generated files
+.fuse_hidden*
+.nfs*
+
+# Backup script specific temporary directories
+/volume*/docker-nas/logs/docker_backup_*.log
