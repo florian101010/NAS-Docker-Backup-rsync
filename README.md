@@ -202,7 +202,8 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 ## 📚 Documentation
 
 ### Quick Start
-- 🚀 **[Quick Start Guide](QUICKSTART.md)** - Get up and running in 5 minutes
+- 🚀 **[Quick Start Guide (English)](QUICKSTART.md)** - Get up and running in 5 minutes
+- 🚀 **[Schnellstart-Anleitung (Deutsch)](QUICKSTART_DE.md)** - In 5 Minuten zum ersten Backup
 
 ### Detailed Guides
 - 🇺🇸 **[English Manual](docs/EN/MANUAL_EN.md)** - Complete user guide in English

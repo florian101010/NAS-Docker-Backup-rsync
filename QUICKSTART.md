@@ -1,83 +1,83 @@
-# 🚀 Docker Backup Script - Quickstart Guide
+# 🚀 Docker Backup Script - Quick Start Guide
 
-> **In 5 Minuten zum ersten Backup!**
-> Version 3.4.7 "UGREEN NAS Fully Compatible"
-> **✅ GETESTET UND BESTÄTIGT FUNKTIONAL - 30. Juli 2025**
+> **Get your first backup running in 5 minutes!**
+> Version 3.4.9 "Production Ready"
+> **✅ TESTED AND CONFIRMED FUNCTIONAL - July 30, 2025**
 
 ---
 
-## ⚡ Sofort loslegen
+## ⚡ Get Started Immediately
 
-### 📋 **Was du brauchst:**
-- ✅ Linux-System mit Docker
-- ✅ Docker-Container laufen bereits
-- ✅ 5 Minuten Zeit
+### 📋 **What you need:**
+- ✅ Linux system with Docker
+- ✅ Docker containers already running
+- ✅ 5 minutes of your time
 
-### 🎯 **4 Schritte zum Backup (NEU mit rsync-Test):**
+### 🎯 **4 Steps to Backup (NEW with rsync test):**
 
-#### **Schritt 1: Scripts herunterladen und vorbereiten**
+#### **Step 1: Download and prepare scripts**
 ```bash
-# Scripts direkt herunterladen
+# Download scripts directly
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
 
-# Scripts ausführbar machen
+# Make scripts executable
 chmod +x docker_backup.sh
 chmod +x test_rsync_fix.sh
 
-# Hilfe anzeigen (optional)
+# Show help (optional)
 ./docker_backup.sh --help
 ```
 
-#### **Schritt 2: rsync-Fixes testen (NEU!)**
+#### **Step 2: Test rsync fixes (NEW!)**
 ```bash
-# Teste die neuen rsync-Fixes isoliert
+# Test the new rsync fixes in isolation
 sudo ./test_rsync_fix.sh
 
-# Erwartete Ausgabe:
-# ✅ RSYNC-FIXES FUNKTIONIEREN!
+# Expected output:
+# ✅ RSYNC FIXES WORKING!
 ```
 
-#### **Schritt 3: Erstes Test-Backup**
+#### **Step 3: First test backup**
 ```bash
-# Trockenlauf (zeigt nur was passieren würde)
+# Dry run (shows only what would happen)
 sudo ./docker_backup.sh --dry-run
 
-# Echtes Backup mit Bestätigung
+# Real backup with confirmation
 sudo ./docker_backup.sh
 ```
 
-#### **Schritt 4: Automatisierung einrichten**
+#### **Step 4: Set up automation**
 ```bash
-# Cron-Job für tägliches Backup um 2:00 Uhr
+# Cron job for daily backup at 2:00 AM
 sudo crontab -e
 
-# Diese Zeile hinzufügen:
+# Add this line:
 0 2 * * * /path/to/docker_backup.sh --auto
 ```
 
-**🎉 Fertig! Dein Backup läuft jetzt automatisch.**
+**🎉 Done! Your backup now runs automatically.**
 
 ---
 
-## 🔧 Schnelle Anpassungen
+## 🔧 Quick Adjustments
 
-### 📁 **Pfade anpassen (falls nötig)**
+### 📁 **Adjust paths (if needed)**
 
-Öffne `docker_backup.sh` und ändere diese Zeilen:
+Open `docker_backup.sh` and change these lines:
 
 ```bash
-# Zeile 19-24 im Script:
-DATA_DIR="/path/to/your/docker/data"         # Deine Container-Daten
-STACKS_DIR="/path/to/your/docker/stacks"     # Deine docker-compose Dateien
-BACKUP_SOURCE="/path/to/your/docker"         # Was gesichert wird
-BACKUP_DEST="/path/to/your/backup/destination"  # Wohin gesichert wird
+# Lines 19-24 in the script:
+DATA_DIR="/path/to/your/docker/data"         # Your container data
+STACKS_DIR="/path/to/your/docker/stacks"     # Your docker-compose files
+BACKUP_SOURCE="/path/to/your/docker"         # What gets backed up
+BACKUP_DEST="/path/to/your/backup/destination"  # Where it gets backed up
 ```
 
-### 🎛️ **Häufige Anpassungen:**
+### 🎛️ **Common adjustments:**
 
-| System | Typische Pfade |
-|--------|----------------|
+| System | Typical Paths |
+|--------|---------------|
 | **UGREEN NAS** | `/volume1/docker-nas/` → `/volume2/backups/` |
 | **Synology** | `/volume1/docker/` → `/volume2/backup/` |
 | **QNAP** | `/share/Container/` → `/share/Backup/` |
@@ -85,95 +85,95 @@ BACKUP_DEST="/path/to/your/backup/destination"  # Wohin gesichert wird
 
 ---
 
-## ⚡ Wichtige Befehle
+## ⚡ Important Commands
 
-### 🧪 **Neue Test-Befehle (Version 3.4.7):**
+### 🧪 **New test commands (Version 3.4.9):**
 ```bash
-# rsync-Fixes testen (NEU!)
+# Test rsync fixes (NEW!)
 sudo ./test_rsync_fix.sh
 
-# Erwartete Ausgabe:
-# ✅ RSYNC-FIXES FUNKTIONIEREN!
+# Expected output:
+# ✅ RSYNC FIXES WORKING!
 ```
 
-### 🎯 **Grundbefehle:**
+### 🎯 **Basic commands:**
 ```bash
-# Interaktives Backup (mit Bestätigung)
+# Interactive backup (with confirmation)
 sudo ./docker_backup.sh
 
-# Automatisches Backup (ohne Nachfrage)
+# Automatic backup (no questions asked)
 sudo ./docker_backup.sh --auto
 
-# Test-Modus (keine Änderungen)
+# Test mode (no changes)
 sudo ./docker_backup.sh --dry-run
 
-# Nur Container neu starten
+# Only restart containers
 sudo ./docker_backup.sh --skip-backup --auto
 ```
 
-### 🚀 **Performance-Befehle:**
+### 🚀 **Performance commands:**
 ```bash
-# Schnelles Backup (stop statt down)
+# Fast backup (stop instead of down)
 ./docker_backup.sh --auto --use-stop
 
-# Paralleles Backup (4 Container gleichzeitig)
+# Parallel backup (4 containers simultaneously)
 ./docker_backup.sh --auto --parallel 4
 
-# Mit ACL-Unterstützung (Berechtigungen sichern)
+# With ACL support (preserve permissions)
 ./docker_backup.sh --auto --preserve-acl
 
-# Ohne Verifikation (schneller)
+# Without verification (faster)
 ./docker_backup.sh --auto --no-verify
 ```
 
 ---
 
-## 📊 Was passiert beim Backup?
+## 📊 What happens during backup?
 
-### 🔄 **Der Ablauf:**
-1. **Container stoppen** (sauber, nicht brutal)
-2. **Daten kopieren** (nur Änderungen)
-3. **Container starten** (automatisch)
+### 🔄 **The process:**
+1. **Stop containers** (cleanly, not brutally)
+2. **Copy data** (only changes)
+3. **Start containers** (automatically)
 
-### ⏱️ **Zeitaufwand:**
-- **Erstes Backup**: 1-5 Minuten (je nach Datenmenge)
-- **Folge-Backups**: 10-30 Sekunden (nur Änderungen)
-- **Container-Ausfall**: 30-60 Sekunden
+### ⏱️ **Time required:**
+- **First backup**: 1-5 minutes (depending on data amount)
+- **Follow-up backups**: 10-30 seconds (only changes)
+- **Container downtime**: 30-60 seconds
 
-### 💾 **Speicherplatz:**
-- **Benötigt**: ~100% der Quellgröße
-- **Empfohlen**: 120% für Puffer
-- **Backup-Typ**: Inkrementell (nur Änderungen)
+### 💾 **Storage space:**
+- **Required**: ~100% of source size
+- **Recommended**: 120% for buffer
+- **Backup type**: Incremental (only changes)
 
 ---
 
-## 🆘 Schnelle Problemlösung
+## 🆘 Quick Troubleshooting
 
-### ❌ **"Docker ist nicht verfügbar"**
+### ❌ **"Docker is not available"**
 ```bash
-# Docker starten
+# Start Docker
 sudo systemctl start docker
 ```
 
-### ❌ **"Sudo-Berechtigung erforderlich"**
+### ❌ **"Sudo permission required"**
 ```bash
-# User zur docker-Gruppe hinzufügen
+# Add user to docker group
 sudo usermod -aG docker $USER
-# Neu anmelden!
+# Log in again!
 ```
 
-### ❌ **"Verzeichnis nicht gefunden"**
+### ❌ **"Directory not found"**
 ```bash
-# Deine Docker-Verzeichnisse finden
+# Find your Docker directories
 find /volume* -name "docker-compose.yml" 2>/dev/null
-# Pfade im Script anpassen
+# Adjust paths in script
 ```
 
-### ❌ **"Nicht genügend Speicherplatz"**
+### ❌ **"Not enough disk space"**
 ```bash
-# Speicherplatz prüfen
+# Check disk space
 df -h
-# Weniger Puffer verwenden
+# Use less buffer
 ./docker_backup.sh --buffer-percent 10
 ```
 
@@ -181,111 +181,112 @@ df -h
 
 ## 📝 Logs & Monitoring
 
-### 📍 **Log-Dateien finden:**
+### 📍 **Find log files:**
 ```bash
-# Standard Log-Verzeichnis
-ls -la /volume1/docker-nas/logs/
+# Standard log directory
+ls -la /path/to/your/logs/
 
-# Neueste Logs anzeigen
-tail -f /volume1/docker-nas/logs/docker_backup_*.log
+# Show latest logs
+tail -f /path/to/your/logs/docker_backup_*.log
 ```
 
-### ✅ **Erfolg prüfen:**
+### ✅ **Check success:**
 ```bash
-# Letzte erfolgreiche Backups
-grep "erfolgreich abgeschlossen" /volume1/docker-nas/logs/docker_backup_*.log | tail -3
+# Last successful backups
+grep "successfully completed" /path/to/your/logs/docker_backup_*.log | tail -3
 ```
 
-### ❌ **Fehler finden:**
+### ❌ **Find errors:**
 ```bash
-# Fehler in Logs suchen
-grep "ERROR" /volume1/docker-nas/logs/docker_backup_*.log
-```
-
----
-
-## 🎯 Empfohlene Setups
-
-### 🏠 **Heimnutzer (einfach):**
-```bash
-# Tägliches Backup um 2:00 Uhr
-0 2 * * * /pfad/zum/docker_backup.sh --auto
-```
-
-### 🏢 **Kleine Unternehmen (robust):**
-```bash
-# Backup mit Parallelisierung und ACL-Unterstützung
-0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 4 --preserve-acl --buffer-percent 25
-```
-
-### ⚡ **Große Installation (performance):**
-```bash
-# Schnelles tägliches Backup
-0 2 * * 1-6 /pfad/zum/docker_backup.sh --auto --use-stop --parallel 8
-# Vollständiges wöchentliches Backup mit ACL-Unterstützung
-0 1 * * 0 /pfad/zum/docker_backup.sh --auto --parallel 4 --preserve-acl
+# Search for errors in logs
+grep "ERROR" /path/to/your/logs/docker_backup_*.log
 ```
 
 ---
 
-## 🔒 Verschlüsselte Backups (Optional)
+## 🎯 Recommended Setups
 
-### **Einfache Verschlüsselung:**
+### 🏠 **Home users (simple):**
 ```bash
-# 1. Normales Backup erstellen
+# Daily backup at 2:00 AM
+0 2 * * * /path/to/docker_backup.sh --auto
+```
+
+### 🏢 **Small businesses (robust):**
+```bash
+# Backup with parallelization and ACL support
+0 2 * * * /path/to/docker_backup.sh --auto --parallel 4 --preserve-acl --buffer-percent 25
+```
+
+### ⚡ **Large installation (performance):**
+```bash
+# Fast daily backup
+0 2 * * 1-6 /path/to/docker_backup.sh --auto --use-stop --parallel 8
+# Complete weekly backup with ACL support
+0 1 * * 0 /path/to/docker_backup.sh --auto --parallel 4 --preserve-acl
+```
+
+---
+
+## 🔒 Encrypted Backups (Optional)
+
+### **Simple encryption:**
+```bash
+# 1. Create normal backup
 sudo ./docker_backup.sh --auto
 
-# 2. Backup verschlüsseln (mit Passwort-Abfrage)
-tar -czf - /volume2/@home/florian/Backups/docker-nas-backup-rsync/ | gpg --symmetric --cipher-algo AES256 > /volume2/@home/florian/Backups/docker-backup-encrypted_$(date +%Y%m%d_%H%M%S).tar.gz.gpg
+# 2. Encrypt backup (with password prompt)
+tar -czf - /path/to/backup/ | gpg --symmetric --cipher-algo AES256 > /path/to/backup-encrypted_$(date +%Y%m%d_%H%M%S).tar.gz.gpg
 
-# 3. Unverschlüsseltes Backup löschen
-rm -rf /volume2/@home/florian/Backups/docker-nas-backup-rsync/
+# 3. Delete unencrypted backup
+rm -rf /path/to/backup/
 ```
 
-### **Verschlüsseltes Backup wiederherstellen:**
+### **Restore encrypted backup:**
 ```bash
-# 1. Container stoppen
+# 1. Stop containers
 sudo ./docker_backup.sh --skip-backup
 
-# 2. Entschlüsseln und wiederherstellen
-gpg --decrypt /volume2/@home/florian/Backups/docker-backup-encrypted_YYYYMMDD_HHMMSS.tar.gz.gpg | tar -xzf - -C /
+# 2. Decrypt and restore
+gpg --decrypt /path/to/backup-encrypted_YYYYMMDD_HHMMSS.tar.gz.gpg | tar -xzf - -C /
 
-# 3. Container starten
+# 3. Start containers
 sudo ./docker_backup.sh --skip-backup
 ```
 
-**💡 Tipp:** Für detaillierte Verschlüsselungs-Anleitung siehe [README.md](README.md)
+**💡 Tip:** For detailed encryption guide see [README.md](README.md)
 
 ---
 
-## � Weitere Hilfe
+## 📚 Further Help
 
-- 📖 **Vollständige Anleitung**: [`README.md`](README.md)
-- 🔧 **Technische Details**: [`docker_backup_usage.md`](docker_backup_usage.md)
-- ❓ **Bei Problemen**: Siehe FAQ in README.md
-
----
-
-## ✅ Checkliste Version 3.4.7
-
-- [ ] Scripts ausführbar gemacht (`chmod +x docker_backup.sh test_rsync_fix.sh`)
-- [ ] **NEU:** rsync-Fixes getestet (`sudo ./test_rsync_fix.sh`)
-- [ ] Pfade im Script geprüft/angepasst
-- [ ] Erstes Test-Backup durchgeführt (`sudo ./docker_backup.sh --dry-run`)
-- [ ] Echtes Backup getestet (`sudo ./docker_backup.sh`)
-- [ ] Cron-Job eingerichtet
-- [ ] Log-Verzeichnis geprüft
-- [ ] Backup-Ziel hat genügend Speicherplatz
-
-**🎉 Alles erledigt? Perfekt! Dein Docker-Backup läuft jetzt automatisch.**
-
-### **🏆 Version 3.4.7 Highlights:**
-- ✅ **Robuste rsync-Flag-Validierung** → Echte Tests statt grep
-- ✅ **Verbesserte Array-basierte Ausführung** → Sichere Parameter-Übergabe
-- ✅ **Dreistufiger Fallback-Mechanismus** → Automatische Kompatibilität
-- ✅ **UGREEN NAS DXP2800** → 100% getestet und funktional
-- ✅ **Neue Test-Tools** → `test_rsync_fix.sh` für Validierung
+- 📖 **Complete guide**: [`README.md`](README.md)
+- 🇩🇪 **German version**: [`QUICKSTART_DE.md`](QUICKSTART_DE.md)
+- 🔧 **Technical details**: [`docs/EN/MANUAL_EN.md`](docs/EN/MANUAL_EN.md)
+- ❓ **Problems?**: See FAQ in README.md
 
 ---
 
-> **💡 Tipp**: Führe alle 2-3 Monate einen Wiederherstellungs-Test durch, um sicherzustellen, dass deine Backups funktionieren!
+## ✅ Checklist Version 3.4.9
+
+- [ ] Scripts made executable (`chmod +x docker_backup.sh test_rsync_fix.sh`)
+- [ ] **NEW:** rsync fixes tested (`sudo ./test_rsync_fix.sh`)
+- [ ] Paths in script checked/adjusted
+- [ ] First test backup performed (`sudo ./docker_backup.sh --dry-run`)
+- [ ] Real backup tested (`sudo ./docker_backup.sh`)
+- [ ] Cron job set up
+- [ ] Log directory checked
+- [ ] Backup destination has enough space
+
+**🎉 Everything done? Perfect! Your Docker backup now runs automatically.**
+
+### **🏆 Version 3.4.9 Highlights:**
+- ✅ **Critical security fixes** → Safe parallelization
+- ✅ **Robust rsync flag validation** → Real tests instead of grep
+- ✅ **Improved array-based execution** → Secure parameter passing
+- ✅ **Three-tier fallback mechanism** → Automatic compatibility
+- ✅ **Production ready** → Tested and stable
+
+---
+
+> **💡 Tip**: Perform a restore test every 2-3 months to ensure your backups are working!
