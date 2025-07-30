@@ -1,63 +1,63 @@
 #!/bin/bash
 #
 # ================================================================
-# Docker NAS Backup Skript
-# Automatisches Backup aller Docker-Container und persistenten Daten
-# Stand: 30. Juli 2025 - Version 3.4.9
+# Docker NAS Backup Script
+# Automatic backup of all Docker containers and persistent data
+# Date: July 30, 2025 - Version 3.4.9
 # GitHub: https://github.com/florian101010/NAS-Docker-Backup-rsync
 # ================================================================
 
-# Fail-Fast Settings für maximale Robustheit
+# Fail-fast settings for maximum robustness
 set -euo pipefail
 IFS=$'\n\t'
 
-# Sichere PATH für Cron-Umgebung (append statt prepend für Sicherheit)
+# Secure PATH for cron environment (append instead of prepend for security)
 export PATH="$PATH:/usr/local/bin:/usr/bin:/bin"
 
 # ================================================================
-# KONFIGURATION - BITTE AN IHR SYSTEM ANPASSEN!
+# CONFIGURATION - PLEASE ADAPT TO YOUR SYSTEM!
 # ================================================================
 #
-# ⚠️  WICHTIG: Passen Sie diese Pfade an Ihr System an!
+# ⚠️  IMPORTANT: Adapt these paths to your system!
 #
-# Docker-Datenverzeichnis (Container-Volumes und persistente Daten)
-# Beispiele: /opt/docker/data, /home/user/docker/data, /srv/docker/data
+# Docker data directory (container volumes and persistent data)
+# Examples: /opt/docker/data, /home/user/docker/data, /srv/docker/data
 DATA_DIR="/volume1/docker-nas/data"
 
-# Docker-Compose-Stacks Verzeichnis (docker-compose.yml Dateien)
-# Beispiele: /opt/docker/stacks, /home/user/docker/compose, /srv/docker/stacks
+# Docker Compose stacks directory (docker-compose.yml files)
+# Examples: /opt/docker/stacks, /home/user/docker/compose, /srv/docker/stacks
 STACKS_DIR="/volume1/docker-nas/stacks"
 
-# Backup-Quellverzeichnis (wird komplett gesichert)
-# Beispiele: /opt/docker, /home/user/docker, /srv/docker
+# Backup source directory (will be completely backed up)
+# Examples: /opt/docker, /home/user/docker, /srv/docker
 BACKUP_SOURCE="/volume1/docker-nas"
 
-# Backup-Zielverzeichnis (wohin das Backup gespeichert wird)
-# Beispiele: /backup/docker, /mnt/backup/docker, /media/backup/docker
+# Backup destination directory (where the backup will be stored)
+# Examples: /backup/docker, /mnt/backup/docker, /media/backup/docker
 BACKUP_DEST="/volume2/backups/docker-nas-backup"
 
-# Log-Verzeichnis (für Backup-Protokolle)
-# Beispiele: /var/log/docker-backup, /opt/docker/logs, /home/user/logs
+# Log directory (for backup logs)
+# Examples: /var/log/docker-backup, /opt/docker/logs, /home/user/logs
 LOG_DIR="/volume1/docker-nas/logs"
 
-# Log-Datei (automatisch generiert - normalerweise nicht ändern)
+# Log file (automatically generated - usually don't change)
 LOG_FILE="$LOG_DIR/docker_backup_$(date +%Y%m%d_%H%M%S).log"
 # ================================================================
 
-# Frühe Log-Initialisierung (vor ersten log_message Calls)
+# Early log initialization (before first log_message calls)
 mkdir -p "$LOG_DIR"
 : > "$LOG_FILE"
 
-# Sichere Log-Datei Berechtigungen
+# Secure log file permissions
 if [[ $EUID -eq 0 ]]; then
-    # Als root: Setze Besitzer auf den ursprünglichen User
+    # As root: Set owner to original user
     if [[ -n "${SUDO_USER:-}" ]]; then
         chown "$SUDO_USER:$SUDO_USER" "$LOG_FILE" 2>/dev/null || true
     fi
 fi
 chmod 600 "$LOG_FILE" 2>/dev/null || true
 
-# Farben für Ausgabe
+# Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
@@ -66,38 +66,38 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # ================================================================
-# Flags für Automatisierung
+# Flags for automation
 AUTO_MODE=false
 DRY_RUN=false
 SKIP_BACKUP=false
 VERIFY_BACKUP=true
-USE_DOCKER_STOP=false  # Neue Option: stop statt down für schnellere Backups
-# ACL und Extended Attributes (nur für ext4/XFS/Btrfs/ZFS)
-# Für FAT32/NTFS/exFAT auf false setzen
-PRESERVE_ACL=true     # neue option: acls und extended attributes sichern
-COMPOSE_TIMEOUT_STOP=60    # Konfigurierbare Timeouts
+USE_DOCKER_STOP=false  # New option: stop instead of down for faster backups
+# ACL and Extended Attributes (only for ext4/XFS/Btrfs/ZFS)
+# Set to false for FAT32/NTFS/exFAT
+PRESERVE_ACL=true     # New option: backup ACLs and extended attributes
+COMPOSE_TIMEOUT_STOP=60    # Configurable timeouts
 COMPOSE_TIMEOUT_START=120
-SPACE_BUFFER_PERCENT=20    # Konfigurierbarer Speicher-Puffer
-PARALLEL_JOBS=1            # Parallelisierung (1 = seriell)
+SPACE_BUFFER_PERCENT=20    # Configurable memory buffer
+PARALLEL_JOBS=1            # Parallelization (1 = serial)
 # ================================================================
 
-# Arrays für Container-Tracking
+# Arrays for container tracking
 declare -a RUNNING_STACKS=()
 declare -a FAILED_STACKS=()
 declare -a ALL_STACKS=()
 
-# Globale Exit-Code Variable (vermeidet Kollision mit $?)
+# Global exit code variable (avoids collision with $?)
 GLOBAL_EXIT_CODE=0
 
-# Sudo-Optimierung: Einmalige Privilegien-Prüfung
+# Sudo optimization: One-time privilege check
 SUDO_CMD=""
 if [[ $EUID -eq 0 ]]; then
-    # Bereits als root - kein sudo nötig
+    # Already running as root - no sudo needed
     SUDO_CMD=""
 else
-    # Als normaler User - sudo erforderlich
+    # Running as normal user - sudo required
     SUDO_CMD="sudo"
-    # Prüfe sudo-Berechtigung früh
+    # Check sudo permission early
     if ! sudo -n true 2>/dev/null; then
         echo "❌ FEHLER: Sudo-Berechtigung erforderlich"
         echo "Führe das Skript mit sudo aus oder konfiguriere NOPASSWD sudo"
@@ -105,7 +105,7 @@ else
     fi
 fi
 
-# Lock-Datei für Schutz gegen doppelte Ausführung
+# Lock file for protection against double execution
 LOCK_FILE="/tmp/docker_backup.lock"
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
@@ -115,19 +115,19 @@ fi
 echo $$ > "$LOCK_FILE"
 
 # ================================================================
-# LOGGING UND HILFSFUNKTIONEN
+# LOGGING AND HELPER FUNCTIONS
 # ================================================================
 
-# Funktion zur Formatierung von Docker-Container-Status-Ausgaben
+# Function for formatting Docker container status output
 format_container_status() {
     local input_line="$1"
 
-    # Parse Container-Status-Meldungen und formatiere sie
+    # Parse container status messages and format them
     if [[ "$input_line" =~ ^[[:space:]]*Container[[:space:]]+([^[:space:]]+)[[:space:]]+(.+)$ ]]; then
         local container_name="${BASH_REMATCH[1]}"
         local status="${BASH_REMATCH[2]}"
 
-        # Entferne Stack-Suffix für bessere Lesbarkeit
+        # Remove stack suffix for better readability
         local clean_name="${container_name%-nas}"
 
         case "$status" in
@@ -150,48 +150,48 @@ format_container_status() {
         return 0
     fi
 
-    # Wenn es keine Container-Status-Meldung ist, gib die ursprüngliche Zeile zurück
+    # If it's not a container status message, return the original line
     echo "$input_line"
     return 1
 }
 
-# Funktion zur Verarbeitung von Docker-Compose-Ausgaben mit Container-Status-Formatierung
+# Function for processing Docker Compose output with container status formatting
 process_docker_output() {
     local show_container_status="${1:-true}"
 
     while IFS= read -r line; do
-        # Entferne ANSI-Codes für Log-Datei
+        # Remove ANSI codes for log file
         local clean_line=$(echo "$line" | sed 's/\x1b\[[0-9;]*m//g')
 
-        # Schreibe in Log-Datei
+        # Write to log file
         echo "$clean_line" >> "$LOG_FILE"
 
-        # Formatiere Container-Status für Terminal-Ausgabe
+        # Format container status for terminal output
         if [[ "$show_container_status" == "true" ]] && format_container_status "$line" >/dev/null 2>&1; then
             format_container_status "$line"
         else
-            # Zeige andere Docker-Ausgaben gedämpft an
+            # Show other Docker outputs muted
             if [[ "$line" =~ ^[[:space:]]*Pulling|^[[:space:]]*Waiting|^[[:space:]]*Digest: ]]; then
-                # Unterdrücke Pull/Download-Meldungen für saubere Ausgabe
+                # Suppress pull/download messages for clean output
                 continue
             elif [[ "$line" =~ ^[[:space:]]*Network|^[[:space:]]*Volume ]]; then
-                # Zeige Netzwerk/Volume-Meldungen gedämpft
+                # Show network/volume messages muted
                 echo -e "    ${BLUE}ℹ${NC} $line"
             else
-                # Andere Meldungen normal anzeigen
+                # Show other messages normally
                 echo "$line"
             fi
         fi
     done
 }
 
-# Hilfsfunktion für Byte-Formatierung (numfmt Fallback für BusyBox/Alpine)
+# Helper function for byte formatting (numfmt fallback for BusyBox/Alpine)
 format_bytes() {
     local bytes=$1
     if command -v numfmt >/dev/null 2>&1; then
         numfmt --to=iec "$bytes"
     else
-        # Einfacher Fallback für Systeme ohne numfmt
+        # Simple fallback for systems without numfmt
         if [[ $bytes -gt 1073741824 ]]; then
             echo "$((bytes / 1073741824))GB"
         elif [[ $bytes -gt 1048576 ]]; then
@@ -204,46 +204,46 @@ format_bytes() {
     fi
 }
 
-# Einheitliche Logging-Funktion (ANSI-bereinigt für Log-Dateien)
+# Unified logging function (ANSI-cleaned for log files)
 log_message() {
     local level="$1"
     local message="$2"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     local log_entry="[$timestamp] [$level] $message"
 
-    # Ausgabe auf stderr mit Farben nur bei Terminal
+    # Output to stderr with colors only for terminal
     if [[ -t 2 ]]; then
         echo "$log_entry" >&2
     else
-        # Keine Farben wenn nicht Terminal
+        # No colors when not terminal
         echo "$log_entry" | sed 's/\x1b\[[0-9;]*m//g' >&2
     fi
 
-    # Log-Datei ohne ANSI-Codes (falls LOG_FILE gesetzt)
+    # Log file without ANSI codes (if LOG_FILE is set)
     if [[ -n "${LOG_FILE:-}" && -f "$LOG_FILE" ]]; then
-        # Entferne ANSI-Escape-Sequenzen für Log-Datei
+        # Remove ANSI escape sequences for log file
         echo "$log_entry" | sed 's/\x1b\[[0-9;]*m//g' >> "$LOG_FILE"
     fi
 }
 
-# Cleanup-Funktion für Signal-Handling
+# Cleanup function for signal handling
 cleanup() {
     local exit_code=$?
 
-    # Lock-Datei aufräumen (kosmetisch, da flock automatisch freigibt)
+    # Clean up lock file (cosmetic, as flock releases automatically)
     rm -f "$LOCK_FILE" 2>/dev/null || true
 
-    # Unterscheide zwischen normalem Exit und Signal/Fehler
+    # Distinguish between normal exit and signal/error
     if [[ $exit_code -eq 0 ]]; then
-        # Normaler Exit - kein Cleanup nötig, wird am Ende des Skripts geloggt
+        # Normal exit - no cleanup needed, will be logged at end of script
         return
     else
         log_message "WARN" "Cleanup ausgeführt (Signal/Exit: $exit_code)"
 
-        # Versuche Container wieder zu starten falls sie gestoppt wurden
+        # Try to restart containers if they were stopped
         if [[ ${#RUNNING_STACKS[@]} -gt 0 ]]; then
             log_message "INFO" "Starte gestoppte Container nach Cleanup..."
-            start_all_docker_stacks || true  # Ignoriere Fehler im Cleanup
+            start_all_docker_stacks || true  # Ignore errors in cleanup
         fi
 
         log_message "INFO" "=== DOCKER NAS BACKUP CLEANUP BEENDET ==="
@@ -251,10 +251,10 @@ cleanup() {
     fi
 }
 
-# Signal-Handler registrieren
+# Register signal handler
 trap cleanup INT TERM EXIT
 
-# Funktion für Hilfe-Text
+# Function for help text
 show_help() {
     echo -e "${CYAN}=== DOCKER NAS BACKUP SKRIPT ===${NC}"
     echo "Stoppt alle Docker-Container, erstellt ein konsistentes Backup und startet Container neu"
@@ -288,18 +288,18 @@ show_help() {
     echo ""
 }
 
-# Funktion zur Validierung der Umgebung
+# Function for environment validation
 validate_environment() {
     log_message "INFO" "Validiere Backup-Umgebung..."
 
-    # Prüfe ob Docker läuft
+    # Check if Docker is running
     if ! $SUDO_CMD docker info >/dev/null 2>&1; then
         log_message "ERROR" "Docker ist nicht verfügbar oder läuft nicht"
         echo -e "${RED}❌ FEHLER: Docker ist nicht verfügbar oder läuft nicht${NC}"
         return 1
     fi
 
-    # Prüfe kritische Verzeichnisse
+    # Check critical directories
     local critical_dirs=("$DATA_DIR" "$STACKS_DIR")
     for dir in "${critical_dirs[@]}"; do
         if [[ ! -d "$dir" ]]; then
@@ -309,7 +309,7 @@ validate_environment() {
         fi
     done
 
-    # Prüfe Backup-Ziel (erstelle falls nötig)
+    # Check backup destination (create if necessary)
     if [[ ! -d "$BACKUP_DEST" ]]; then
         log_message "INFO" "Erstelle Backup-Zielverzeichnis: $BACKUP_DEST"
         if ! $SUDO_CMD mkdir -p "$BACKUP_DEST" 2>/dev/null; then
@@ -317,7 +317,7 @@ validate_environment() {
             echo -e "${RED}❌ FEHLER: Backup-Zielverzeichnis konnte nicht erstellt werden${NC}"
             return 1
         fi
-        # Setze korrekte Berechtigungen (dynamisch ermittelt)
+        # Set correct permissions (dynamically determined)
         local current_user=$(whoami)
         local current_group=$(id -gn)
         $SUDO_CMD chown -R "$current_user:$current_group" "$BACKUP_DEST"
@@ -325,12 +325,12 @@ validate_environment() {
         log_message "INFO" "Backup-Verzeichnis Berechtigungen gesetzt: $current_user:$current_group"
     fi
 
-    # Prüfe verfügbaren Speicherplatz
+    # Check available disk space
     local source_size=$($SUDO_CMD du -sb "$BACKUP_SOURCE" 2>/dev/null | cut -f1)
     local dest_avail=$(df -B1 "$BACKUP_DEST" 2>/dev/null | awk 'NR==2 {print $4}')
 
     if [[ -n "$source_size" && -n "$dest_avail" ]]; then
-        # Verwende konfigurierbaren Speicher-Puffer
+        # Use configurable memory buffer
         local buffer_multiplier=$((100 + SPACE_BUFFER_PERCENT))
         local required_space=$((source_size * buffer_multiplier / 100))
         if [[ $dest_avail -lt $required_space ]]; then
@@ -344,7 +344,7 @@ validate_environment() {
     return 0
 }
 
-# Funktion für Bestätigung
+# Function for confirmation
 confirm_action() {
     if [[ "$AUTO_MODE" == true ]]; then
         return 0
@@ -369,14 +369,14 @@ confirm_action() {
 # DOCKER CONTAINER MANAGEMENT
 # ================================================================
 
-# Funktion zum Sammeln aller Docker-Stacks (robuste Array-Behandlung)
+# Function to collect all Docker stacks (robust array handling)
 discover_docker_stacks() {
     log_message "INFO" "Erkenne Docker-Stacks in $STACKS_DIR..."
 
-    # Leere globales Array
+    # Clear global array
     ALL_STACKS=()
 
-    # Robuste Stack-Erkennung mit Null-Byte-Trennung
+    # Robust stack detection with null-byte separation
     while IFS= read -r -d '' stack_dir; do
         if [[ -f "${stack_dir}/docker-compose.yml" ]]; then
             local stack_name=$(basename "$stack_dir")
@@ -387,12 +387,12 @@ discover_docker_stacks() {
     log_message "INFO" "Gefundene Stacks: ${#ALL_STACKS[@]} (${ALL_STACKS[*]})"
 }
 
-# Funktion zum Stoppen aller Docker-Stacks
+# Function to stop all Docker stacks
 stop_all_docker_stacks() {
     log_message "INFO" "Stoppe alle Docker-Stacks..."
     echo -e "${YELLOW}SCHRITT 1: Stoppe alle Docker-Container...${NC}"
 
-    # Verwende globales Array statt Funktionsrückgabe
+    # Use global array instead of function return
     discover_docker_stacks
     local stopped_count=0
     local failed_count=0
@@ -405,7 +405,7 @@ stop_all_docker_stacks() {
 
     echo -e "${BLUE}Gefundene Stacks: ${YELLOW}${#ALL_STACKS[@]}${NC}"
 
-    # Bestimme Docker-Kommando basierend auf Flag
+    # Determine Docker command based on flag
     local docker_cmd="down"
     if [[ "$USE_DOCKER_STOP" == true ]]; then
         docker_cmd="stop"
@@ -416,26 +416,26 @@ stop_all_docker_stacks() {
         log_message "INFO" "Verwende 'docker compose down' für vollständige Bereinigung"
     fi
 
-    # Parallelisierung oder seriell
+    # Parallelization or serial
     if [[ $PARALLEL_JOBS -gt 1 ]]; then
         echo "(Parallelisierung: $PARALLEL_JOBS Jobs)"
         log_message "INFO" "Verwende parallele Verarbeitung mit $PARALLEL_JOBS Jobs"
 
-        # Erstelle temporäre Dateien für Exit-Status-Tracking
+        # Create temporary files for exit status tracking
         local temp_dir=$(mktemp -d)
 
-        # Exportiere SUDO_CMD, Variablen und Funktionen für Sub-Shells (defensive Programmierung)
+        # Export SUDO_CMD, variables and functions for sub-shells (defensive programming)
         export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE
         export -f process_docker_output format_container_status
 
-        # Paralleles Stoppen mit xargs (robuste Behandlung von Stack-Namen mit Sonderzeichen)
+        # Parallel stopping with xargs (robust handling of stack names with special characters)
         printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "
             stack_dir='$STACKS_DIR/{}'
             if [[ -f \"\$stack_dir/docker-compose.yml\" ]]; then
                 running_containers=\$(cd \"\$stack_dir\" && $SUDO_CMD docker compose ps -q 2>/dev/null | wc -l)
                 if [[ \$running_containers -gt 0 ]]; then
                     echo \"  → Stoppe Stack (parallel): {}\"
-                    # LOG_FILE ist jetzt exportiert - direktes Logging mit flock für Thread-Sicherheit
+                    # LOG_FILE is now exported - direct logging with flock for thread safety
                     if timeout '$COMPOSE_TIMEOUT_STOP' bash -c \"cd '\$stack_dir' && $SUDO_CMD docker compose $docker_cmd\" 2>&1 | process_docker_output; then
                         echo \"    ${GREEN}✅ Stack ${YELLOW}{} ${GREEN}gestoppt${NC}\"
                         touch '$temp_dir/{}.success'
@@ -447,7 +447,7 @@ stop_all_docker_stacks() {
             fi
         "
 
-        # Sammle Ergebnisse (Logs werden direkt geschrieben)
+        # Collect results (logs are written directly)
         for stack_name in "${ALL_STACKS[@]}"; do
             if [[ -f "$temp_dir/$stack_name.success" ]]; then
                 RUNNING_STACKS+=("$stack_name")
@@ -461,7 +461,7 @@ stop_all_docker_stacks() {
         # Cleanup
         rm -rf "$temp_dir"
     else
-        # Serielle Verarbeitung (wie bisher)
+        # Serial processing (as before)
         for stack_name in "${ALL_STACKS[@]}"; do
             local stack_dir="$STACKS_DIR/$stack_name"
 
@@ -474,13 +474,13 @@ stop_all_docker_stacks() {
             echo -e "  ${CYAN}→${NC} Stoppe Stack: ${YELLOW}$stack_name${NC}"
             log_message "INFO" "Stoppe Stack: $stack_name ($docker_cmd)"
 
-            # Prüfe ob Container laufen
+            # Check if containers are running
             local running_containers=$(cd "$stack_dir" && $SUDO_CMD docker compose ps -q 2>/dev/null | wc -l)
 
             if [[ $running_containers -gt 0 ]]; then
                 RUNNING_STACKS+=("$stack_name")
 
-                # Stoppe Stack mit konfigurierbarem Timeout und formatierter Ausgabe
+                # Stop stack with configurable timeout and formatted output
                 if timeout "$COMPOSE_TIMEOUT_STOP" bash -c "cd '$stack_dir' && $SUDO_CMD docker compose $docker_cmd" 2>&1 | process_docker_output; then
                     ((stopped_count++))
                     log_message "INFO" "Stack erfolgreich gestoppt: $stack_name"
@@ -510,7 +510,7 @@ stop_all_docker_stacks() {
     fi
 }
 
-# Funktion zum Starten aller Docker-Stacks
+# Function to start all Docker stacks
 start_all_docker_stacks() {
     log_message "INFO" "Starte alle Docker-Stacks..."
     echo -e "${YELLOW}SCHRITT 3: Starte alle Docker-Container...${NC}"
@@ -518,7 +518,7 @@ start_all_docker_stacks() {
     local started_count=0
     local failed_count=0
 
-    # Verwende bereits entdeckte Stacks oder entdecke neu falls leer
+    # Use already discovered stacks or discover new ones if empty
     if [[ ${#ALL_STACKS[@]} -eq 0 ]]; then
         discover_docker_stacks
     fi
@@ -529,24 +529,24 @@ start_all_docker_stacks() {
         return 0
     fi
 
-    # Parallelisierung oder seriell (auch für Start implementiert)
+    # Parallelization or serial (also implemented for start)
     if [[ $PARALLEL_JOBS -gt 1 ]]; then
         echo "(Parallelisierung: $PARALLEL_JOBS Jobs)"
         log_message "INFO" "Verwende parallele Verarbeitung mit $PARALLEL_JOBS Jobs"
 
-        # Erstelle temporäre Dateien für Exit-Status-Tracking
+        # Create temporary files for exit status tracking
         local temp_dir=$(mktemp -d)
 
-        # Exportiere SUDO_CMD, Variablen und Funktionen für Sub-Shells (defensive Programmierung)
+        # Export SUDO_CMD, variables and functions for sub-shells (defensive programming)
         export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE
         export -f process_docker_output format_container_status
 
-        # Paralleles Starten mit xargs (robuste Behandlung von Stack-Namen mit Sonderzeichen)
+        # Parallel starting with xargs (robust handling of stack names with special characters)
         printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "
             stack_dir='$STACKS_DIR/{}'
             if [[ -f \"\$stack_dir/docker-compose.yml\" ]]; then
                 echo \"  → Starte Stack (parallel): {}\"
-                # LOG_FILE ist jetzt exportiert - direktes Logging mit flock für Thread-Sicherheit
+                # LOG_FILE is now exported - direct logging with flock for thread safety
                 if timeout '$COMPOSE_TIMEOUT_START' bash -c \"cd '\$stack_dir' && $SUDO_CMD docker compose up -d\" 2>&1 | process_docker_output; then
                     echo \"    ${GREEN}✅ Stack ${GREEN}{} ${GREEN}gestartet${NC}\"
                     touch '$temp_dir/{}.success'
@@ -557,7 +557,7 @@ start_all_docker_stacks() {
             fi
         "
 
-        # Sammle Ergebnisse (Logs werden direkt geschrieben)
+        # Collect results (logs are written directly)
         for stack_name in "${ALL_STACKS[@]}"; do
             if [[ -f "$temp_dir/$stack_name.success" ]]; then
                 ((started_count++))
@@ -570,7 +570,7 @@ start_all_docker_stacks() {
         # Cleanup
         rm -rf "$temp_dir"
     else
-        # Serielle Verarbeitung
+        # Serial processing
         for stack_name in "${ALL_STACKS[@]}"; do
             local stack_dir="$STACKS_DIR/$stack_name"
 
@@ -583,19 +583,19 @@ start_all_docker_stacks() {
             echo -e "  ${CYAN}→${NC} Starte Stack: ${GREEN}$stack_name${NC}"
             log_message "INFO" "Starte Stack: $stack_name"
 
-            # Starte Stack mit konfigurierbarem Timeout und formatierter Ausgabe
+            # Start stack with configurable timeout and formatted output
             if timeout "$COMPOSE_TIMEOUT_START" bash -c "cd '$stack_dir' && $SUDO_CMD docker compose up -d" 2>&1 | process_docker_output; then
                 ((started_count++))
                 log_message "INFO" "Stack erfolgreich gestartet: $stack_name"
                 echo -e "    ${GREEN}✅ Stack ${GREEN}$stack_name${NC} ${GREEN}erfolgreich gestartet${NC}"
             else
                 ((failed_count++))
-                FAILED_STACKS+=("$stack_name")  # FIX: Auch Start-Fehler tracken
+                FAILED_STACKS+=("$stack_name")  # FIX: Also track start errors
                 log_message "ERROR" "Fehler beim Starten von Stack: $stack_name"
                 echo -e "    ${RED}❌ Fehler beim Starten von ${GREEN}$stack_name${NC}"
             fi
 
-            # Kurze Pause zwischen Starts
+            # Short pause between starts
             sleep 2
         done
     fi
@@ -613,10 +613,10 @@ start_all_docker_stacks() {
 }
 
 # ================================================================
-# BACKUP FUNKTIONEN
+# BACKUP FUNCTIONS
 # ================================================================
 
-# Funktion für das eigentliche Backup
+# Function for the actual backup
 perform_backup() {
     if [[ "$SKIP_BACKUP" == true ]]; then
         echo -e "${BLUE}ℹ️ Backup übersprungen (--skip-backup)${NC}"
@@ -635,7 +635,7 @@ perform_backup() {
         return 0
     fi
 
-    # Backup-Zeitstempel
+    # Backup timestamp
     local backup_start=$(date +%s)
     local backup_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
@@ -644,13 +644,13 @@ perform_backup() {
     echo -e "${BLUE}Gestartet:${NC} $backup_timestamp"
     echo ""
 
-    # rsync-Optionen für konsistentes Backup (UGREEN NAS kompatibel - minimale Optionen)
+    # rsync options for consistent backup (UGREEN NAS compatible - minimal options)
     local rsync_opts="-a --delete"
 
-    # Robuste rsync-Flag-Validierung für UGREEN NAS Kompatibilität
+    # Robust rsync flag validation for UGREEN NAS compatibility
     RSYNC_FLAGS="-a --delete"
 
-    # Teste Flags mit echtem rsync-Aufruf (sicherer als grep)
+    # Test flags with real rsync call (safer than grep)
     test_rsync_flag() {
         local flag="$1"
         local test_dir=$(mktemp -d)
@@ -666,14 +666,14 @@ perform_backup() {
         fi
     }
 
-    # Teste und füge unterstützte Flags hinzu
+    # Test and add supported flags
     for flag in "--progress" "--stats" "--info=progress2"; do
         if test_rsync_flag "$flag"; then
             RSYNC_FLAGS="$RSYNC_FLAGS $flag"
             log_message "INFO" "rsync Flag hinzugefügt: $flag"
         else
             log_message "WARN" "rsync Flag nicht unterstützt: $flag"
-            # Fallback für --info=progress2
+            # Fallback for --info=progress2
             if [[ "$flag" == "--info=progress2" ]] && test_rsync_flag "--progress"; then
                 RSYNC_FLAGS="$RSYNC_FLAGS --progress"
                 log_message "INFO" "Fallback: --progress statt --info=progress2"
@@ -681,14 +681,14 @@ perform_backup() {
         fi
     done
 
-    # Verwende die validierten Flags (ohne Anführungszeichen für korrekte Expansion)
+    # Use the validated flags (without quotes for correct expansion)
     rsync_opts=$RSYNC_FLAGS
 
-    # Erweiterte Optionen für ACLs und extended attributes (mit Fallback)
+    # Extended options for ACLs and extended attributes (with fallback)
     if [[ "$PRESERVE_ACL" == true ]]; then
-        # Prüfe erst ob ACL-Tools verfügbar sind (verhindert "command not found" Logs)
+        # First check if ACL tools are available (prevents "command not found" logs)
         if command -v setfacl >/dev/null 2>&1; then
-            # Teste ACL-Unterstützung am Ziel (mit zufälligem Suffix gegen Race-Conditions)
+            # Test ACL support at destination (with random suffix against race conditions)
             local acl_test_file="$BACKUP_DEST/.acl_test_$$_$(date +%s)"
             if $SUDO_CMD touch "$acl_test_file" 2>/dev/null && $SUDO_CMD setfacl -m u:$(whoami):rw "$acl_test_file" 2>/dev/null; then
                 rsync_opts="$rsync_opts -AX"
@@ -708,36 +708,36 @@ perform_backup() {
 
     log_message "INFO" "Starte rsync: $BACKUP_SOURCE -> $BACKUP_DEST"
 
-    # Robuste rsync-Ausführung mit verbesserter Array-Behandlung
+    # Robust rsync execution with improved array handling
     execute_rsync_backup() {
         local source="$1"
         local dest="$2"
         local flags="$3"
 
-        # Validiere Pfade
+        # Validate paths
         if [[ ! -d "$source" ]]; then
             log_message "ERROR" "Quellverzeichnis nicht gefunden: $source"
             return 1
         fi
 
-        # Erstelle Zielverzeichnis falls nötig
+        # Create destination directory if necessary
         if ! $SUDO_CMD mkdir -p "$dest" 2>/dev/null; then
             log_message "ERROR" "Zielverzeichnis konnte nicht erstellt werden: $dest"
             return 1
         fi
 
-        # Erstelle rsync-Kommando-Array
+        # Create rsync command array
         local rsync_cmd=()
 
-        # Füge sudo hinzu falls nötig
+        # Add sudo if necessary
         if [[ -n "$SUDO_CMD" ]]; then
             rsync_cmd+=("$SUDO_CMD")
         fi
 
-        # Füge rsync hinzu
+        # Add rsync
         rsync_cmd+=("rsync")
 
-        # Sichere Flag-Expansion (behandelt auch Flags mit Gleichheitszeichen)
+        # Secure flag expansion (also handles flags with equals signs)
         local IFS=' '
         local flags_array=($flags)
         for flag in "${flags_array[@]}"; do
@@ -746,23 +746,23 @@ perform_backup() {
             fi
         done
 
-        # Füge Pfade hinzu (normalisiere Trailing Slashes)
+        # Add paths (normalize trailing slashes)
         rsync_cmd+=("${source%/}/" "${dest%/}/")
 
-        # Debug-Ausgabe
+        # Debug output
         log_message "INFO" "Führe rsync aus: ${rsync_cmd[*]}"
 
-        # Führe Kommando aus
+        # Execute command
         "${rsync_cmd[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee -a "$LOG_FILE"
         return $?
     }
 
-    # Führe Backup durch mit Fallback-Mechanismus
+    # Execute backup with fallback mechanism
     local rsync_exit_code
     local backup_success=false
     local original_flags="$rsync_opts"
 
-    # Versuch 1: Mit optimierten Flags
+    # Attempt 1: With optimized flags
     log_message "INFO" "Versuche Backup mit optimierten Flags: $rsync_opts"
     if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$rsync_opts"; then
         rsync_exit_code=0
@@ -772,7 +772,7 @@ perform_backup() {
         rsync_exit_code=$?
         log_message "WARN" "Backup mit optimierten Flags fehlgeschlagen (Exit: $rsync_exit_code), versuche Fallback..."
 
-        # Versuch 2: Minimale sichere Flags
+        # Attempt 2: Minimal safe flags
         rsync_opts="-a --delete --progress"
         log_message "INFO" "Fallback: Verwende minimale Flags: $rsync_opts"
 
@@ -784,7 +784,7 @@ perform_backup() {
             rsync_exit_code=$?
             log_message "WARN" "Auch minimale Flags fehlgeschlagen (Exit: $rsync_exit_code), versuche Basis-Fallback..."
 
-            # Versuch 3: Absolut minimale Flags
+            # Attempt 3: Absolutely minimal flags
             rsync_opts="-a --delete"
             log_message "INFO" "Basis-Fallback: Verwende nur: $rsync_opts"
 
@@ -809,14 +809,14 @@ perform_backup() {
         echo -e "${GREEN}✅ Backup erfolgreich abgeschlossen${NC}"
         echo -e "${BLUE}Dauer:${NC} ${GREEN}${backup_duration} Sekunden${NC}"
 
-        # Backup-Verifikation
+        # Backup verification
         if [[ "$VERIFY_BACKUP" == true ]]; then
             verify_backup
         fi
 
         return 0
     else
-        # Detaillierte rsync Exit-Code Analyse
+        # Detailed rsync exit code analysis
         case $rsync_exit_code in
             1)
                 log_message "ERROR" "Backup fehlgeschlagen: Syntax oder Verwendungsfehler (Exit Code: $rsync_exit_code)"
@@ -878,26 +878,26 @@ perform_backup() {
     fi
 }
 
-# Funktion zur Backup-Verifikation
+# Function for backup verification
 verify_backup() {
     log_message "INFO" "Starte Backup-Verifikation..."
     echo -e "${BLUE}🔍 Verifiziere Backup...${NC}"
 
-    # Prüfe ob Backup-Verzeichnis existiert
+    # Check if backup directory exists
     if [[ ! -d "$BACKUP_DEST" ]]; then
         log_message "ERROR" "Backup-Verzeichnis nicht gefunden: $BACKUP_DEST"
         echo -e "${RED}❌ Backup-Verzeichnis nicht gefunden${NC}"
         return 1
     fi
 
-    # Erweiterte Backup-Verifikation
+    # Extended backup verification
     echo -e "${BLUE}🔍 Vergleiche Verzeichnisgrößen und Dateianzahl...${NC}"
 
-    # Vergleiche Verzeichnisgrößen
+    # Compare directory sizes
     local source_size=$($SUDO_CMD du -sb "$BACKUP_SOURCE" 2>/dev/null | cut -f1)
     local backup_size=$($SUDO_CMD du -sb "$BACKUP_DEST" 2>/dev/null | cut -f1)
 
-    # Vergleiche Datei- und Ordneranzahl
+    # Compare file and directory counts
     local source_files=$($SUDO_CMD find "$BACKUP_SOURCE" -type f 2>/dev/null | wc -l)
     local source_dirs=$($SUDO_CMD find "$BACKUP_SOURCE" -type d 2>/dev/null | wc -l)
     local backup_files=$($SUDO_CMD find "$BACKUP_DEST" -type f 2>/dev/null | wc -l)
@@ -907,7 +907,7 @@ verify_backup() {
 
     if [[ -n "$source_size" && -n "$backup_size" ]]; then
         local size_diff=$((source_size - backup_size))
-        local size_diff_abs=${size_diff#-}  # Absolutwert
+        local size_diff_abs=${size_diff#-}  # Absolute value
         local size_diff_percent=$((size_diff_abs * 100 / source_size))
 
         echo -e "${BLUE}Quellgröße:${NC} ${CYAN}$(format_bytes $source_size)${NC}"
@@ -924,7 +924,7 @@ verify_backup() {
         verification_success=false
     fi
 
-    # Dateianzahl-Verifikation
+    # File count verification
     echo -e "${BLUE}Quelldateien:${NC} ${CYAN}$source_files${NC}, ${BLUE}Quellordner:${NC} ${CYAN}$source_dirs${NC}"
     echo -e "${BLUE}Backup-Dateien:${NC} ${CYAN}$backup_files${NC}, ${BLUE}Backup-Ordner:${NC} ${CYAN}$backup_dirs${NC}"
 
@@ -949,10 +949,10 @@ verify_backup() {
 }
 
 # ================================================================
-# HAUPTPROGRAMM
+# MAIN PROGRAM
 # ================================================================
 
-# Validierungsfunktion für numerische Parameter
+# Validation function for numeric parameters
 validate_numeric() {
     local value="$1"
     local param_name="$2"
@@ -970,7 +970,7 @@ validate_numeric() {
     fi
 }
 
-# Parameter verarbeiten
+# Process parameters
 while [[ $# -gt 0 ]]; do
     case $1 in
         --auto)
@@ -1029,10 +1029,10 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Initialisiere Logging mit sicheren Berechtigungen
-umask 077  # Temporär restriktive Berechtigungen für Log-Dateien
+# Initialize logging with secure permissions
+umask 077  # Temporarily restrictive permissions for log files
 mkdir -p "$LOG_DIR"
-umask 022  # Zurück zu Standard-umask
+umask 022  # Back to standard umask
 
 log_message "INFO" "=== DOCKER NAS BACKUP GESTARTET ==="
 log_message "INFO" "Optionen: AUTO_MODE=$AUTO_MODE, DRY_RUN=$DRY_RUN, SKIP_BACKUP=$SKIP_BACKUP, VERIFY_BACKUP=$VERIFY_BACKUP"
@@ -1049,7 +1049,7 @@ fi
 echo -e "${BLUE}📝 Log-Datei: $LOG_FILE${NC}"
 echo ""
 
-# Umgebungsvalidierung
+# Environment validation
 echo -e "${YELLOW}SCHRITT 0: Validiere Umgebung...${NC}"
 if ! validate_environment; then
     log_message "ERROR" "Umgebungsvalidierung fehlgeschlagen - Abbruch"
@@ -1057,27 +1057,27 @@ if ! validate_environment; then
 fi
 echo ""
 
-# Bestätigung einholen
+# Get confirmation
 confirm_action
 
-# Backup-Prozess starten
+# Start backup process
 BACKUP_SUCCESS=true
 CONTAINER_STOP_SUCCESS=true
 CONTAINER_START_SUCCESS=true
 
-# Schritt 1: Container stoppen
+# Step 1: Stop containers
 if ! stop_all_docker_stacks; then
     CONTAINER_STOP_SUCCESS=false
     log_message "WARN" "Nicht alle Container konnten gestoppt werden"
 fi
 
-# Schritt 2: Backup durchführen
+# Step 2: Perform backup
 if ! perform_backup; then
     BACKUP_SUCCESS=false
     log_message "ERROR" "Backup fehlgeschlagen"
 fi
 
-# Schritt 3: Container starten (immer versuchen, auch bei Backup-Fehlern)
+# Step 3: Start containers (always try, even on backup errors)
 if ! start_all_docker_stacks; then
     CONTAINER_START_SUCCESS=false
     log_message "ERROR" "Nicht alle Container konnten gestartet werden"
@@ -1086,7 +1086,7 @@ fi
 echo ""
 
 # ================================================================
-# ABSCHLUSSBERICHT
+# FINAL REPORT
 # ================================================================
 
 if [[ "$DRY_RUN" == true ]]; then
@@ -1094,7 +1094,7 @@ if [[ "$DRY_RUN" == true ]]; then
     log_message "INFO" "DRY-RUN abgeschlossen - keine Änderungen vorgenommen"
     echo "Keine Änderungen wurden vorgenommen. Führen Sie das Skript ohne --dry-run aus, um das Backup durchzuführen."
 else
-    # Bestimme Gesamtstatus
+    # Determine overall status
     if [[ "$BACKUP_SUCCESS" == true && "$CONTAINER_STOP_SUCCESS" == true && "$CONTAINER_START_SUCCESS" == true ]]; then
         echo -e "${GREEN}🎉 BACKUP ERFOLGREICH ABGESCHLOSSEN!${NC}"
         log_message "INFO" "Backup erfolgreich abgeschlossen"
@@ -1109,7 +1109,7 @@ else
         GLOBAL_EXIT_CODE=2
     fi
 
-    # Statusübersicht
+    # Status overview
     echo ""
     echo -e "${CYAN}=== STATUSÜBERSICHT ===${NC}"
     echo -e "${BLUE}Container stoppen:${NC} $([ "$CONTAINER_STOP_SUCCESS" == true ] && echo -e "${GREEN}✅ Erfolgreich${NC}" || echo -e "${RED}❌ Fehler${NC}")"
@@ -1118,7 +1118,7 @@ else
     fi
     echo -e "${BLUE}Container starten:${NC} $([ "$CONTAINER_START_SUCCESS" == true ] && echo -e "${GREEN}✅ Erfolgreich${NC}" || echo -e "${RED}❌ Fehler${NC}")"
 
-    # Container-Änderungen Zusammenfassung
+    # Container changes summary
     if [[ ${#RUNNING_STACKS[@]} -gt 0 ]]; then
         echo ""
         echo -e "${CYAN}=== CONTAINER-ÄNDERUNGEN ===${NC}"
@@ -1146,9 +1146,9 @@ if [[ "$SKIP_BACKUP" == false && "$BACKUP_SUCCESS" == true ]]; then
     echo -e "  ${CYAN}4.${NC} Backup-Verzeichnis: ${BLUE}$BACKUP_DEST${NC}"
 fi
 
-# Deaktiviere EXIT trap vor normalem Exit (idempotent)
+# Deactivate EXIT trap before normal exit (idempotent)
 trap - EXIT
 
-# Einmaliger Abschluss-Log (nur hier, nicht doppelt)
+# Single completion log (only here, not duplicate)
 log_message "INFO" "=== DOCKER NAS BACKUP BEENDET ==="
 exit $GLOBAL_EXIT_CODE
