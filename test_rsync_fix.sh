@@ -1,15 +1,15 @@
 #!/bin/bash
 
 echo "=== RSYNC FIX VALIDATION TEST ==="
-echo "Testet die neuen rsync-Fixes im docker_backup.sh"
+echo "Testing the new rsync fixes in docker_backup.sh"
 echo ""
 
-# Konfiguration (gleich wie im Hauptscript)
+# Configuration (same as in main script)
 BACKUP_SOURCE="/volume1/docker-nas"
 BACKUP_DEST="/tmp/test_backup_$(date +%s)"
 LOG_DIR="/volume1/docker-nas/logs"
 
-# Sudo-Erkennung
+# Sudo detection
 SUDO_CMD=""
 if [[ $EUID -eq 0 ]]; then
     SUDO_CMD=""
@@ -17,20 +17,20 @@ else
     SUDO_CMD="sudo"
 fi
 
-echo "🔧 Test-Konfiguration:"
-echo "   Quelle: $BACKUP_SOURCE"
-echo "   Test-Ziel: $BACKUP_DEST"
+echo "🔧 Test Configuration:"
+echo "   Source: $BACKUP_SOURCE"
+echo "   Test Target: $BACKUP_DEST"
 echo "   Sudo: $SUDO_CMD"
 echo ""
 
-# Erstelle Test-Umgebung
-echo "1️⃣ Erstelle Test-Umgebung..."
+# Create test environment
+echo "1️⃣ Creating test environment..."
 $SUDO_CMD mkdir -p "$BACKUP_DEST"
 mkdir -p "$LOG_DIR"
 
-# Test der neuen rsync-Flag-Validierung
+# Test new rsync flag validation
 echo ""
-echo "2️⃣ Teste neue rsync-Flag-Validierung..."
+echo "2️⃣ Testing new rsync flag validation..."
 
 test_rsync_flag() {
     local flag="$1"
@@ -48,27 +48,27 @@ test_rsync_flag() {
 }
 
 RSYNC_FLAGS="-a --delete"
-echo "   Basis-Flags: $RSYNC_FLAGS"
+echo "   Base flags: $RSYNC_FLAGS"
 
 for flag in "--progress" "--stats" "--info=progress2"; do
-    echo -n "   Teste $flag: "
+    echo -n "   Testing $flag: "
     if test_rsync_flag "$flag"; then
         RSYNC_FLAGS="$RSYNC_FLAGS $flag"
-        echo "✅ unterstützt"
+        echo "✅ supported"
     else
-        echo "❌ nicht unterstützt"
+        echo "❌ not supported"
         if [[ "$flag" == "--info=progress2" ]] && test_rsync_flag "--progress"; then
             RSYNC_FLAGS="$RSYNC_FLAGS --progress"
-            echo "   → Fallback: --progress hinzugefügt"
+            echo "   → Fallback: --progress added"
         fi
     fi
 done
 
-echo "   Finale Flags: $RSYNC_FLAGS"
+echo "   Final flags: $RSYNC_FLAGS"
 
-# Test der neuen rsync-Ausführung
+# Test new rsync execution
 echo ""
-echo "3️⃣ Teste neue rsync-Ausführung..."
+echo "3️⃣ Testing new rsync execution..."
 
 execute_rsync_backup() {
     local source="$1"
@@ -76,12 +76,12 @@ execute_rsync_backup() {
     local flags="$3"
     
     if [[ ! -d "$source" ]]; then
-        echo "   ❌ Quellverzeichnis nicht gefunden: $source"
+        echo "   ❌ Source directory not found: $source"
         return 1
     fi
     
     if ! $SUDO_CMD mkdir -p "$dest" 2>/dev/null; then
-        echo "   ❌ Zielverzeichnis konnte nicht erstellt werden: $dest"
+        echo "   ❌ Could not create target directory: $dest"
         return 1
     fi
     
@@ -101,14 +101,14 @@ execute_rsync_backup() {
     
     rsync_cmd+=("--dry-run" "${source%/}/" "${dest%/}/")
     
-    echo "   Führe aus: ${rsync_cmd[*]}"
+    echo "   Executing: ${rsync_cmd[*]}"
     "${rsync_cmd[@]}" >/dev/null 2>&1
     return $?
 }
 
-# Test mit verschiedenen Flag-Kombinationen
+# Test with different flag combinations
 echo ""
-echo "4️⃣ Teste Fallback-Mechanismus..."
+echo "4️⃣ Testing fallback mechanism..."
 
 test_flags=("$RSYNC_FLAGS" "-a --delete --progress" "-a --delete")
 for i in "${!test_flags[@]}"; do
@@ -116,11 +116,11 @@ for i in "${!test_flags[@]}"; do
     echo -n "   Test $((i+1)): $flags → "
     
     if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$flags"; then
-        echo "✅ erfolgreich"
+        echo "✅ successful"
         WORKING_FLAGS="$flags"
         break
     else
-        echo "❌ fehlgeschlagen"
+        echo "❌ failed"
     fi
 done
 
@@ -129,19 +129,19 @@ echo ""
 echo "5️⃣ Cleanup..."
 $SUDO_CMD rm -rf "$BACKUP_DEST"
 
-# Ergebnis
+# Result
 echo ""
-echo "=== TESTERGEBNIS ==="
+echo "=== TEST RESULT ==="
 if [[ -n "$WORKING_FLAGS" ]]; then
-    echo "✅ RSYNC-FIXES FUNKTIONIEREN!"
-    echo "   Funktionierende Flags: $WORKING_FLAGS"
+    echo "✅ RSYNC FIXES ARE WORKING!"
+    echo "   Working flags: $WORKING_FLAGS"
     echo ""
-    echo "Du kannst jetzt das Backup-Script testen:"
+    echo "You can now test the backup script:"
     echo "   sudo ./docker_backup.sh --dry-run"
     echo "   sudo ./docker_backup.sh --auto"
 else
-    echo "❌ RSYNC-FIXES BENÖTIGEN WEITERE ANPASSUNG"
-    echo "   Alle getesteten Flag-Kombinationen schlugen fehl"
+    echo "❌ RSYNC FIXES NEED FURTHER ADJUSTMENT"
+    echo "   All tested flag combinations failed"
 fi
 echo ""
-echo "=== TEST ABGESCHLOSSEN ==="
+echo "=== TEST COMPLETED ==="
