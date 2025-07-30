@@ -201,7 +201,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Tested and optimized for UGREEN NAS DXP2800
+- Optimized for UGREEN NAS and tested on DXP2800
 - Compatible with Synology, QNAP, and custom Linux NAS systems
 - Community feedback and security analysis contributions
 
