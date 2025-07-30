@@ -276,11 +276,12 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 ---
 
+**⚠️ Security Notice**: Always upgrade to the latest version for critical fixes. 
+
 ## Example Screenshots (German version)
 
 <img width="2764" height="2950" alt="100_screenshot" src="https://github.com/user-attachments/assets/ab6a50bc-f63f-40e1-b66e-3ea3bd81e997" />
-<img width="2764" height="2950" alt="200_screenshot" src="https://github.com/user-attachments/assets/35878374-269e-4404-a005-921dca27d8b8" />
 <img width="2764" height="2950" alt="300_screenshot" src="https://github.com/user-attachments/assets/93045756-e1f7-4011-8d6d-81f6103d4263" />
+<img width="2764" height="2950" alt="200_screenshot" src="https://github.com/user-attachments/assets/35878374-269e-4404-a005-921dca27d8b8" />
 
 
-**⚠️ Security Notice**: Always upgrade to the latest version for critical fixes. 
