@@ -72,6 +72,8 @@ DRY_RUN=false
 SKIP_BACKUP=false
 VERIFY_BACKUP=true
 USE_DOCKER_STOP=false  # Neue Option: stop statt down für schnellere Backups
+# ACL und Extended Attributes (nur für ext4/XFS/Btrfs/ZFS)
+# Für FAT32/NTFS/exFAT auf false setzen
 PRESERVE_ACL=true     # neue option: acls und extended attributes sichern
 COMPOSE_TIMEOUT_STOP=60    # Konfigurierbare Timeouts
 COMPOSE_TIMEOUT_START=120
