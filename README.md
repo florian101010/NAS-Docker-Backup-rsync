@@ -1,6 +1,6 @@
 # Docker NAS Backup Script
 
-[![Version](https://img.shields.io/badge/version-3.4.9-blue.svg)](https://github.com/your-username/docker-nas-backup/releases)
+[![Version](https://img.shields.io/badge/version-3.4.9-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Bash](https://img.shields.io/badge/bash-4.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
 [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)](https://www.kernel.org/)
@@ -41,9 +41,12 @@ A robust, production-ready backup solution for Docker-based NAS systems with adv
 ### Installation
 
 ```bash
-# Download the script
-wget https://github.com/your-username/docker-nas-backup/releases/latest/download/docker_backup.sh
-chmod +x docker_backup.sh
+# Download the scripts directly
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
+
+# Make scripts executable
+chmod +x docker_backup.sh test_rsync_fix.sh
 
 # Test rsync compatibility (recommended)
 ./test_rsync_fix.sh
@@ -67,14 +70,26 @@ chmod +x docker_backup.sh
 
 ## 📖 Configuration
 
-### Default Paths
+### Configuration
+
+**⚠️ Important**: Before first use, you need to configure the paths in the script according to your system.
+
+Edit the configuration section in [`docker_backup.sh`](docker_backup.sh) (lines 19-24):
+
 ```bash
-DATA_DIR="/volume1/docker-nas/data"
-STACKS_DIR="/volume1/docker-nas/stacks"
-BACKUP_SOURCE="/volume1/docker-nas"
-BACKUP_DEST="/volume2/@home/florian/Backups/docker-nas-backup-rsync"
-LOG_DIR="/volume1/docker-nas/logs"
+# Example configuration - ADAPT TO YOUR SYSTEM:
+DATA_DIR="/path/to/your/docker/data"
+STACKS_DIR="/path/to/your/docker/stacks"
+BACKUP_SOURCE="/path/to/your/docker"
+BACKUP_DEST="/path/to/your/backup/destination"
+LOG_DIR="/path/to/your/logs"
 ```
+
+**Configuration Steps:**
+1. Open `scripts/docker_backup.sh` in your editor
+2. Modify lines 19-24 with your actual paths
+3. Ensure backup destination has sufficient space
+4. Test with `--dry-run` first
 
 ### Command Line Options
 
@@ -123,7 +138,7 @@ LOG_DIR="/volume1/docker-nas/logs"
 ## 📊 Monitoring & Logging
 
 ### Log Files
-- Location: `/volume1/docker-nas/logs/docker_backup_YYYYMMDD_HHMMSS.log`
+- Location: `/path/to/your/logs/docker_backup_YYYYMMDD_HHMMSS.log`
 - ANSI-free output for clean log files
 - Detailed container status with color-coded terminal output
 - Thread-safe logging for parallel operations
@@ -147,26 +162,26 @@ docker ps -a
 docker logs <container_name>
 
 # Manual stack restart
-cd /volume1/docker-nas/stacks/<stack_name>
+cd /path/to/your/stacks/<stack_name>
 sudo docker compose up -d
 ```
 
 **Backup failures:**
 ```bash
 # Check available space
-df -h /volume2
+df -h /path/to/backup/destination
 
 # Test rsync manually
-sudo rsync -av --dry-run /volume1/docker-nas/ /volume2/backups/
+sudo rsync -av --dry-run /path/to/source/ /path/to/destination/
 ```
 
 **Permission issues:**
 ```bash
 # Check backup destination permissions
-ls -la /volume2/backups/
+ls -la /path/to/backup/destination
 
 # Fix permissions if needed
-sudo chown -R $(whoami):$(id -gn) /volume2/backups/
+sudo chown -R $(whoami):$(id -gn) /path/to/backup/destination
 ```
 
 ## 🤝 Contributing
@@ -175,8 +190,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ### Development Setup
 ```bash
-git clone https://github.com/your-username/docker-nas-backup.git
-cd docker-nas-backup
+git clone https://github.com/florian101010/NAS-Docker-Backup-rsync.git
+cd NAS-Docker-Backup-rsync
 chmod +x docker_backup.sh test_rsync_fix.sh
 ```
 

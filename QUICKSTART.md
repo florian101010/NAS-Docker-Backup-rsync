@@ -15,10 +15,11 @@
 
 ### 🎯 **4 Schritte zum Backup (NEU mit rsync-Test):**
 
-#### **Schritt 1: Scripts vorbereiten**
+#### **Schritt 1: Scripts herunterladen und vorbereiten**
 ```bash
-# Ins Verzeichnis wechseln
-cd /volume1/docker-nas/
+# Scripts direkt herunterladen
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
 
 # Scripts ausführbar machen
 chmod +x docker_backup.sh
@@ -52,7 +53,7 @@ sudo ./docker_backup.sh
 sudo crontab -e
 
 # Diese Zeile hinzufügen:
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto
+0 2 * * * /path/to/docker_backup.sh --auto
 ```
 
 **🎉 Fertig! Dein Backup läuft jetzt automatisch.**
@@ -66,11 +67,11 @@ sudo crontab -e
 Öffne `docker_backup.sh` und ändere diese Zeilen:
 
 ```bash
-# Zeile 17-21 im Script:
-DATA_DIR="/volume1/docker-nas/data"           # Deine Container-Daten
-STACKS_DIR="/volume1/docker-nas/stacks"       # Deine docker-compose Dateien
-BACKUP_SOURCE="/volume1/docker-nas"           # Was gesichert wird
-BACKUP_DEST="/volume2/backups/docker-nas_backups"  # Wohin gesichert wird
+# Zeile 19-24 im Script:
+DATA_DIR="/path/to/your/docker/data"         # Deine Container-Daten
+STACKS_DIR="/path/to/your/docker/stacks"     # Deine docker-compose Dateien
+BACKUP_SOURCE="/path/to/your/docker"         # Was gesichert wird
+BACKUP_DEST="/path/to/your/backup/destination"  # Wohin gesichert wird
 ```
 
 ### 🎛️ **Häufige Anpassungen:**

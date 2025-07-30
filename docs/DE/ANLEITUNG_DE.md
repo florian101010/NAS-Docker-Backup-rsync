@@ -220,13 +220,14 @@ Das Script sichert Ihr komplettes Docker-Setup, während die Container sauber ge
 
 ## Installation
 
-1. Kopiere die Scripts auf dein NAS:
+1. Lade die Scripts herunter:
 ```bash
-# Auf dem NAS
-cp docker_backup.sh /volume1/docker-nas/
-cp test_rsync_fix.sh /volume1/docker-nas/
-chmod +x /volume1/docker-nas/docker_backup.sh
-chmod +x /volume1/docker-nas/test_rsync_fix.sh
+# Scripts direkt herunterladen
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
+
+# Scripts ausführbar machen
+chmod +x docker_backup.sh test_rsync_fix.sh
 ```
 
 2. Teste die rsync-Fixes (empfohlen):
@@ -348,11 +349,11 @@ sudo ./test_rsync_fix.sh
 Die wichtigsten Pfade können im Skript angepasst werden:
 
 ```bash
-DATA_DIR="/volume1/docker-nas/data"
-STACKS_DIR="/volume1/docker-nas/stacks"
-BACKUP_SOURCE="/volume1/docker-nas"
-BACKUP_DEST="/volume2/backups/docker-nas_backups"
-LOG_DIR="/volume1/docker-nas/logs"
+DATA_DIR="/pfad/zu/ihren/docker/daten"
+STACKS_DIR="/pfad/zu/ihren/docker/stacks"
+BACKUP_SOURCE="/pfad/zu/ihrem/docker"
+BACKUP_DEST="/pfad/zu/ihrem/backup/ziel"
+LOG_DIR="/pfad/zu/ihren/logs"
 ```
 
 ## Automatisierung mit Cron
@@ -364,34 +365,34 @@ Für regelmäßige Backups kannst du einen Cron-Job einrichten:
 crontab -e
 
 # Beispiel: Täglich um 2:00 Uhr (schnell mit --use-stop)
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop >> /volume1/docker-nas/logs/cron_backup.log 2>&1
+0 2 * * * /pfad/zum/docker_backup.sh --auto --use-stop >> /pfad/zu/logs/cron_backup.log 2>&1
 
 # Beispiel: Wöchentlich sonntags um 3:00 Uhr (vollständig mit down)
-0 3 * * 0 /volume1/docker-nas/docker_backup.sh --auto >> /volume1/docker-nas/logs/cron_backup.log 2>&1
+0 3 * * 0 /pfad/zum/docker_backup.sh --auto >> /pfad/zu/logs/cron_backup.log 2>&1
 
 # NEU Version 3.4.9: SICHERE Parallelisierung für Cron (kritische Fixes implementiert)
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --parallel 4 --use-stop --buffer-percent 20 >> /volume1/docker-nas/logs/cron_backup.log 2>&1
+0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 4 --use-stop --buffer-percent 20 >> /pfad/zu/logs/cron_backup.log 2>&1
 
 # Beispiel: Als root ausführen (automatische Erkennung)
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --use-stop
+0 2 * * * /pfad/zum/docker_backup.sh --auto --use-stop
 
-# Beispiel: Mit ACL-Unterstützung für UGREEN NAS (falls unterstützt)
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --preserve-acl --timeout-stop 90
+# Beispiel: Mit ACL-Unterstützung für NAS (falls unterstützt)
+0 2 * * * /pfad/zum/docker_backup.sh --auto --preserve-acl --timeout-stop 90
 
 # Beispiel: Hochperformantes Setup für große Installationen (Version 3.4.9+)
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --parallel 6 --use-stop --buffer-percent 25
+0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 6 --use-stop --buffer-percent 25
 
 # Beispiel: Tägliches Backup mit sicherer Parallelisierung (Version 3.4.9+)
-0 2 * * * /volume1/docker-nas/docker_backup.sh --auto --preserve-acl --parallel 4 --buffer-percent 15 2>&1 | logger -t docker_backup
+0 2 * * * /pfad/zum/docker_backup.sh --auto --preserve-acl --parallel 4 --buffer-percent 15 2>&1 | logger -t docker_backup
 
 # Beispiel: Wöchentliches vollständiges Backup (Sonntags um 1:00)
-0 1 * * 0 /volume1/docker-nas/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 120 2>&1 | logger -t docker_backup_weekly
+0 1 * * 0 /pfad/zum/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 120 2>&1 | logger -t docker_backup_weekly
 ```
 
 ## Logging
 
 Alle Aktionen werden protokolliert:
-- Log-Dateien: `/volume1/docker-nas/logs/docker_backup_YYYYMMDD_HHMMSS.log`
+- Log-Dateien: `/pfad/zu/ihren/logs/docker_backup_YYYYMMDD_HHMMSS.log`
 - Detaillierte Informationen über jeden Schritt
 - Fehlerbehandlung und Warnungen
 

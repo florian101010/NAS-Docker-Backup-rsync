@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 # ================================================================
-# Docker NAS Backup Skript - UGREEN NAS DXP2800
+# Docker NAS Backup Skript
 # Automatisches Backup aller Docker-Container und persistenten Daten
 # Stand: 30. Juli 2025 - Version 3.4.9
-# Erstellt von: Florian Grimmer - 2025
+# GitHub: https://github.com/florian101010/NAS-Docker-Backup-rsync
 # ================================================================
 
 # Fail-Fast Settings für maximale Robustheit
@@ -15,12 +15,32 @@ IFS=$'\n\t'
 export PATH="$PATH:/usr/local/bin:/usr/bin:/bin"
 
 # ================================================================
-# Konfiguration
+# KONFIGURATION - BITTE AN IHR SYSTEM ANPASSEN!
+# ================================================================
+#
+# ⚠️  WICHTIG: Passen Sie diese Pfade an Ihr System an!
+#
+# Docker-Datenverzeichnis (Container-Volumes und persistente Daten)
+# Beispiele: /opt/docker/data, /home/user/docker/data, /srv/docker/data
 DATA_DIR="/volume1/docker-nas/data"
+
+# Docker-Compose-Stacks Verzeichnis (docker-compose.yml Dateien)
+# Beispiele: /opt/docker/stacks, /home/user/docker/compose, /srv/docker/stacks
 STACKS_DIR="/volume1/docker-nas/stacks"
+
+# Backup-Quellverzeichnis (wird komplett gesichert)
+# Beispiele: /opt/docker, /home/user/docker, /srv/docker
 BACKUP_SOURCE="/volume1/docker-nas"
-BACKUP_DEST="/volume2/@home/florian/Backups/docker-nas-backup-rsync"
+
+# Backup-Zielverzeichnis (wohin das Backup gespeichert wird)
+# Beispiele: /backup/docker, /mnt/backup/docker, /media/backup/docker
+BACKUP_DEST="/volume2/backups/docker-nas-backup"
+
+# Log-Verzeichnis (für Backup-Protokolle)
+# Beispiele: /var/log/docker-backup, /opt/docker/logs, /home/user/logs
 LOG_DIR="/volume1/docker-nas/logs"
+
+# Log-Datei (automatisch generiert - normalerweise nicht ändern)
 LOG_FILE="$LOG_DIR/docker_backup_$(date +%Y%m%d_%H%M%S).log"
 # ================================================================
 

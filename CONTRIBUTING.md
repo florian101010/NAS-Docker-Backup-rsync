@@ -64,8 +64,9 @@ For feature requests:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/docker-nas-backup.git
-cd docker-nas-backup
+# For development: clone the full repository
+git clone https://github.com/florian101010/NAS-Docker-Backup-rsync.git
+cd NAS-Docker-Backup-rsync
 
 # Make scripts executable
 chmod +x docker_backup.sh test_rsync_fix.sh
