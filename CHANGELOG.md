@@ -24,6 +24,8 @@ This release addresses critical security vulnerabilities that affect parallel op
 - Complete environment variable export strategy for sub-shells
 - Race-condition-free temporary directory creation using `mktemp -d`
 - Thread-safe logging with direct log file access in parallel jobs
+- **Multi-Language Support**: German version (`docker_backup_de.sh`) with German comments and messages
+- Language selection documentation in all guides (README, QUICKSTART, manuals)
 
 #### Security
 - Prevents silent backup failures when using parallel operations
