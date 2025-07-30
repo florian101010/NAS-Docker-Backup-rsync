@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.4.9] - 2025-07-30
 
-### 🚨 CRITICAL SECURITY FIXES
+### 🚨 SECURITY FIXES
 
 This release addresses critical security vulnerabilities that affect parallel operations. **Immediate upgrade required** for all users utilizing `--parallel N>1`.
 

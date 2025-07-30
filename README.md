@@ -64,7 +64,7 @@ chmod +x docker_backup.sh test_rsync_fix.sh
 
 **⚠️ Important**: Before first use, you need to configure the paths in the script according to your system.
 
-Edit the configuration section in [`docker_backup.sh`](docker_backup.sh) (lines 19-24):
+Edit the configuration section in [`docker_backup.sh`](docker_backup.sh) (lines 17-45):
 
 ```bash
 # Example configuration - ADAPT TO YOUR SYSTEM:
