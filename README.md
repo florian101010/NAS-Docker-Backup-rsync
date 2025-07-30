@@ -19,16 +19,6 @@ A robust, production-ready backup solution for Docker-based NAS systems with adv
 - **🔄 Incremental Backups**: rsync-based with intelligent flag validation and multi-tier fallback
 - **⚙️ Highly Configurable**: Extensive command-line options for timeouts, buffers, and behavior
 
-## 🚨 Critical Security Update (v3.4.9)
-
-**⚠️ IMPORTANT**: Versions prior to 3.4.9 contain critical bugs when using `--parallel N>1`. Upgrade immediately for safe parallelization.
-
-### Fixed Critical Issues:
-- **Silent Backup Failures**: Functions not exported to parallel sub-shells
-- **Race Conditions**: Concurrent log file access and temp directory collisions  
-- **Double Execution**: Missing PID/lock file protection for cron jobs
-- **Missing Variables**: Environment variables not available in sub-shells
-
 ## 📋 Requirements
 
 - **OS**: Linux (tested on Ubuntu, Debian, UGREEN NAS DXP2800)
@@ -228,4 +218,4 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 ---
 
-**⚠️ Security Notice**: Always upgrade to the latest version for critical security fixes. Version 3.4.9+ is required for safe parallel operations.
+**⚠️ Security Notice**: Always upgrade to the latest version for critical fixes. 
