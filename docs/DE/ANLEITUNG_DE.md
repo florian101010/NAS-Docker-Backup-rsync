@@ -226,9 +226,25 @@ Das Script sichert Ihr komplettes Docker-Setup, während die Container sauber ge
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
 
+# Optional: Deutsche Version herunterladen
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh
+
 # Scripts ausführbar machen
 chmod +x docker_backup.sh test_rsync_fix.sh
+# Falls deutsche Version verwendet wird:
+chmod +x docker_backup_de.sh
 ```
+
+### Verfügbare Sprachversionen
+
+Dieses Projekt bietet Scripts in mehreren Sprachen:
+
+| Sprache | Script-Datei | Beschreibung |
+|---------|--------------|--------------|
+| **Englisch** | [`docker_backup.sh`](../../docker_backup.sh) | Hauptscript mit englischen Kommentaren und Meldungen |
+| **Deutsch** | [`docker_backup_de.sh`](../../docker_backup_de.sh) | Deutsche Version mit deutschen Kommentaren und Meldungen |
+
+**Hinweis**: Beide Versionen haben identische Funktionalität. Wähle basierend auf deiner Sprachpräferenz.
 
 2. Teste die rsync-Fixes (empfohlen):
 ```bash
@@ -249,6 +265,10 @@ sudo ./test_rsync_fix.sh
 
 # Test-Modus (zeigt nur was gemacht würde)
 ./docker_backup.sh --dry-run
+
+# Deutsche Version verwenden:
+./docker_backup_de.sh --auto
+./docker_backup_de.sh --dry-run
 ```
 
 ### Verfügbare Optionen
@@ -305,6 +325,10 @@ sudo ./test_rsync_fix.sh
 
 # NEU in Version 3.4.8: rsync-Fixes testen
 ./test_rsync_fix.sh
+
+# Deutsche Version verwenden:
+./docker_backup_de.sh --auto --parallel 4 --use-stop
+./docker_backup_de.sh --dry-run --preserve-acl
 ```
 
 ### Neue Test-Tools (Version 3.4.8)
@@ -387,6 +411,10 @@ crontab -e
 
 # Beispiel: Wöchentliches vollständiges Backup (Sonntags um 1:00)
 0 1 * * 0 /pfad/zum/docker_backup.sh --auto --preserve-acl --parallel 2 --timeout-stop 120 2>&1 | logger -t docker_backup_weekly
+
+# Deutsche Version verwenden:
+0 2 * * * /pfad/zum/docker_backup_de.sh --auto --parallel 4 --use-stop >> /pfad/zu/logs/cron_backup.log 2>&1
+0 1 * * 0 /pfad/zum/docker_backup_de.sh --auto --preserve-acl --parallel 2 2>&1 | logger -t docker_backup_weekly
 ```
 
 ## Logging

@@ -36,12 +36,28 @@ A robust, production-ready backup solution for Docker-based NAS systems with adv
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
 
+# Optional: Download German version
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh
+
 # Make scripts executable
 chmod +x docker_backup.sh test_rsync_fix.sh
+# If using German version:
+chmod +x docker_backup_de.sh
 
 # Test rsync compatibility (recommended)
 ./test_rsync_fix.sh
 ```
+
+### Language Versions
+
+This project provides scripts in multiple languages:
+
+| Language | Script File | Description |
+|----------|-------------|-------------|
+| **English** | [`docker_backup.sh`](docker_backup.sh) | Main script with English comments and messages |
+| **German** | [`docker_backup_de.sh`](docker_backup_de.sh) | German version with German comments and messages |
+
+**Note**: Both versions have identical functionality. Choose based on your language preference.
 
 ### Basic Usage
 

@@ -21,13 +21,28 @@
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
 
+# Optional: Deutsche Version herunterladen
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh
+
 # Scripts ausführbar machen
-chmod +x docker_backup.sh
-chmod +x test_rsync_fix.sh
+chmod +x docker_backup.sh test_rsync_fix.sh
+# Falls deutsche Version verwendet wird:
+chmod +x docker_backup_de.sh
 
 # Hilfe anzeigen (optional)
 ./docker_backup.sh --help
+# Oder für deutsche Version:
+./docker_backup_de.sh --help
 ```
+
+### 🌍 **Verfügbare Sprachversionen:**
+
+| Sprache | Script | Kommentare & Meldungen |
+|---------|--------|------------------------|
+| **🇺🇸 Englisch** | `docker_backup.sh` | Englische Kommentare und Benutzermeldungen |
+| **🇩🇪 Deutsch** | `docker_backup_de.sh` | Deutsche Kommentare und Benutzermeldungen |
+
+**💡 Beide Versionen haben identische Funktionalität - wähle deine bevorzugte Sprache!**
 
 #### **Schritt 2: rsync-Fixes testen (NEU!)**
 ```bash
@@ -45,6 +60,10 @@ sudo ./docker_backup.sh --dry-run
 
 # Echtes Backup mit Bestätigung
 sudo ./docker_backup.sh
+
+# Oder mit deutscher Version:
+sudo ./docker_backup_de.sh --dry-run
+sudo ./docker_backup_de.sh
 ```
 
 #### **Schritt 4: Automatisierung einrichten**
@@ -64,7 +83,7 @@ sudo crontab -e
 
 ### 📁 **Pfade anpassen (falls nötig)**
 
-Öffne `docker_backup.sh` und ändere diese Zeilen:
+Öffne `docker_backup.sh` (oder `docker_backup_de.sh` für deutsche Version) und ändere diese Zeilen:
 
 ```bash
 # Zeile 19-24 im Script:
@@ -109,6 +128,10 @@ sudo ./docker_backup.sh --dry-run
 
 # Nur Container neu starten
 sudo ./docker_backup.sh --skip-backup --auto
+
+# Deutsche Version Beispiele:
+sudo ./docker_backup_de.sh --auto
+sudo ./docker_backup_de.sh --dry-run
 ```
 
 ### 🚀 **Performance-Befehle:**
@@ -210,6 +233,8 @@ grep "ERROR" /volume1/docker-nas/logs/docker_backup_*.log
 ```bash
 # Tägliches Backup um 2:00 Uhr
 0 2 * * * /pfad/zum/docker_backup.sh --auto
+# Oder mit deutscher Version:
+0 2 * * * /pfad/zum/docker_backup_de.sh --auto
 ```
 
 ### 🏢 **Kleine Unternehmen (robust):**

@@ -21,13 +21,28 @@
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
 
+# Optional: Download German version
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh
+
 # Make scripts executable
-chmod +x docker_backup.sh
-chmod +x test_rsync_fix.sh
+chmod +x docker_backup.sh test_rsync_fix.sh
+# If using German version:
+chmod +x docker_backup_de.sh
 
 # Show help (optional)
 ./docker_backup.sh --help
+# Or for German version:
+./docker_backup_de.sh --help
 ```
+
+### 🌍 **Language Versions Available:**
+
+| Language | Script | Comments & Messages |
+|----------|--------|-------------------|
+| **🇺🇸 English** | `docker_backup.sh` | English comments and user messages |
+| **🇩🇪 German** | `docker_backup_de.sh` | German comments and user messages |
+
+**💡 Both versions have identical functionality - choose your preferred language!**
 
 #### **Step 2: Test rsync fixes (NEW!)**
 ```bash
@@ -45,6 +60,10 @@ sudo ./docker_backup.sh --dry-run
 
 # Real backup with confirmation
 sudo ./docker_backup.sh
+
+# Or using German version:
+sudo ./docker_backup_de.sh --dry-run
+sudo ./docker_backup_de.sh
 ```
 
 #### **Step 4: Set up automation**
@@ -109,6 +128,10 @@ sudo ./docker_backup.sh --dry-run
 
 # Only restart containers
 sudo ./docker_backup.sh --skip-backup --auto
+
+# German version examples:
+sudo ./docker_backup_de.sh --auto
+sudo ./docker_backup_de.sh --dry-run
 ```
 
 ### 🚀 **Performance commands:**
