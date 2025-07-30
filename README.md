@@ -209,6 +209,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
+## 📚 Documentation
+
+### Quick Start
+- 🚀 **[Quick Start Guide](QUICKSTART.md)** - Get up and running in 5 minutes
+
+### Detailed Guides
+- 🇺🇸 **[English Manual](docs/EN/MANUAL_EN.md)** - Complete user guide in English
+- 🇩🇪 **[German Manual](docs/DE/ANLEITUNG_DE.md)** - Vollständige Anleitung auf Deutsch
+
+### Automation
+- 🇺🇸 **[Cron Automation (EN)](docs/EN/CRON_AUTOMATION_EN.md)** - Setting up automated backups
+- 🇩🇪 **[Cron Automatisierung (DE)](docs/DE/CRON_AUTOMATISIERUNG_DE.md)** - Automatisierte Backups einrichten
+
+### Development
+- 🛠️ **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to this project
+- 🔒 **[Security Policy](SECURITY.md)** - Security guidelines and reporting
+
 ---
 
 **⚠️ Security Notice**: Always upgrade to the latest version for critical security fixes. Version 3.4.9+ is required for safe parallel operations.
