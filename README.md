@@ -1,4 +1,4 @@
-# NAS Docker Backup Script (rsync)
+# NAS - Docker Backup Script (rsync)
 
 [![Version](https://img.shields.io/badge/version-3.4.9-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
