@@ -30,14 +30,16 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 For security vulnerabilities, please **DO NOT** create a public GitHub issue. Instead:
 
-1. **Email**: Send details to [security@your-domain.com] (replace with actual email)
-2. **Subject**: `[SECURITY] Docker NAS Backup Script - [Brief Description]`
-3. **Include**:
-   - Detailed description of the vulnerability
-   - Steps to reproduce the issue
-   - Potential impact assessment
-   - Suggested fix (if available)
-   - Your contact information for follow-up
+1. **GitHub Security Advisory** (Recommended):
+   - Go to the repository's **Security** tab
+   - Click **"Report a vulnerability"**
+   - This creates a private, secure discussion
+   - Only repository maintainers can see it
+
+2. **Private GitHub Issue** (Alternative):
+   - Create a new issue and immediately mark it as private
+   - Use the security issue template
+   - Include all relevant details below
 
 ### 📋 Information to Include
 
@@ -131,11 +133,11 @@ We appreciate security researchers who help improve our project's security:
 ### Version 3.4.9 (2025-07-30) - Critical Security Release
 
 **Fixed Critical Vulnerabilities:**
-- **CVE-TBD-001**: Function export missing in parallel sub-shells causing silent failures
-- **CVE-TBD-002**: Race conditions in log file access during parallel operations
-- **CVE-TBD-003**: Missing atomic lock protection allowing concurrent executions
-- **CVE-TBD-004**: Environment variables not exported to sub-shells
-- **CVE-TBD-005**: Temporary directory collisions in rsync validation
+- **Security Issue #001**: Function export missing in parallel sub-shells causing silent failures
+- **Security Issue #002**: Race conditions in log file access during parallel operations
+- **Security Issue #003**: Missing atomic lock protection allowing concurrent executions
+- **Security Issue #004**: Environment variables not exported to sub-shells
+- **Security Issue #005**: Temporary directory collisions in rsync validation
 
 **Security Improvements:**
 - Added atomic lock protection with automatic cleanup
@@ -171,9 +173,9 @@ This security policy covers:
 
 ## Contact Information
 
-- **Security Email**: [security@your-domain.com] (replace with actual)
-- **PGP Key**: [Link to PGP public key if available]
-- **GitHub**: Create a private security advisory for this repository
+- **Primary**: GitHub Security Advisories (Repository → Security → Report a vulnerability)
+- **Alternative**: Private GitHub Issues with security label
+- **Public Discussion**: Only for non-sensitive security topics in regular issues
 
 ## Acknowledgments
 
