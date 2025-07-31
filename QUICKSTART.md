@@ -1,7 +1,7 @@
 # 🚀 Docker Backup Script - Quick Start Guide
 
 > **Get your first backup running in 5 minutes!**
-> Version 3.5.1 "Production Ready"
+> Version 3.5.7 "Production Ready"
 > **✅ TESTED AND CONFIRMED FUNCTIONAL - July 30, 2025**
 
 ---
@@ -15,18 +15,22 @@
 
 ### 🎯 **4 Steps to Backup (NEW with rsync test):**
 
-#### **Step 1: Download and prepare scripts**
+#### **Step 1: One-Line Installation with System Check**
 ```bash
-# Download scripts directly
-wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
-wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh
+# Check system requirements first
+command -v docker >/dev/null 2>&1 || { echo "❌ Docker not installed. Install Docker first."; exit 1; }
+command -v rsync >/dev/null 2>&1 || { echo "❌ rsync not installed. Install: sudo apt install rsync"; exit 1; }
+command -v flock >/dev/null 2>&1 || { echo "❌ flock not installed (prevents overlapping backups). Install: sudo apt install util-linux"; exit 1; }
+echo "✅ System requirements met"
+
+# Download and install
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh && \
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh && \
+chmod +x docker_backup.sh test_rsync_fix.sh && \
+echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.sh, then configure your paths in the script."
 
 # Optional: Download German version
-wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh
-
-# Make scripts executable
-chmod +x docker_backup.sh test_rsync_fix.sh
-# If using German version:
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
 chmod +x docker_backup_de.sh
 
 # Show help (optional)
@@ -106,7 +110,7 @@ BACKUP_DEST="/path/to/your/backup/destination"  # Where it gets backed up
 
 ## ⚡ Important Commands
 
-### 🧪 **New test commands (Version 3.5.1):**
+### 🧪 **New test commands (Version 3.5.7):**
 ```bash
 # Test rsync fixes (NEW!)
 sudo ./test_rsync_fix.sh
@@ -268,13 +272,13 @@ rm -rf /path/to/backup/
 ### **Restore encrypted backup:**
 ```bash
 # 1. Stop containers
-sudo ./docker_backup.sh --skip-backup
+sudo ./docker_backup.sh --skip-backup --auto
 
 # 2. Decrypt and restore
 gpg --decrypt /path/to/backup-encrypted_YYYYMMDD_HHMMSS.tar.gz.gpg | tar -xzf - -C /
 
 # 3. Start containers
-sudo ./docker_backup.sh --skip-backup
+sudo ./docker_backup.sh --skip-backup --auto
 ```
 
 **💡 Tip:** For detailed encryption guide see [README.md](README.md)
@@ -290,7 +294,7 @@ sudo ./docker_backup.sh --skip-backup
 
 ---
 
-## ✅ Checklist Version 3.5.1
+## ✅ Checklist Version 3.5.7
 
 - [ ] Scripts made executable (`chmod +x docker_backup.sh test_rsync_fix.sh`)
 - [ ] **NEW:** rsync fixes tested (`sudo ./test_rsync_fix.sh`)
@@ -303,7 +307,7 @@ sudo ./docker_backup.sh --skip-backup
 
 **🎉 Everything done? Perfect! Your Docker backup now runs automatically.**
 
-### **🏆 Version 3.5.1 Highlights:**
+### **🏆 Version 3.5.7 Highlights:**
 - ✅ **Critical security fixes** → Safe parallelization
 - ✅ **Robust rsync flag validation** → Real tests instead of grep
 - ✅ **Improved array-based execution** → Secure parameter passing
