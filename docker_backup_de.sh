@@ -440,8 +440,8 @@ stop_all_docker_stacks() {
         local temp_dir=$(mktemp -d)
 
         # Exportiere SUDO_CMD, Variablen und Funktionen für Sub-Shells (defensive Programmierung)
-        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE
-        export -f process_docker_output format_container_status
+        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE LOG_FD
+        export -f process_docker_output format_container_status log_write log_message
 
         # Paralleles Stoppen mit xargs (robuste Behandlung von Stack-Namen mit Sonderzeichen)
         printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "
@@ -553,8 +553,8 @@ start_all_docker_stacks() {
         local temp_dir=$(mktemp -d)
 
         # Exportiere SUDO_CMD, Variablen und Funktionen für Sub-Shells (defensive Programmierung)
-        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE
-        export -f process_docker_output format_container_status
+        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE LOG_FD
+        export -f process_docker_output format_container_status log_write log_message
 
         # Paralleles Starten mit xargs (robuste Behandlung von Stack-Namen mit Sonderzeichen)
         printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "

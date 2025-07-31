@@ -143,19 +143,19 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 
 ```bash
 # 🧪 Test-Modus (sicher - zeigt was passieren würde)
-./docker_backup.sh --dry-run
+./docker_backup_de.sh --dry-run
 
 # 🎯 Interaktives Backup mit Bestätigung
-./docker_backup.sh
+./docker_backup_de.sh
 
 # 🤖 Automatisiertes Backup (perfekt für Cron)
-./docker_backup.sh --auto
+./docker_backup_de.sh --auto
 
 # ⚡ Hochleistungs-paralleles Backup
-./docker_backup.sh --auto --parallel 4 --use-stop
+./docker_backup_de.sh --auto --parallel 4 --use-stop
 
-# 🔒 Sicheres Backup mit ACL-Bewahrung
-./docker_backup.sh --auto --preserve-acl
+# 🔒 Sicheres Backup mit ACL-Bewahrung (keine Verschlüsselung)
+./docker_backup_de.sh --auto --preserve-acl
 ```
 
 ## 📖 Detaillierte Konfiguration
@@ -187,13 +187,13 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 
 ```bash
 # Tägliches schnelles Backup mit Parallelisierung
-0 2 * * * /pfad/zu/docker_backup.sh --auto --parallel 4 --use-stop
+0 2 * * * /pfad/zu/docker_backup_de.sh --auto --parallel 4 --use-stop
 
 # Wöchentliches vollständiges Backup
-0 1 * * 0 /pfad/zu/docker_backup.sh --auto --parallel 2 --preserve-acl
+0 1 * * 0 /pfad/zu/docker_backup_de.sh --auto --parallel 2 --preserve-acl
 
 # Hochleistungs-Setup für große Installationen
-0 2 * * * /pfad/zu/docker_backup.sh --auto --parallel 6 --buffer-percent 25
+0 2 * * * /pfad/zu/docker_backup_de.sh --auto --parallel 6 --buffer-percent 25
 ```
 
 ## 🛡️ Sicherheitsfeatures

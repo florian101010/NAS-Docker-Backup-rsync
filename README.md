@@ -45,7 +45,7 @@
 
 ### 💾 **Advanced Backup Features**
 - **🔄 Incremental Sync**: rsync-based synchronization without snapshot history, with intelligent flag validation and multi-tier fallback
-- **🔐 Backup Encryption**: Optional post-backup encryption via external GPG (examples provided)
+- **🔐 Backup Encryption**: Optional post-backup encryption via **external** GPG pipelines (examples provided)
 - **✅ Backup Verification**: Automatic verification of backup integrity and completeness
 - **📈 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
 
@@ -166,7 +166,7 @@ After installation, follow these steps in order:
 # ⚡ High-performance parallel backup
 ./docker_backup.sh --auto --parallel 4 --use-stop
 
-# 🔒 Secure backup with ACL preservation
+# 🔒 Secure backup with ACL preservation (not encryption)
 ./docker_backup.sh --auto --preserve-acl
 ```
 
