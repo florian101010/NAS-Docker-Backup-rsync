@@ -648,7 +648,12 @@ start_all_docker_stacks() {
 perform_consolidated_health_check() {
     log_message "INFO" "Führe kompakten Gesundheitscheck durch..."
     
+    # Einfacher Fallback falls ALL_STACKS leer ist
     if [[ ${#ALL_STACKS[@]} -eq 0 ]]; then
+        echo ""
+        echo -e "${CYAN}=== CONTAINER STATUS ===${NC}"
+        echo -e "${YELLOW}⚠️ Keine Stacks für Healthcheck gefunden${NC}"
+        log_message "WARN" "Gesundheitscheck: Keine Stacks gefunden"
         return 0
     fi
     
@@ -658,7 +663,7 @@ perform_consolidated_health_check() {
     local healthy_containers=0
     local unhealthy_containers=0
     
-    # Kompakte Prüfung ohne detaillierte Ausgabe
+    # Robuste Prüfung mit Timeout und Fehlerbehandlung
     for stack_name in "${ALL_STACKS[@]}"; do
         local stack_dir="$STACKS_DIR/$stack_name"
         
@@ -666,27 +671,35 @@ perform_consolidated_health_check() {
             continue
         fi
         
-        # Container-Status für diesen Stack abrufen (robust mit Fehlerbehandlung)
-        local containers
-        if containers=$(cd "$stack_dir" && $SUDO_CMD docker compose ps --format json 2>/dev/null) && [[ -n "$containers" ]]; then
+        # Container-Status für diesen Stack abrufen mit Timeout
+        local containers=""
+        if timeout 10 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps --format json 2>/dev/null" > /tmp/healthcheck_$$.json; then
+            containers=$(cat /tmp/healthcheck_$$.json 2>/dev/null)
+            rm -f /tmp/healthcheck_$$.json 2>/dev/null
+        fi
+        
+        if [[ -n "$containers" ]]; then
             local stack_healthy=true
             local stack_container_count=0
-            local stack_healthy_count=0
             
-            # Sichere JSON-Verarbeitung
+            # Vereinfachte JSON-Verarbeitung ohne jq-Pipeline
             while IFS= read -r container; do
-                if [[ -n "$container" ]]; then
+                if [[ -n "$container" && "$container" != "null" ]]; then
                     ((stack_container_count++))
                     ((total_containers++))
                     
-                    # Sichere jq-Aufrufe mit Fallback
-                    local status=$(echo "$container" | jq -r '.State // "unknown"' 2>/dev/null || echo 'unknown')
-                    local health=$(echo "$container" | jq -r '.Health // "none"' 2>/dev/null || echo 'none')
+                    # Sichere jq-Aufrufe mit expliziter Fehlerbehandlung
+                    local status="unknown"
+                    local health="none"
+                    
+                    if command -v jq >/dev/null 2>&1; then
+                        status=$(echo "$container" | jq -r '.State // "unknown"' 2>/dev/null || echo 'unknown')
+                        health=$(echo "$container" | jq -r '.Health // "none"' 2>/dev/null || echo 'none')
+                    fi
                     
                     # Container-Status prüfen
                     if [[ "$status" == "running" ]]; then
                         if [[ "$health" == "none" || "$health" == "healthy" ]]; then
-                            ((stack_healthy_count++))
                             ((healthy_containers++))
                         else
                             stack_healthy=false
@@ -697,7 +710,7 @@ perform_consolidated_health_check() {
                         ((unhealthy_containers++))
                     fi
                 fi
-            done <<< "$(echo "$containers" | jq -c '.[]' 2>/dev/null || echo '')"
+            done <<< "$(echo "$containers" | jq -c '.[]' 2>/dev/null || echo "$containers")"
             
             if [[ "$stack_healthy" == true && $stack_container_count -gt 0 ]]; then
                 ((healthy_stacks++))
@@ -705,6 +718,7 @@ perform_consolidated_health_check() {
                 ((unhealthy_stacks++))
             fi
         else
+            # Stack ohne Container oder Fehler beim Abrufen
             ((unhealthy_stacks++))
         fi
     done
@@ -723,7 +737,7 @@ perform_consolidated_health_check() {
         log_message "WARN" "Gesundheitscheck: $unhealthy_containers problematische Container in $unhealthy_stacks Stacks"
     fi
     
-    # Immer erfolgreich zurückkehren (kein Script-Abbruch)
+    log_message "INFO" "Gesundheitscheck abgeschlossen"
     return 0
 }
 
