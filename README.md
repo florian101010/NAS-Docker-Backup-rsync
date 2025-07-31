@@ -1,4 +1,4 @@
-# 🐳 NAS Docker Backup Script
+# 🐳 NAS - Docker Backup Script (rsync)
 
 <div align="center">
 
