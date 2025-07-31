@@ -71,7 +71,7 @@
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix_de.sh && \
 chmod +x docker_backup_de.sh test_rsync_fix_de.sh && \
-echo "✅ Installation abgeschlossen! Kompatibilität testen: ./test_rsync_fix_de.sh"
+echo "✅ Installation abgeschlossen! Weiter: Kompatibilität testen mit ./test_rsync_fix_de.sh, dann Pfade im Script konfigurieren."
 ```
 
 **🇺🇸 English Version:**
@@ -79,15 +79,19 @@ echo "✅ Installation abgeschlossen! Kompatibilität testen: ./test_rsync_fix_d
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh && \
 chmod +x docker_backup.sh test_rsync_fix.sh && \
-echo "✅ Installation complete! Test compatibility: ./test_rsync_fix.sh"
+echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.sh, then configure your paths in the script."
 ```
 
 ### 2️⃣ Ihre Pfade Konfigurieren
-Bearbeiten Sie diese 5 Zeilen in [`docker_backup.sh`](docker_backup.sh) (Zeilen 25-37):
+Bearbeiten Sie diese 5 Zeilen in [`docker_backup_de.sh`](docker_backup_de.sh) (Zeilen 25-37):
 ```bash
+# Script mit nano Editor öffnen
+nano docker_backup_de.sh
+
+# Diese Pfade für Ihr System konfigurieren:
 DATA_DIR="/volume1/docker-nas/data"          # Ihr Docker-Datenverzeichnis
 STACKS_DIR="/volume1/docker-nas/stacks"      # Ihre Docker Compose Dateien
-BACKUP_SOURCE="/volume1/docker-nas"          # Quellverzeichnis für Backup
+BACKUP_SOURCE="/volume1/docker-nas"          # Quellverzeichnis für Backup - anderes Beispiel: /volume1/@docker
 BACKUP_DEST="/volume2/backups/docker-backup" # Wo Backups gespeichert werden
 LOG_DIR="/volume1/docker-nas/logs"           # Log-Datei-Speicherort
 ```

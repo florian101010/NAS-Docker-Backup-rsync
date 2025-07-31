@@ -77,7 +77,7 @@ echo "✅ System requirements met"
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh && \
 chmod +x docker_backup.sh test_rsync_fix.sh && \
-echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.sh"
+echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.sh, then configure your paths in the script."
 ```
 
 **🇩🇪 German Version:**
@@ -91,41 +91,21 @@ echo "✅ Systemvoraussetzungen erfüllt"
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix_de.sh && \
 chmod +x docker_backup_de.sh test_rsync_fix_de.sh && \
-echo "✅ Installation abgeschlossen! Weiter: Kompatibilität testen mit ./test_rsync_fix_de.sh"
+echo "✅ Installation abgeschlossen! Weiter: Kompatibilität testen mit ./test_rsync_fix_de.sh, dann Pfade im Script konfigurieren."
 ```
 
 ### 2️⃣ Configure Your Paths
 Edit these 5 lines in [`docker_backup.sh`](docker_backup.sh) (lines 25-37):
-
-**Common NAS Configurations:**
 ```bash
-# UGREEN NAS (DXP2800, DXP4800, etc.)
-DATA_DIR="/volume1/docker-nas/data"
-STACKS_DIR="/volume1/docker-nas/stacks"
-BACKUP_SOURCE="/volume1/docker-nas"
-BACKUP_DEST="/volume2/backups/docker-backup"
-LOG_DIR="/volume1/docker-nas/logs"
+# Open script with nano editor
+nano docker_backup.sh
 
-# Synology NAS
-DATA_DIR="/volume1/docker/data"
-STACKS_DIR="/volume1/docker/stacks"
-BACKUP_SOURCE="/volume1/docker"
-BACKUP_DEST="/volume2/backups/docker-backup"
-LOG_DIR="/volume1/docker/logs"
-
-# QNAP NAS
-DATA_DIR="/share/Container/data"
-STACKS_DIR="/share/Container/stacks"
-BACKUP_SOURCE="/share/Container"
-BACKUP_DEST="/share/Backup/docker-backup"
-LOG_DIR="/share/Container/logs"
-
-# Custom Linux Server
-DATA_DIR="/opt/docker/data"
-STACKS_DIR="/opt/docker/stacks"
-BACKUP_SOURCE="/opt/docker"
-BACKUP_DEST="/backup/docker"
-LOG_DIR="/var/log/docker-backup"
+# Configure these paths for your system:
+DATA_DIR="/volume1/docker-nas/data"          # Your Docker data directory
+STACKS_DIR="/volume1/docker-nas/stacks"      # Your Docker Compose files
+BACKUP_SOURCE="/volume1/docker-nas"          # Source directory to backup - other example: /volume1/@docker
+BACKUP_DEST="/volume2/backups/docker-backup" # Where to store backups
+LOG_DIR="/volume1/docker-nas/logs"           # Log file location
 ```
 
 ### 3️⃣ Test & Run
