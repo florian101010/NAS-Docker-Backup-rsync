@@ -24,7 +24,7 @@
 
 **🎯 Perfekt für:** Home Labs • Kleine Unternehmen • Produktionsumgebungen • Jedes Docker-Setup auf NAS-Geräten
 
-**🏆 Warum dieses Script wählen:** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, persistente Daten) und nahtloser Service-Neustart (Netzwerke werden bei `down` von Compose neu erstellt; bei `--use-stop` bleiben Netzwerke erhalten).
+**🏆 Warum dieses Script nutzen** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, persistente Daten) und nahtloser Service-Neustart (Netzwerke werden bei `down` von Compose neu erstellt; bei `--use-stop` bleiben Netzwerke erhalten).
 
 ---
 
