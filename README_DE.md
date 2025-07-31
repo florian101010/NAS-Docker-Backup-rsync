@@ -26,9 +26,34 @@
 
 **🏆 Warum dieses Script wählen:** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, persistente Daten) und nahtloser Service-Neustart (Netzwerke werden bei `down` von Compose neu erstellt; bei `--use-stop` bleiben Netzwerke erhalten).
 
-**✅ Getestet & Optimiert für:** UGREEN NAS • kompatibel mit Synology • QNAP • Custom Linux NAS • Ubuntu • Debian
+**✅ Entwickelt für Kompatibilität:** Funktioniert perfekt auf UGREEN NAS und ist für hohe Kompatibilität mit Synology, QNAP, eigenen Linux-NAS-Setups, Ubuntu und Debian ausgelegt.
+---
 
-## 🚀 Hauptfunktionen
+## Inhaltsverzeichnis
+
+- [🚀 Hauptfunktionen](#-hauptfunktionen)
+- [⚠️ Wichtiger Haftungsausschluss](#️-wichtiger-haftungsausschluss)
+- [📋 Anforderungen](#-anforderungen)
+- [⚡ Schnellstart (5 Minuten)](#-schnellstart-5-minuten)
+- [🌍 Sprachunterstützung](#-sprachunterstützung)
+- [📊 Verwendungsbeispiele](#-verwendungsbeispiele)
+- [📖 Detaillierte Konfiguration](#-detaillierte-konfiguration)
+- [🔄 Automatisierung mit Cron](#-automatisierung-mit-cron)
+- [🛡️ Sicherheitsfeatures](#️-sicherheitsfeatures)
+- [📊 Überwachung & Logging](#-überwachung--logging)
+- [🔧 Fehlerbehebung](#-fehlerbehebung)
+- [🔐 Backup-Verschlüsselung](#-backup-verschlüsselung)
+- [🤝 Mitwirken](#-mitwirken)
+- [📄 Lizenz](#-lizenz)
+- [🎯 Anwendungsfälle](#-anwendungsfälle)
+- [🙏 Danksagungen](#-danksagungen)
+- [📈 Versionshistorie](#-versionshistorie)
+- [📚 Dokumentation](#-dokumentation)
+- [📸 Screenshots](#-screenshots)
+
+---
+
+## � Hauptfunktionen
 
 ### 🐳 **Intelligente Docker-Verwaltung**
 - **🔍 Automatische Container-Erkennung**: Findet alle Docker Compose Stacks und Container automatisch
@@ -53,7 +78,7 @@
 - **🎛️ Hochgradig Konfigurierbar**: Umfangreiche Kommandozeilen-Optionen für Timeouts, Puffer und Verhalten
 - **🕒 Flexible Zeitplanung**: Perfekt für Cron-Automatisierung mit verschiedenen Timing-Optionen
 - **🔒 Sicherheitsfeatures**: Fail-Fast-Design, Input-Validierung und sichere Berechtigungsbehandlung
-- **🌐 NAS-Optimiert**: Getestet auf UGREEN (DXP2800) - (TBC) kompatibel mit Synology, QNAP und benutzerdefinierten Linux-NAS-Systemen
+- **🌐 NAS-Optimiert**: Ausführlich auf UGREEN NAS (DXP2800) getestet. Entwickelt für hohe Kompatibilität mit Synology, QNAP und anderen benutzerdefinierten Linux-NAS-Systemen.
 
 ## ⚠️ Wichtiger Haftungsausschluss
 
@@ -101,15 +126,15 @@ echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.
 ```
 
 ### 2️⃣ Ihre Pfade Konfigurieren
-Bearbeiten Sie diese 5 Zeilen in [`docker_backup_de.sh`](docker_backup_de.sh) (Zeilen 25-37):
-```bash
-# Script mit nano Editor öffnen
-nano docker_backup_de.sh
+Öffnen Sie `docker_backup_de.sh` mit einem Texteditor (z. B. `nano`) und passen Sie die folgenden Pfade an Ihre Systemkonfiguration an.
 
-# Diese Pfade für Ihr System konfigurieren:
+**⚠️ Wichtig:** Führen Sie nach dem Speichern Ihrer Änderungen immer einen Testlauf mit `./docker_backup_de.sh --dry-run` durch, um sicherzustellen, dass Ihre Konfiguration gültig ist.
+
+```bash
+# Beispielkonfiguration:
 DATA_DIR="/volume1/docker-nas/data"          # Ihr Docker-Datenverzeichnis
 STACKS_DIR="/volume1/docker-nas/stacks"      # Ihre Docker Compose Dateien
-BACKUP_SOURCE="/volume1/docker-nas"          # Quellverzeichnis für Backup - anderes Beispiel: /volume1/@docker
+BACKUP_SOURCE="/volume1/docker-nas"          # Quellverzeichnis für Backup
 BACKUP_DEST="/volume2/backups/docker-nas-backup" # Wo Backups gespeichert werden
 LOG_DIR="/volume1/docker-nas/logs"           # Log-Datei-Speicherort
 ```
@@ -347,13 +372,12 @@ chmod +x docker_backup.sh test_rsync_fix.sh
 
 Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) Datei für Details.
 
-## 🎯 Anwendungsfälle & Erfolgsgeschichten
+## 🎯 Anwendungsfälle
 
 **Perfekt für diese Szenarien:**
 - 🏠 **Home Labs**: Schützen Sie Ihre selbst gehosteten Services (Plex, Nextcloud, etc.)
 - 🏢 **Kleine Unternehmen**: Sichern Sie kritische Docker-Anwendungen sicher
 - 🔧 **Entwicklung**: Konsistente Backups von Entwicklungsumgebungen
-- 📊 **Produktion**: Enterprise-Grade-Backup für Produktions-Docker-Stacks
 
 ## 🙏 Danksagungen
 
@@ -390,6 +414,6 @@ Siehe [CHANGELOG.md](CHANGELOG.md) für detaillierte Release-Notizen.
 
 ### Backup-Prozess in Aktion
 
-<img width="2764" height="2950" alt="100_screenshot" src="https://github.com/user-attachments/assets/ab6a50bc-f63f-40e1-b66e-3ea3bd81e997" />
-<img width="2764" height="2950" alt="300_screenshot" src="https://github.com/user-attachments/assets/93045756-e1f7-4011-8d6d-81f6103d4263" />
-<img width="2764" height="2950" alt="200_screenshot" src="https://github.com/user-attachments/assets/35878374-269e-4404-a005-921dca27d8b8" />
+<img width="1672" height="2886" alt="Screenshot, der die Initialisierung des Skripts und den Stopp-Prozess der Container zeigt" src="https://github.com/user-attachments/assets/c93101ed-8cf3-4d9a-bdf1-2f8d916adf4f" />
+<img width="1672" height="2886" alt="Screenshot, der den rsync-Backup-Prozess und die Verifizierungsschritte zeigt" src="https://github.com/user-attachments/assets/c41afa70-a1cb-4983-b88c-d6f3bf144232" />
+<img width="1672" height="2886" alt="Screenshot, der den Start-Prozess der Container und den abschließenden Zusammenfassungsbericht zeigt" src="https://github.com/user-attachments/assets/0357fff5-9466-4f83-b2a4-85f452d290a9" />

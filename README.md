@@ -26,11 +26,36 @@
 
 **🏆 Why choose this script:** Traditional backup methods **corrupt Docker data** when containers are running. This script solves that problem by intelligently managing your entire Docker ecosystem - automatically discovering containers, gracefully stopping them for data consistency, creating comprehensive backups of everything (stacks, volumes, configs), and seamlessly restarting services.
 
-**✅ Tested & Optimized for:** UGREEN NAS • compatible with Synology • QNAP • Custom Linux NAS • Ubuntu • Debian
+**✅ Designed for Compatibility:** Works perfectly on UGREEN NAS and is designed for high compatibility with Synology, QNAP, custom Linux NAS setups, Ubuntu, and Debian.
+---
+
+## Table of Contents
+
+- [🚀 Key Features](#-key-features)
+- [⚠️ Important Disclaimer](#️-important-disclaimer)
+- [📋 Requirements](#-requirements)
+- [⚡ Quick Start (5 Minutes)](#-quick-start-5-minutes)
+- [🌍 Language Support](#-language-support)
+- [📊 Usage Examples](#-usage-examples)
+- [📖 Detailed Configuration](#-detailed-configuration)
+- [🔄 Automation with Cron](#-automation-with-cron)
+- [🛡️ Security Features](#️-security-features)
+- [📊 Monitoring & Logging](#-monitoring--logging)
+- [🔧 Troubleshooting](#-troubleshooting)
+- [🔐 Backup Encryption](#-backup-encryption)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🎯 Use Cases](#-use-cases)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [📈 Version History](#-version-history)
+- [📚 Documentation](#-documentation)
+- [📸 Screenshots](#-screenshots)
+
+---
 
 ## 🚀 Key Features
 
-### 🐳 **Smart Docker Management**
+### � **Smart Docker Management**
 - **🔍 Automatic Container Discovery**: Finds all Docker Compose stacks and containers automatically
 - **⏸️ Graceful Container Shutdown**: Safely stops containers to prevent data corruption during backup
 - **🔄 Intelligent Restart**: Automatically restarts all services after backup completion
@@ -53,7 +78,7 @@
 - **🎛️ Highly Configurable**: Extensive command-line options for timeouts, buffers, and behavior
 - **🕒 Flexible Scheduling**: Perfect for cron automation with various timing options
 - **🔒 Security Features**: Fail-fast design, input validation, and secure permission handling
-- **🌐 NAS Optimized**: Tested on UGREEN (DXP2800) - (TBC) compatible with Synology, QNAP, and custom Linux NAS systems
+- **🌐 NAS Optimized**: Extensively tested on UGREEN NAS (DXP2800). Designed for high compatibility with Synology, QNAP, and other custom Linux NAS systems.
 
 ## ⚠️ Important Disclaimer
 
@@ -101,15 +126,15 @@ echo "✅ Installation abgeschlossen! Weiter: Kompatibilität testen mit ./test_
 ```
 
 ### 2️⃣ Configure Your Paths
-Edit these 5 lines in [`docker_backup.sh`](docker_backup.sh) (lines 25-37):
-```bash
-# Open script with nano editor
-nano docker_backup.sh
+Open `docker_backup.sh` with a text editor (e.g., `nano`) and adjust the following paths to match your system configuration.
 
-# Configure these paths for your system:
+**⚠️ Important:** After saving your changes, always perform a test run with `./docker_backup.sh --dry-run` to ensure your configuration is valid.
+
+```bash
+# Example configuration:
 DATA_DIR="/volume1/docker-nas/data"          # Your Docker data directory
 STACKS_DIR="/volume1/docker-nas/stacks"      # Your Docker Compose files
-BACKUP_SOURCE="/volume1/docker-nas"          # Source directory to backup - other example: /volume1/@docker
+BACKUP_SOURCE="/volume1/docker-nas"          # Source directory to backup
 BACKUP_DEST="/volume2/backups/docker-nas-backup" # Where to store backups
 LOG_DIR="/volume1/docker-nas/logs"           # Log file location
 ```
@@ -347,13 +372,12 @@ chmod +x docker_backup.sh test_rsync_fix.sh
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🎯 Use Cases & Success Stories
+## 🎯 Use Cases
 
 **Perfect for these scenarios:**
 - 🏠 **Home Labs**: Protect your self-hosted services (Plex, Nextcloud, etc.)
 - 🏢 **Small Business**: Backup critical Docker applications safely
 - 🔧 **Development**: Consistent backup of development environments
-- 📊 **Production**: Enterprise-grade backup for production Docker stacks
 
 ## 🙏 Acknowledgments
 
@@ -392,9 +416,9 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 ### Backup Process in Action
 
-<img width="1672" height="2886" alt="github1_screenshot_optimized" src="https://github.com/user-attachments/assets/c93101ed-8cf3-4d9a-bdf1-2f8d916adf4f" />
-<img width="1672" height="2886" alt="github2_screenshot_optimized" src="https://github.com/user-attachments/assets/c41afa70-a1cb-4983-b88c-d6f3bf144232" />
-<img width="1672" height="2886" alt="github3_screenshot_optimized" src="https://github.com/user-attachments/assets/0357fff5-9466-4f83-b2a4-85f452d290a9" />
+<img width="1672" height="2886" alt="Screenshot showing the script's initialization and container stop process" src="https://github.com/user-attachments/assets/c93101ed-8cf3-4d9a-bdf1-2f8d916adf4f" />
+<img width="1672" height="2886" alt="Screenshot showing the rsync backup process and verification steps" src="https://github.com/user-attachments/assets/c41afa70-a1cb-4983-b88c-d6f3bf144232" />
+<img width="1672" height="2886" alt="Screenshot showing the container start process and final summary report" src="https://github.com/user-attachments/assets/0357fff5-9466-4f83-b2a4-85f452d290a9" />
 
 
 
