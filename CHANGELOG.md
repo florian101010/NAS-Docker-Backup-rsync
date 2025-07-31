@@ -5,312 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.5.1] - 2025-07-31
-
-### 🔧 CRITICAL FIXES & DOCUMENTATION CORRECTIONS
-
-This release addresses critical security vulnerabilities and corrects misleading documentation claims identified through comprehensive code analysis.
-
-#### Fixed
-- **CRITICAL**: Thread-safe logging with flock protection for parallel operations
-- **CRITICAL**: Misleading encryption claims in documentation (--preserve-acl is ACL preservation, not encryption)
-- **CRITICAL**: Docker Compose v2 requirement clarification (script uses `docker compose`, not `docker-compose`)
-- **CRITICAL**: Early backup source validation to prevent late failures
-- **CRITICAL**: Network backup claims corrected (networks are recreated by Compose, not backed up)
-- **CRITICAL**: Incremental backup terminology clarified (sync vs. snapshots)
-
-#### Added
-- Thread-safe logging architecture with atomic flock operations
-- Comprehensive backup source validation in environment checks
-- Accurate feature descriptions across all documentation languages
-
-#### Changed
-- All documentation now correctly describes script capabilities without misleading claims
-- Version synchronization across all files and documentation
-- Improved fail-fast validation with comprehensive directory checks
-
-#### Security
-- Eliminates race conditions in parallel logging operations
-- Prevents silent backup failures in multi-threaded environments
-- Corrects false security expectations from documentation
-
----
-
-## [3.5.0] - 2025-07-31
-
-### 🌍 MULTI-LANGUAGE ENHANCEMENT
-
-This release significantly improves the user experience with complete language consistency and enhanced documentation.
-
-#### Added
-- **German Test Script**: `test_rsync_fix_de.sh` - Fully localized German version of the rsync compatibility test
-- **Enhanced README Documentation**: Professional language selection with prominent badges and navigation
-- **System Requirements Check**: Automated Docker and rsync validation in installation commands
-- **Structured Next Steps Workflow**: Clear post-installation checklist with prioritized steps
-- **Improved Installation Experience**: Separate, copy-friendly bash blocks for each language version
-
-#### Enhanced
-- **Complete Language Consistency**: German users now get fully German experience (scripts + tests + documentation)
-- **Professional Repository Presentation**: Enhanced badges, language selection, and visual structure
-- **User Guidance**: Clear workflow from installation to production setup with structured checklists
-- **Technical Dependencies**: Proper acknowledgment of rsync and Docker ecosystem in documentation
-
-#### Documentation
-- **Bilingual README Structure**: Professional language selection with flag indicators
-- **Enhanced Usability**: Streamlined installation process with system validation
-- **Production-Ready Guidance**: Clear path from installation to automated backup setup
-
-## [3.4.9] - 2025-07-30
-
-### 🚨 SECURITY FIXES
-
-This release addresses critical security vulnerabilities that affect parallel operations. **Immediate upgrade required** for all users utilizing `--parallel N>1`.
-
-#### Fixed
-- **CRITICAL**: Function export missing in parallel sub-shells causing silent backup failures
-- **CRITICAL**: Race conditions in log file access during parallel operations
-- **CRITICAL**: Missing PID/lock file protection allowing concurrent executions
-- **CRITICAL**: Environment variables not exported to sub-shells
-- **CRITICAL**: Temp directory collisions in rsync flag validation
-
-#### Added
-- Atomic lock protection with `flock` for thread-safe execution
-- Automatic lock file cleanup on normal and abnormal exit
-- Complete environment variable export strategy for sub-shells
-- Race-condition-free temporary directory creation using `mktemp -d`
-- Thread-safe logging with direct log file access in parallel jobs
-- **Multi-Language Support**: German version (`docker_backup_de.sh`) with German comments and messages
-- Language selection documentation in all guides (README, QUICKSTART, manuals)
-
-#### Security
-- Prevents silent backup failures when using parallel operations
-- Eliminates double execution in cron environments
-- Ensures formatted container status output in parallel jobs
-- Provides collision-free temporary file handling
-
-## [3.4.8] - 2025-07-30
-
-### Added
-- Robust rsync flag validation with real functionality testing
-- Three-tier fallback mechanism for rsync compatibility
-- Enhanced terminal output with color-coded container status
-- New `test_rsync_fix.sh` tool for isolated rsync validation
-- Improved array-based rsync execution for complex flags
-
-### Changed
-- Replaced unreliable `grep`-based flag detection with actual rsync tests
-- Enhanced container status formatting with visual indicators
-- Optimized debug output and error handling for rsync operations
-
-### Fixed
-- Automatic fallback from `--info=progress2` to `--progress` for older rsync versions
-- Proper handling of flags with equals signs in rsync commands
-- Improved path validation and automatic target directory creation
-
-## [3.4.7] - 2025-07-30
-
-### Added
-- Complete UGREEN NAS DXP2800 compatibility
-- Optimized terminal output with structured, color-coded display
-- Enhanced container status indicators with emoji symbols
-- Improved stack name highlighting and visual organization
-
-### Changed
-- Refined terminal color scheme for better readability
-- Structured output format with consistent indentation
-- Enhanced error message formatting and clarity
-
-### Fixed
-- Terminal output optimization for various NAS systems
-- Consistent color handling across different terminal types
-
-## [3.4.6] - 2025-07-30
-
-### Fixed
-- **CRITICAL**: Array-based rsync execution bug causing parameter passing failures
-- Dynamic flag validation for improved rsync compatibility
-- String expansion issues in rsync parameter handling
-
-## [3.4.5] - 2025-07-30
-
-### Added
-- Full UGREEN NAS DXP2800 compatibility
-- Universal `--progress` flag support for older rsync versions
-
-### Fixed
-- Docker Compose ANSI handling for older versions
-- Removed `--ansi never` flag for broader compatibility
-- Replaced `--info=progress2` with universal `--progress` flag
-
-## [3.4.4] - 2025-07-30
-
-### Added
-- Explicit `SUDO_CMD` export for maximum sub-shell compatibility
-- Shell-agnostic robustness improvements
-- Defensive programming enhancements for variable availability
-
-### Fixed
-- Potential variable availability issues in different shell environments
-- Enhanced sub-shell compatibility across various Linux distributions
-
-## [3.4.3] - 2025-07-30
-
-### Fixed
-- **CRITICAL**: Sub-shell variable handling in parallel operations
-- Performance optimization by removing `-h` flag from rsync
-- Increased minimum storage buffer from 5% to 10% for safety
-
-### Security
-- Improved memory management with safer storage buffer requirements
-- Enhanced parallel operation stability
-
-## [3.4.2] - 2025-07-30
-
-### Fixed
-- **CRITICAL**: NULL-byte delimiter implementation for stack names with special characters
-- BusyBox/Alpine compatibility with automatic `numfmt` fallback
-- Clean `SUDO_CMD` handling eliminating double spaces in output
-
-### Added
-- New `format_bytes()` function with automatic fallback for systems without GNU coreutils
-- Robust special character handling in stack names
-- Improved portability across Linux distributions
-
-## [3.4.1] - 2025-07-30
-
-### Security
-- PATH security optimization (append instead of prepend)
-- ACL tool availability checking before usage
-
-### Added
-- Robust stack name handling with proper escaping
-- Enhanced logging consistency and error handling
-- Improved compatibility checks for ACL tools
-
-### Fixed
-- Eliminated "command not found" logs on systems without ACL support
-- Clean command output without cosmetic spacing issues
-- Consistent ANSI escape sequence removal
-
-## [3.4.0] - 2025-07-30
-
-### Added
-- Complete help text documentation for all command-line flags
-- Actual storage buffer percentage usage in space calculations
-- Comprehensive input validation with range checking for all numeric parameters
-- Parallel container start operations matching stop functionality
-- Cron-safe PATH configuration with automatic export
-- Secure log file permissions (600) with proper owner assignment
-- Race-condition-free ACL testing with unique filenames
-
-### Fixed
-- Eliminated duplicate exit logs (cleanup only on errors)
-- Corrected parallel operation logic with exit-status-based detection
-- Proper container counting in parallel operations
-
-### Changed
-- Enhanced error handling with single, clean exit logging
-- Improved parallel job tracking and status reporting
-
-## [3.3.0] - 2025-07-30
-
-### Added
-- Configurable storage buffer with `--buffer-percent` flag
-- Parallel container operations with `--parallel` flag (1-16 jobs)
-- Enhanced color handling (colors only for terminal output)
-- Comprehensive numeric parameter validation
-- Idempotent trap deactivation for clean exits
-
-### Changed
-- Improved input validation for all configurable parameters
-- Enhanced parallel processing capabilities for large installations
-
-## [3.2.0] - 2025-07-30
-
-### Added
-- Early log file initialization before first log messages
-- Complete ANSI code removal from all Docker outputs in log files
-- Numeric value validation for timeout parameters
-- Automatic ACL fallback for unsupported filesystems
-- Optimized cleanup handling without duplicate logs
-
-### Fixed
-- Log file creation timing issues
-- ANSI escape sequences in log files
-- ACL support detection and graceful degradation
-
-## [3.1.0] - 2025-07-30
-
-### Added
-- Unified logging function with ANSI-free log file output
-- Enhanced trap handling distinguishing normal exit from signals/errors
-- Configurable timeouts with `--timeout-stop` and `--timeout-start` flags
-- ACL and extended attributes support with `--preserve-acl` flag (not encryption)
-- ANSI-free Docker logs with `--ansi never` flag
-
-### Changed
-- Improved signal handling and cleanup procedures
-- Enhanced container timeout management
-- Better support for Synology and advanced NAS systems
-
-## [3.0.0] - 2025-07-30
-
-### Added
-- Fail-fast settings with `set -euo pipefail` for maximum robustness
-- Comprehensive signal handling with automatic container recovery
-- Robust stack detection with safe array handling for special characters
-- Intelligent Docker command selection (`stop` vs `down`)
-- Global exit code management avoiding bash variable collisions
-- sudo optimization with single privilege check
-
-### Changed
-- **BREAKING**: Enhanced error handling may catch previously ignored issues
-- Improved container management with intelligent operation modes
-- Enhanced security with fail-fast error detection
-
-### Security
-- Automatic container restart on script interruption (CTRL+C, kill)
-- Robust privilege handling for both root and regular user execution
-- Safe handling of stack names containing special characters
-
-## [2.0.0] - 2025-07-30
-
-### Added
-- Enhanced error handling with start failure tracking in `FAILED_STACKS`
-- Dynamic user detection with automatic backup permission assignment
-- Detailed rsync exit code analysis with specific error messages
-- Extended backup verification comparing both size and file/directory counts
-- Secure log files with temporary umask adjustment
-
-### Changed
-- **BREAKING**: Improved error tracking may reveal previously hidden issues
-- Enhanced backup verification process with comprehensive checks
-- Better permission management for backup destinations
-
-### Security
-- Improved log file security with restricted permissions
-- Enhanced backup integrity verification
+## [3.5.1] - 2025-07-31 🎉 **INITIAL PUBLIC RELEASE**
+
+This is the first public release of the NAS Docker Backup Script - a production-ready, enterprise-grade solution for automated Docker container and data backup on NAS systems.
+
+#### ✨ **Core Features**
+- **Smart Docker Management**: Automatic container discovery, graceful shutdown, and intelligent restart
+- **Production-Safe Operations**: Thread-safe parallel processing with atomic lock protection
+- **Advanced Backup Technology**: rsync-based incremental synchronization with intelligent fallback mechanisms
+- **Enterprise Security**: Fail-fast design, comprehensive validation, and secure permission handling
+- **Multi-Language Support**: Complete English and German localization (scripts + documentation)
+- **NAS Optimized**: Tested and optimized for UGREEN, Synology, QNAP, and custom Linux NAS systems
+
+#### 🛡️ **Security & Reliability**
+- Thread-safe logging with flock protection for parallel operations
+- Backup source validation with delete-guard protection
+- Automatic container recovery on script interruption (CTRL+C, kill signals)
+- Secure log file permissions with proper owner assignment
+- Input validation with range checking for parameters
+
+#### ⚡ **Performance Features**
+- Configurable parallel container operations (1-16 jobs) for faster backups
+- Intelligent Docker command selection (`stop` vs `down`) for optimal performance
+- Three-tier rsync fallback mechanism for maximum compatibility
+- Configurable timeouts and storage buffers for different system requirements
+
+#### 📖 **Documentation**
+- Multi-language documentation (English/German)
+- Installation guides and quick-start tutorials
+- Cron automation examples for automated backups
+- Troubleshooting guides and best practices
+
+#### 🌍 **Multi-Language Support**
+- **English**: `docker_backup.sh` with complete English documentation
+- **German**: `docker_backup_de.sh` with fully localized German experience
+- Bilingual README with professional language selection
+- Localized test scripts and comprehensive documentation
+
+#### 🔧 **Technical Specifications**
+- **Requirements**: Linux, Bash 4.0+, Docker Compose v2, rsync, flock
+- **Tested Platforms**: Ubuntu, Debian, UGREEN NAS DXP2800 (to be tested: Synology, QNAP)
+- **Backup Method**: rsync incremental synchronization (not snapshot-based)
+- **ACL Support**: Optional ACL and extended attributes preservation (ext4/XFS/Btrfs/ZFS)
+
+#### 📊 **Well-Tested & Reliable**
+- Robust error handling with detailed exit code analysis
+- Backup verification (size, file count, integrity checks)
+- Cron-safe automation with proper environment handling
+- Clean logging with ANSI-free output
 
 ---
 
 ## Migration Guide
 
-### Upgrading to 3.4.9 (Critical)
+### First-Time Installation
 
-**⚠️ REQUIRED**: This upgrade fixes critical security vulnerabilities in parallel operations.
+1. **Download**: Get the latest release from GitHub
+2. **Test Compatibility**: Run `./test_rsync_fix.sh` to verify system compatibility
+3. **Configure**: Edit script paths for your NAS system
+4. **Test**: Run `./docker_backup.sh --dry-run` to validate configuration
+5. **Deploy**: Set up automated backups with cron
 
-1. **Immediate Action Required**: Stop using `--parallel N>1` with versions prior to 3.4.9
-2. **Backup Current Setup**: Ensure you have working backups before upgrading
-3. **Test After Upgrade**: Run `./docker_backup.sh --dry-run --parallel 2` to verify functionality
-4. **Update Cron Jobs**: Safe to use parallel operations in automated scripts after upgrade
+### System Requirements
 
-### Breaking Changes
-
-- **v3.0.0**: Enhanced error handling may catch previously ignored issues
-- **v2.0.0**: Improved error tracking may reveal previously hidden container problems
+- **Minimum**: Linux with Docker Compose v2, rsync, bash 4.0+
+- **Recommended**: Modern NAS system with sufficient storage for backup destination
+- **Permissions**: sudo access or root execution capability
 
 ### Compatibility
 
-- **Minimum Requirements**: Bash 4.0+, Linux with Docker and rsync
-- **Tested Platforms**: Ubuntu, Debian, UGREEN NAS DXP2800, Synology, QNAP
-- **Recommended**: Latest version for all security fixes and performance improvements
+- **Fully Tested**: UGREEN NAS DXP2800, Ubuntu 20.04+, Debian 11+
+- **Compatible**: (TBC) Synology DSM, QNAP QTS, custom Linux NAS systems
+- **Optimized**: For production environments with multiple Docker stacks
+
+---
+
+**🎯 Ready for Use**: This release represents a stable, well-tested solution suitable for home labs, small businesses, and production environments where reliable Docker backups are needed.

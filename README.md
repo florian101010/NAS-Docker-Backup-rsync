@@ -24,7 +24,7 @@
 
 **🎯 Perfect for:** Home labs • Small businesses • Production environments • Any Docker setup on NAS devices
 
-**🏆 Why choose this script:** Traditional backup methods **corrupt Docker data** when containers are running. This script solves that problem by intelligently managing your entire Docker ecosystem - automatically discovering containers, gracefully stopping them for data consistency, creating comprehensive backups of everything (stacks, volumes, networks, configs), and seamlessly restarting services.
+**🏆 Why choose this script:** Traditional backup methods **corrupt Docker data** when containers are running. This script solves that problem by intelligently managing your entire Docker ecosystem - automatically discovering containers, gracefully stopping them for data consistency, creating comprehensive backups of everything (stacks, volumes, configs), and seamlessly restarting services.
 
 **✅ Tested & Optimized for:** UGREEN NAS • compatible with Synology • QNAP • Custom Linux NAS • Ubuntu • Debian
 
@@ -45,7 +45,7 @@
 
 ### 💾 **Advanced Backup Features**
 - **🔄 Incremental Sync**: rsync-based synchronization without snapshot history, with intelligent flag validation and multi-tier fallback
-- **🔐 Backup Encryption**: Optional post-backup encryption via **external** GPG pipelines (examples provided)
+- **🔐 Post-Backup Encryption**: Optional encryption via **external** GPG pipelines **after** backup completion (examples provided)
 - **✅ Backup Verification**: Automatic verification of backup integrity and completeness
 - **📈 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
 
@@ -91,7 +91,7 @@ command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Insta
 command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
 echo "✅ Systemvoraussetzungen erfüllt"
 
-# Download und Installation
+# Download and Installation
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix_de.sh && \
 chmod +x docker_backup_de.sh test_rsync_fix_de.sh && \
@@ -166,7 +166,7 @@ After installation, follow these steps in order:
 # ⚡ High-performance parallel backup
 ./docker_backup.sh --auto --parallel 4 --use-stop
 
-# 🔒 Secure backup with ACL preservation (not encryption)
+# 📋 Backup with ACL preservation (not encryption)
 ./docker_backup.sh --auto --preserve-acl
 ```
 
@@ -221,7 +221,7 @@ After installation, follow these steps in order:
 - File and directory count verification
 - ACL and extended attributes support (when available)
 - Detailed error reporting with specific rsync exit code analysis
-- Optional post-backup encryption via external GPG pipelines
+- Optional post-backup encryption via **external** GPG pipelines **after** backup completion
 
 ## 📊 Monitoring & Logging
 

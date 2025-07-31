@@ -24,7 +24,7 @@
 
 **🎯 Perfekt für:** Home Labs • Kleine Unternehmen • Produktionsumgebungen • Jedes Docker-Setup auf NAS-Geräten
 
-**🏆 Warum dieses Script wählen:** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, Netzwerke, Konfigurationen) und nahtloser Service-Neustart.
+**🏆 Warum dieses Script wählen:** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, persistente Daten) und nahtloser Service-Neustart (Netzwerke werden von Compose neu erstellt).
 
 **✅ Getestet & Optimiert für:** UGREEN NAS • kompatibel mit Synology • QNAP • Custom Linux NAS • Ubuntu • Debian
 
@@ -45,7 +45,7 @@
 
 ### 💾 **Erweiterte Backup-Funktionen**
 - **🔄 Inkrementelle Synchronisation**: rsync-basierte Synchronisation ohne Snapshot-Historie, mit intelligenter Flag-Validierung und mehrstufigem Fallback
-- **🔐 Backup-Verschlüsselung**: Optionale Post-Backup-Verschlüsselung via externe GPG-Pipelines (Beispiele enthalten)
+- **🔐 Post-Backup-Verschlüsselung**: Optionale Verschlüsselung via **externe** GPG-Pipelines **nach** Backup-Abschluss (Beispiele enthalten)
 - **✅ Backup-Verifizierung**: Automatische Überprüfung der Backup-Integrität und Vollständigkeit
 - **📈 Umfassendes Logging**: Detaillierte Logs mit ANSI-freier Ausgabe und race-condition-freiem parallelem Logging
 
@@ -154,7 +154,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 # ⚡ Hochleistungs-paralleles Backup
 ./docker_backup_de.sh --auto --parallel 4 --use-stop
 
-# 🔒 Sicheres Backup mit ACL-Bewahrung (keine Verschlüsselung)
+# 📋 Backup mit ACL-Bewahrung (keine Verschlüsselung)
 ./docker_backup_de.sh --auto --preserve-acl
 ```
 
@@ -209,7 +209,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 - Datei- und Verzeichnisanzahl-Verifizierung
 - ACL- und erweiterte Attribute-Unterstützung (wenn verfügbar)
 - Detaillierte Fehlerberichterstattung mit spezifischer rsync-Exit-Code-Analyse
-- Optionale Post-Backup-Verschlüsselung via externe GPG-Pipelines
+- Optionale Post-Backup-Verschlüsselung via **externe** GPG-Pipelines **nach** Backup-Abschluss
 
 ## 📊 Überwachung & Logging
 

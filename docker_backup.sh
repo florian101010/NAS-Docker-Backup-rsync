@@ -374,7 +374,7 @@ confirm_action() {
     echo ""
     read -p "Do you want to continue? (y/N): " -n 1 -r
     echo
-    if [[ ! $REPLY =~ ^[JjYy]$ ]]; then
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo -e "${RED}Cancelled.${NC}"
         exit 0
     fi
@@ -603,6 +603,57 @@ start_all_docker_stacks() {
                 ((started_count++))
                 log_message "INFO" "Stack successfully started: $stack_name"
                 echo -e "    ${GREEN}✅ Stack ${GREEN}$stack_name${NC} ${GREEN}successfully started${NC}"
+                
+                # Health check after start
+                echo -e "    ${BLUE}🔍 Checking container health...${NC}"
+                local health_check_success=true
+                local health_timeout=30
+                
+                if timeout "$health_timeout" bash -c "
+                    cd '$stack_dir'
+                    while true; do
+                        # Get container status
+                        containers=\$($SUDO_CMD docker compose ps --format json 2>/dev/null)
+                        if [[ -z \"\$containers\" ]]; then
+                            sleep 2
+                            continue
+                        fi
+                        
+                        # Check if all containers are running or healthy
+                        all_healthy=true
+                        while IFS= read -r container; do
+                            if [[ -n \"\$container\" ]]; then
+                                status=\$(echo \"\$container\" | jq -r '.State // \"unknown\"' 2>/dev/null || echo 'unknown')
+                                health=\$(echo \"\$container\" | jq -r '.Health // \"none\"' 2>/dev/null || echo 'none')
+                                
+                                # Container must be running
+                                if [[ \"\$status\" != \"running\" ]]; then
+                                    all_healthy=false
+                                    break
+                                fi
+                                
+                                # If health check exists, it must be healthy or starting
+                                if [[ \"\$health\" != \"none\" && \"\$health\" != \"healthy\" && \"\$health\" != \"starting\" ]]; then
+                                    all_healthy=false
+                                    break
+                                fi
+                            fi
+                        done <<< \"\$(echo \"\$containers\" | jq -c '.[]' 2>/dev/null || echo '')\"
+                        
+                        if [[ \"\$all_healthy\" == \"true\" ]]; then
+                            exit 0
+                        fi
+                        
+                        sleep 2
+                    done
+                " 2>/dev/null; then
+                    echo -e "    ${GREEN}✅ Health check passed${NC}"
+                    log_message "INFO" "Health check passed for stack: $stack_name"
+                else
+                    echo -e "    ${YELLOW}⚠️ Health check timeout - containers may still be starting${NC}"
+                    log_message "WARN" "Health check timeout for stack: $stack_name"
+                    health_check_success=false
+                fi
             else
                 ((failed_count++))
                 FAILED_STACKS+=("$stack_name")  # FIX: Also track start errors

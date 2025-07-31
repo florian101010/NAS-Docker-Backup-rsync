@@ -106,7 +106,7 @@ BACKUP_DEST="/path/to/your/backup/destination"  # Where it gets backed up
 
 ## ⚡ Important Commands
 
-### 🧪 **New test commands (Version 3.4.9):**
+### 🧪 **New test commands (Version 3.5.1):**
 ```bash
 # Test rsync fixes (NEW!)
 sudo ./test_rsync_fix.sh
@@ -142,7 +142,7 @@ sudo ./docker_backup_de.sh --dry-run
 # Parallel backup (4 containers simultaneously)
 ./docker_backup.sh --auto --parallel 4
 
-# With ACL support (preserve file permissions, not encryption)
+# With ACL preservation (file permissions, not encryption)
 ./docker_backup.sh --auto --preserve-acl
 
 # Without verification (faster)

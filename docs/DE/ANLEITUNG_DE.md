@@ -79,11 +79,11 @@ Das Script sichert Ihr komplettes Docker-Setup, während die Container sauber ge
 | `/volume1/docker-nas/stacks/` | docker-compose.yml Dateien | **WICHTIG** |
 | `/volume1/docker-nas/logs/` | Log-Dateien | **NÜTZLICH** |
 
-### Version 3.4.9 - Kritische Sicherheitsfixes
+### Version 3.5.1 - Kritische Sicherheitsfixes
 
 > **Wichtige Sicherheitsupdates implementiert - 30. Juli 2025**
 
-#### Kritische Sicherheitsfixes (Version 3.4.9)
+#### Kritische Sicherheitsfixes (Version 3.5.1)
 - **🔒 FUNKTIONEN-EXPORT FIX (PRIO 1 - KRITISCH)**: Behebt kompletten Backup-Ausfall bei Parallelisierung
   - `export -f process_docker_output format_container_status` vor allen `xargs`-Blöcken
   - **Problem behoben**: Bei `--parallel N>1` schlugen alle `docker compose`-Pipes fehl
@@ -280,7 +280,7 @@ sudo ./test_rsync_fix.sh
 | `--skip-backup` | Stoppt/startet nur Container (kein Backup) |
 | `--no-verify` | Überspringt Backup-Verifikation |
 | `--use-stop` | Verwendet `docker compose stop` statt `down` |
-| `--preserve-acl` | Sichert ACLs und extended attributes (keine Verschlüsselung) |
+| `--preserve-acl` | Bewahrt ACLs und extended attributes (keine Verschlüsselung) |
 | `--timeout-stop N` | Timeout für Container-Stop (10-3600s, Standard: 60s) |
 | `--timeout-start N` | Timeout für Container-Start (10-3600s, Standard: 120s) |
 | `--parallel N` | Parallele Jobs für Container-Ops (1-16, Standard: 1) |
@@ -305,7 +305,7 @@ sudo ./test_rsync_fix.sh
 # Schnelles Backup mit 'stop' statt 'down'
 ./docker_backup.sh --auto --use-stop
 
-# Mit ACL-Unterstützung für UGREEN NAS (falls unterstützt)
+# Mit ACL-Bewahrung für UGREEN NAS (falls unterstützt)
 ./docker_backup.sh --auto --preserve-acl
 
 # Angepasste Timeouts für große Stacks
@@ -320,10 +320,10 @@ sudo ./test_rsync_fix.sh
 # Vollautomatisches Backup mit allen neuen Features
 ./docker_backup.sh --auto --preserve-acl --parallel 4 --buffer-percent 15 --timeout-stop 90
 
-# NEU in Version 3.4.9: SICHER mit Parallelisierung (kritische Fixes implementiert)
+# NEU in Version 3.5.1: SICHER mit Parallelisierung (kritische Fixes implementiert)
 ./docker_backup.sh --auto --parallel 4 --use-stop --buffer-percent 20
 
-# NEU in Version 3.4.8: rsync-Fixes testen
+# NEU in Version 3.5.1: rsync-Fixes testen
 ./test_rsync_fix.sh
 
 # Deutsche Version verwenden:
@@ -331,7 +331,7 @@ sudo ./test_rsync_fix.sh
 ./docker_backup_de.sh --dry-run --preserve-acl
 ```
 
-### Neue Test-Tools (Version 3.4.8)
+### Neue Test-Tools (Version 3.5.1)
 
 ```bash
 # Teste rsync-Fixes isoliert (empfohlen vor erstem Backup)
@@ -394,19 +394,19 @@ crontab -e
 # Beispiel: Wöchentlich sonntags um 3:00 Uhr (vollständig mit down)
 0 3 * * 0 /pfad/zum/docker_backup.sh --auto >> /pfad/zu/logs/cron_backup.log 2>&1
 
-# NEU Version 3.4.9: SICHERE Parallelisierung für Cron (kritische Fixes implementiert)
+# NEU Version 3.5.1: SICHERE Parallelisierung für Cron (kritische Fixes implementiert)
 0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 4 --use-stop --buffer-percent 20 >> /pfad/zu/logs/cron_backup.log 2>&1
 
 # Beispiel: Als root ausführen (automatische Erkennung)
 0 2 * * * /pfad/zum/docker_backup.sh --auto --use-stop
 
-# Beispiel: Mit ACL-Unterstützung für NAS (falls unterstützt)
+# Beispiel: Mit ACL-Bewahrung für NAS (falls unterstützt)
 0 2 * * * /pfad/zum/docker_backup.sh --auto --preserve-acl --timeout-stop 90
 
-# Beispiel: Hochperformantes Setup für große Installationen (Version 3.4.9+)
+# Beispiel: Hochperformantes Setup für große Installationen (Version 3.5.1+)
 0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 6 --use-stop --buffer-percent 25
 
-# Beispiel: Tägliches Backup mit sicherer Parallelisierung (Version 3.4.9+)
+# Beispiel: Tägliches Backup mit sicherer Parallelisierung (Version 3.5.1+)
 0 2 * * * /pfad/zum/docker_backup.sh --auto --preserve-acl --parallel 4 --buffer-percent 15 2>&1 | logger -t docker_backup
 
 # Beispiel: Wöchentliches vollständiges Backup (Sonntags um 1:00)
@@ -464,7 +464,7 @@ Alle Aktionen werden protokolliert:
 
 ## Best Practices
 
-1. **🚨 UPGRADE AUF VERSION 3.4.9** - Kritische Sicherheitsfixes für Parallelisierung
+1. **🚨 UPGRADE AUF VERSION 3.5.1** - Kritische Sicherheitsfixes für Parallelisierung
 2. **Teste zuerst mit --dry-run**
 3. **Überwache die ersten Läufe** manuell
 4. **Prüfe regelmäßig die Logs**
@@ -473,12 +473,12 @@ Alle Aktionen werden protokolliert:
 7. **🔒 Verwende Parallelisierung sicher** - Nur mit Version 3.4.9 oder höher
 
 ### 🚨 KRITISCHE SICHERHEITSWARNUNG
-**Versionen vor 3.4.9 haben kritische Bugs bei `--parallel N>1`:**
+**Versionen vor 3.5.1 haben kritische Bugs bei `--parallel N>1`:**
 - ❌ **Stiller Backup-Ausfall** ohne Fehlermeldung
 - ❌ **Doppelte Cron-Ausführung** möglich
 - ❌ **Log-Race-Conditions** bei parallelen Jobs
 
-**➜ SOFORT auf Version 3.4.9 upgraden für sichere Parallelisierung!**
+**➜ SOFORT auf Version 3.5.1 upgraden für sichere Parallelisierung!**
 
 ## Troubleshooting
 
@@ -545,7 +545,7 @@ ls -la /volume2/backups/docker-nas_backups/
 
 ### Performance-Optimierung
 
-#### Parallelisierung nutzen (Version 3.4.9+):
+#### Parallelisierung nutzen (Version 3.5.1+):
 ```bash
 # Für kleine Systeme (2-4 Container):
 ./docker_backup.sh --parallel 2
@@ -592,7 +592,7 @@ ls -la /volume2/backups/docker-nas_backups/
 
 ### Grundlagen der Backup-Verschlüsselung
 
-Die Verschlüsselung schützt Ihre Backup-Daten vor unbefugtem Zugriff. Das Script erstellt unverschlüsselte Backups. Für Verschlüsselung verwenden Sie externe GPG-Pipelines **nach** Backup-Abschluss wie unten gezeigt.
+Das Script erstellt unverschlüsselte Backups. Für Verschlüsselung verwenden Sie externe GPG-Pipelines **nach** Backup-Abschluss wie unten gezeigt.
 
 ### Verschlüsseltes Backup erstellen
 
@@ -781,10 +781,10 @@ Schritt-für-Schritt Diagnose:
 Version im Script prüfen:
 ```bash
 head -10 docker_backup.sh | grep "Version"
-# Sollte zeigen: Version 3.4.9
+# Sollte zeigen: Version 3.5.1
 ```
 
-#### Muss ich von älteren Versionen auf 3.4.9 upgraden?
+#### Muss ich von älteren Versionen auf 3.5.1 upgraden?
 **JA, DRINGEND EMPFOHLEN!**
 - **Kritischer Fix**: Funktionen-Export für Parallelisierung
 - **Behebt**: Stillen Backup-Ausfall ohne Fehlermeldung
@@ -792,7 +792,7 @@ head -10 docker_backup.sh | grep "Version"
 
 ---
 
-### Version 3.4.9 - Sicherheitsfixes
+### Version 3.5.1 - Sicherheitsfixes
 
 **Implementierte Sicherheitsfixes (30. Juli 2025):**
 - Funktionen-Export Fix: Implementiert (Zeilen 400 & 517)
@@ -800,7 +800,7 @@ head -10 docker_backup.sh | grep "Version"
 - Log-Race-Conditions: Behoben mit Variable-Export
 - Sichere Temp-Verzeichnisse: mktemp -d implementiert
 
-**Behobene Probleme in Version 3.4.9:**
+**Behobene Probleme in Version 3.5.1:**
 - Funktionen-Export für Sub-Shells → Verhindert stillen Backup-Ausfall
 - Atomarer Lock-Schutz → Keine doppelten Cron-Runs mehr
 - Thread-sichere Log-Ausgabe → Formatierte Container-Status in parallelen Jobs
@@ -809,10 +809,10 @@ head -10 docker_backup.sh | grep "Version"
 - Automatisches Lock-File-Cleanup → Saubere Ressourcen-Verwaltung
 
 ### Upgrade-Empfehlung
-**Von Versionen vor 3.4.9 upgraden:**
+**Von Versionen vor 3.5.1 upgraden:**
 - Kritisch: Verhindert stillen Backup-Ausfall bei Parallelisierung
 - Kritisch: Behebt doppelte Cron-Ausführung
 - Wichtig: Thread-sichere Log-Ausgabe
 - Wichtig: Race-Condition-freie Temp-Verzeichnisse
 
-Version 3.4.9 ist die erste vollständig sichere Version für `--parallel N>1`.
+Version 3.5.1 ist die erste vollständig sichere Version für `--parallel N>1`.

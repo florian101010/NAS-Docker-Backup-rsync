@@ -106,7 +106,7 @@ BACKUP_DEST="/path/to/your/backup/destination"  # Wohin gesichert wird
 
 ## ⚡ Wichtige Befehle
 
-### 🧪 **Neue Test-Befehle (Version 3.4.7):**
+### 🧪 **Neue Test-Befehle (Version 3.5.1):**
 ```bash
 # rsync-Fixes testen (NEU!)
 sudo ./test_rsync_fix.sh
@@ -142,7 +142,7 @@ sudo ./docker_backup_de.sh --dry-run
 # Paralleles Backup (4 Container gleichzeitig)
 ./docker_backup.sh --auto --parallel 4
 
-# Mit ACL-Unterstützung (Dateiberechtigungen sichern, keine Verschlüsselung)
+# Mit ACL-Bewahrung (Dateiberechtigungen, keine Verschlüsselung)
 ./docker_backup.sh --auto --preserve-acl
 
 # Ohne Verifikation (schneller)
