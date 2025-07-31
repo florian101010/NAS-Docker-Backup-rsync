@@ -5,20 +5,36 @@
 [![Bash](https://img.shields.io/badge/bash-4.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
 [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)](https://www.kernel.org/)
 
-A robust, production-ready backup solution for Docker-based NAS systems with advanced parallelization and comprehensive error handling.
+**The ultimate Docker backup solution for NAS systems** - automatically safeguards your entire Docker infrastructure with zero data loss and minimal downtime. Perfect for home labs, small businesses, and production environments running Docker on NAS devices like UGREEN, Synology, QNAP or custom Linux systems.
 
-## 🚀 Features
+**Why you need this script:** Traditional backup methods can corrupt Docker data when containers are running. This script intelligently manages your Docker ecosystem by automatically discovering all containers, gracefully stopping them to ensure data consistency, creating comprehensive backups of everything (containers, volumes, networks, configs), and seamlessly restarting your services.
 
-- **🔒 Production-Safe Parallelization**: Thread-safe parallel container operations with critical security fixes
-- **🛡️ Atomic Lock Protection**: Prevents concurrent executions with automatic cleanup
-- **📊 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
-- **⚡ High Performance**: Configurable parallel jobs (1-16) with intelligent resource management
-- **🔧 Flexible Operation Modes**: Choose between `docker compose stop` (fast) or `down` (complete cleanup)
-- **📈 Advanced Monitoring**: Container status tracking, backup verification, and detailed progress reporting
+## 🚀 Key Features
+
+### 🐳 **Smart Docker Management**
+- **🔍 Automatic Container Discovery**: Finds all Docker Compose stacks and containers automatically
+- **⏸️ Graceful Container Shutdown**: Safely stops containers to prevent data corruption during backup
+- **🔄 Intelligent Restart**: Automatically restarts all services after backup completion
+- **📦 Complete Stack Backup**: Backs up Docker Compose files, volumes, networks, and persistent data
+- **🔧 Flexible Stop Modes**: Choose between `docker compose stop` (fast) or `down` (complete cleanup)
+
+### 🚀 **Performance & Reliability**
+- **⚡ Parallel Processing**: Configurable parallel container operations (1-16 jobs) for faster backups
+- **🛡️ Production-Safe**: Thread-safe operations with atomic lock protection
 - **🎯 Smart Recovery**: Automatic container restart even on backup failures with signal handling
+- **📊 Real-time Monitoring**: Live container status tracking with color-coded progress indicators
+
+### 💾 **Advanced Backup Features**
 - **🔄 Incremental Backups**: rsync-based with intelligent flag validation and multi-tier fallback
 - **🔐 Backup Encryption**: GPG-based encryption support for secure backup storage
-- **⚙️ Highly Configurable**: Extensive command-line options for timeouts, buffers, and behavior
+- **✅ Backup Verification**: Automatic verification of backup integrity and completeness
+- **📈 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
+
+### ⚙️ **Enterprise-Grade Configuration**
+- **🎛️ Highly Configurable**: Extensive command-line options for timeouts, buffers, and behavior
+- **🕒 Flexible Scheduling**: Perfect for cron automation with various timing options
+- **🔒 Security Features**: Fail-fast design, input validation, and secure permission handling
+- **🌐 NAS Optimized**: Tested on UGREEN, Synology, QNAP, and custom Linux NAS systems
 
 ## 📋 Requirements
 
