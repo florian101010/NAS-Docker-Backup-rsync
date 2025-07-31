@@ -31,7 +31,7 @@ Traditional backup methods **corrupt Docker data** when containers are running. 
 
 ## 🚀 Key Features
 
-### � **Smart Docker Management**
+### 🐳 **Smart Docker Management**
 - **🔍 Automatic Container Discovery**: Finds all Docker Compose stacks and containers automatically
 - **⏸️ Graceful Container Shutdown**: Safely stops containers to prevent data corruption during backup
 - **🔄 Intelligent Restart**: Automatically restarts all services after backup completion
@@ -64,7 +64,7 @@ Traditional backup methods **corrupt Docker data** when containers are running. 
   - [🌍 Choose Your Language / Sprache wählen](#-choose-your-language--sprache-wählen)
   - [English Version](#english-version)
   - [🚀 Key Features](#-key-features)
-    - [� **Smart Docker Management**](#-smart-docker-management)
+    - [🐳 **Smart Docker Management**](#-smart-docker-management)
     - [🚀 **Performance \& Reliability**](#-performance--reliability)
     - [💾 **Advanced Backup Features**](#-advanced-backup-features)
     - [⚙️ **Enterprise-Grade Configuration**](#️-enterprise-grade-configuration)
