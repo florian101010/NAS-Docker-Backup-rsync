@@ -26,7 +26,7 @@
 
 **🏆 Why choose this script:** Traditional backup methods **corrupt Docker data** when containers are running. This script solves that problem by intelligently managing your entire Docker ecosystem - automatically discovering containers, gracefully stopping them for data consistency, creating comprehensive backups of everything (stacks, volumes, configs), and seamlessly restarting services.
 
-✅ Optimized for UGREEN NAS, with high compatibility for Synology, QNAP, custom Linux NAS, Ubuntu, and Debian.
+Optimized for UGREEN NAS, with high compatibility for Synology, QNAP, custom Linux NAS, Ubuntu, and Debian.
 ---
 
 ## Table of Contents
