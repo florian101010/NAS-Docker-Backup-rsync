@@ -91,9 +91,11 @@ echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.
 # Systemvoraussetzungen prüfen
 command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Installieren Sie Docker zuerst."; exit 1; }
 command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
+command -v flock >/dev/null 2>&1 || { echo "❌ flock nicht installiert (verhindert doppelte Backups). Installation: sudo apt install util-linux"; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "❌ jq nicht installiert (analysiert Container-Status). Installation: sudo apt install jq"; exit 1; }
 echo "✅ Systemvoraussetzungen erfüllt"
 
-# Download and Installation
+# Download und Installation
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix_de.sh && \
 chmod +x docker_backup_de.sh test_rsync_fix_de.sh && \
