@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.2] - 2025-07-31 ⚡ **PERFORMANCE OPTIMIZATION**
+
+### Performance Improvements
+- **Health Check Optimization**: Dramatically improved backup script performance
+  - Removed individual 30-second health checks after each container start
+  - Implemented consolidated health check at script completion
+  - Reduced execution time by 11+ minutes for 22 stacks (eliminated 30s × 22 = 11min timeout overhead)
+  - Better user experience with faster container startup process
+  - Comprehensive health status overview at the end of backup process
+
+### Enhanced
+- **Container Health Monitoring**: Improved health check implementation
+  - Consolidated health check provides detailed status for all containers
+  - Individual container status with clear visual indicators (✅ healthy, 🔄 starting, ❌ unhealthy, ⏹ stopped)
+  - Stack-level health summary with container counts
+  - Better error reporting for problematic containers
+  - Health check only runs when containers are successfully started (not in dry-run mode)
+
+### Technical
+- **Script Efficiency**: Optimized container management workflow
+  - Eliminated timeout issues during container startup
+  - Allows containers more time to fully initialize before health validation
+  - Maintains comprehensive health monitoring without performance penalty
+  - Consistent implementation in both English and German scripts
+  - New `perform_consolidated_health_check()` function with detailed reporting
+
+---
+
 ## [3.5.1] - 2025-07-31 🎉 **INITIAL PUBLIC RELEASE**
 
 This is the first public release of the NAS Docker Backup Script - a production-ready, enterprise-grade solution for automated Docker container and data backup on NAS systems.

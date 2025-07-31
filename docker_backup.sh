@@ -3,7 +3,7 @@
 # ================================================================
 # Docker NAS Backup Script
 # Automatic backup of all Docker containers and persistent data
-# Date: July 31, 2025 - Version 3.5.1
+# Date: July 31, 2025 - Version 3.5.2
 # GitHub: https://github.com/florian101010/NAS-Docker-Backup-rsync
 # ================================================================
 
@@ -620,57 +620,6 @@ start_all_docker_stacks() {
                 ((started_count++))
                 log_message "INFO" "Stack successfully started: $stack_name"
                 echo -e "    ${GREEN}✅ Stack ${GREEN}$stack_name${NC} ${GREEN}successfully started${NC}"
-                
-                # Health check after start
-                echo -e "    ${BLUE}🔍 Checking container health...${NC}"
-                local health_check_success=true
-                local health_timeout=30
-                
-                if timeout "$health_timeout" bash -c "
-                    cd '$stack_dir'
-                    while true; do
-                        # Get container status
-                        containers=\$($SUDO_CMD docker compose ps --format json 2>/dev/null)
-                        if [[ -z \"\$containers\" ]]; then
-                            sleep 2
-                            continue
-                        fi
-                        
-                        # Check if all containers are running or healthy
-                        all_healthy=true
-                        while IFS= read -r container; do
-                            if [[ -n \"\$container\" ]]; then
-                                status=\$(echo \"\$container\" | jq -r '.State // \"unknown\"' 2>/dev/null || echo 'unknown')
-                                health=\$(echo \"\$container\" | jq -r '.Health // \"none\"' 2>/dev/null || echo 'none')
-                                
-                                # Container must be running
-                                if [[ \"\$status\" != \"running\" ]]; then
-                                    all_healthy=false
-                                    break
-                                fi
-                                
-                                # If health check exists, it must be healthy or starting
-                                if [[ \"\$health\" != \"none\" && \"\$health\" != \"healthy\" && \"\$health\" != \"starting\" ]]; then
-                                    all_healthy=false
-                                    break
-                                fi
-                            fi
-                        done <<< \"\$(echo \"\$containers\" | jq -c '.[]' 2>/dev/null || echo '')\"
-                        
-                        if [[ \"\$all_healthy\" == \"true\" ]]; then
-                            exit 0
-                        fi
-                        
-                        sleep 2
-                    done
-                " 2>/dev/null; then
-                    echo -e "    ${GREEN}✅ Health check passed${NC}"
-                    log_message "INFO" "Health check passed for stack: $stack_name"
-                else
-                    echo -e "    ${YELLOW}⚠️ Health check timeout - containers may still be starting${NC}"
-                    log_message "WARN" "Health check timeout for stack: $stack_name"
-                    health_check_success=false
-                fi
             else
                 ((failed_count++))
                 FAILED_STACKS+=("$stack_name")  # FIX: Also track start errors
@@ -692,6 +641,114 @@ start_all_docker_stacks() {
         log_message "INFO" "All stacks successfully started: $started_count"
         echo -e "${GREEN}✅ All $started_count stacks successfully started${NC}"
         return 0
+    fi
+}
+
+# Function for consolidated health check of all containers
+perform_consolidated_health_check() {
+    log_message "INFO" "Performing consolidated health check for all containers..."
+    echo -e "${YELLOW}STEP 4: Checking container health status...${NC}"
+    
+    if [[ ${#ALL_STACKS[@]} -eq 0 ]]; then
+        echo -e "${BLUE}ℹ️ No stacks to check${NC}"
+        return 0
+    fi
+    
+    local healthy_stacks=0
+    local unhealthy_stacks=0
+    local total_containers=0
+    local healthy_containers=0
+    
+    echo -e "${BLUE}Checking health of ${#ALL_STACKS[@]} stacks...${NC}"
+    
+    for stack_name in "${ALL_STACKS[@]}"; do
+        local stack_dir="$STACKS_DIR/$stack_name"
+        
+        if [[ ! -f "$stack_dir/docker-compose.yml" ]]; then
+            continue
+        fi
+        
+        echo -e "  ${CYAN}→${NC} Checking stack: ${GREEN}$stack_name${NC}"
+        
+        # Get container status for this stack
+        local containers
+        if containers=$(cd "$stack_dir" && $SUDO_CMD docker compose ps --format json 2>/dev/null); then
+            if [[ -n "$containers" ]]; then
+                local stack_healthy=true
+                local stack_container_count=0
+                local stack_healthy_count=0
+                
+                while IFS= read -r container; do
+                    if [[ -n "$container" ]]; then
+                        ((stack_container_count++))
+                        ((total_containers++))
+                        
+                        local name=$(echo "$container" | jq -r '.Name // "unknown"' 2>/dev/null || echo 'unknown')
+                        local status=$(echo "$container" | jq -r '.State // "unknown"' 2>/dev/null || echo 'unknown')
+                        local health=$(echo "$container" | jq -r '.Health // "none"' 2>/dev/null || echo 'none')
+                        
+                        # Clean container name for display
+                        local clean_name="${name%-nas}"
+                        clean_name="${clean_name#*-}"
+                        
+                        # Check container status
+                        if [[ "$status" == "running" ]]; then
+                            if [[ "$health" == "none" || "$health" == "healthy" ]]; then
+                                echo -e "    ${GREEN}✅${NC} Container ${CYAN}$clean_name${NC} ${GREEN}healthy${NC}"
+                                ((stack_healthy_count++))
+                                ((healthy_containers++))
+                            elif [[ "$health" == "starting" ]]; then
+                                echo -e "    ${YELLOW}🔄${NC} Container ${CYAN}$clean_name${NC} ${YELLOW}starting${NC}"
+                                stack_healthy=false
+                            else
+                                echo -e "    ${RED}❌${NC} Container ${CYAN}$clean_name${NC} ${RED}unhealthy ($health)${NC}"
+                                stack_healthy=false
+                            fi
+                        else
+                            echo -e "    ${RED}⏹${NC} Container ${CYAN}$clean_name${NC} ${RED}not running ($status)${NC}"
+                            stack_healthy=false
+                        fi
+                    fi
+                done <<< "$(echo "$containers" | jq -c '.[]' 2>/dev/null || echo '')"
+                
+                if [[ "$stack_healthy" == true && $stack_container_count -gt 0 ]]; then
+                    echo -e "    ${GREEN}✅ Stack ${GREEN}$stack_name${NC} ${GREEN}healthy ($stack_healthy_count/$stack_container_count containers)${NC}"
+                    ((healthy_stacks++))
+                    log_message "INFO" "Stack $stack_name is healthy ($stack_healthy_count/$stack_container_count containers)"
+                else
+                    echo -e "    ${YELLOW}⚠️ Stack ${GREEN}$stack_name${NC} ${YELLOW}has issues ($stack_healthy_count/$stack_container_count containers healthy)${NC}"
+                    ((unhealthy_stacks++))
+                    log_message "WARN" "Stack $stack_name has health issues ($stack_healthy_count/$stack_container_count containers healthy)"
+                fi
+            else
+                echo -e "    ${BLUE}ℹ️${NC} Stack ${GREEN}$stack_name${NC} ${BLUE}has no containers${NC}"
+                log_message "INFO" "Stack $stack_name has no containers"
+            fi
+        else
+            echo -e "    ${RED}❌${NC} Stack ${GREEN}$stack_name${NC} ${RED}status check failed${NC}"
+            ((unhealthy_stacks++))
+            log_message "ERROR" "Failed to check status for stack: $stack_name"
+        fi
+    done
+    
+    echo ""
+    echo -e "${CYAN}=== HEALTH CHECK SUMMARY ===${NC}"
+    echo -e "${BLUE}Total stacks:${NC} ${CYAN}${#ALL_STACKS[@]}${NC}"
+    echo -e "${BLUE}Healthy stacks:${NC} ${GREEN}$healthy_stacks${NC}"
+    if [[ $unhealthy_stacks -gt 0 ]]; then
+        echo -e "${BLUE}Stacks with issues:${NC} ${YELLOW}$unhealthy_stacks${NC}"
+    fi
+    echo -e "${BLUE}Total containers:${NC} ${CYAN}$total_containers${NC}"
+    echo -e "${BLUE}Healthy containers:${NC} ${GREEN}$healthy_containers${NC}"
+    
+    if [[ $unhealthy_stacks -eq 0 ]]; then
+        echo -e "${GREEN}✅ All stacks are healthy${NC}"
+        log_message "INFO" "Consolidated health check: All stacks healthy ($healthy_stacks/$((healthy_stacks + unhealthy_stacks)))"
+        return 0
+    else
+        echo -e "${YELLOW}⚠️ Some stacks have health issues - check individual container logs${NC}"
+        log_message "WARN" "Consolidated health check: $unhealthy_stacks stacks have issues"
+        return 1
     fi
 }
 
@@ -1203,6 +1260,11 @@ fi
 if ! start_all_docker_stacks; then
     CONTAINER_START_SUCCESS=false
     log_message "ERROR" "Not all containers could be started"
+fi
+
+# Step 4: Consolidated health check (only if containers were started and not in dry-run mode)
+if [[ "$DRY_RUN" == false && "$CONTAINER_START_SUCCESS" == true ]]; then
+    perform_consolidated_health_check
 fi
 
 echo ""
