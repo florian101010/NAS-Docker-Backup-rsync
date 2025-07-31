@@ -130,11 +130,13 @@ After installation, follow these steps in order:
 4. **First backup**: `./docker_backup.sh` (interactive)
 
 **⚙️ Production Setup (Recommended):**
+
 5. **Setup automation**: Add to cron for daily backups
 6. **Test restore**: Verify you can restore from backup
 7. **Monitor logs**: Check backup logs regularly
 
 **🔒 Security Setup (Optional):**
+
 8. **Enable encryption**: Use `--preserve-acl` for sensitive data
 9. **Secure backup location**: Ensure backup destination has proper permissions
 

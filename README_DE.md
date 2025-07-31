@@ -118,11 +118,13 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 4. **Erstes Backup**: `./docker_backup_de.sh` (interaktiv)
 
 **⚙️ Produktions-Setup (Empfohlen):**
+
 5. **Automatisierung einrichten**: Zu Cron für tägliche Backups hinzufügen
 6. **Wiederherstellung testen**: Überprüfen Sie, dass Sie aus Backup wiederherstellen können
 7. **Logs überwachen**: Backup-Logs regelmäßig prüfen
 
 **🔒 Sicherheits-Setup (Optional):**
+
 8. **Verschlüsselung aktivieren**: `--preserve-acl` für sensible Daten verwenden
 9. **Backup-Speicherort sichern**: Stellen Sie sicher, dass Backup-Ziel korrekte Berechtigungen hat
 
