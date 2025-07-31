@@ -64,32 +64,68 @@
 
 ## ⚡ Quick Start (5 Minutes)
 
-### 1️⃣ One-Line Installation
+### 1️⃣ One-Line Installation with System Check
 
 **🇺🇸 English Version:**
 ```bash
+# Check system requirements first
+command -v docker >/dev/null 2>&1 || { echo "❌ Docker not installed. Install Docker first."; exit 1; }
+command -v rsync >/dev/null 2>&1 || { echo "❌ rsync not installed. Install: sudo apt install rsync"; exit 1; }
+echo "✅ System requirements met"
+
+# Download and install
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh && \
 chmod +x docker_backup.sh test_rsync_fix.sh && \
-echo "✅ Installation complete! Test compatibility: ./test_rsync_fix.sh"
+echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.sh"
 ```
 
 **🇩🇪 German Version:**
 ```bash
+# Systemvoraussetzungen prüfen
+command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Installieren Sie Docker zuerst."; exit 1; }
+command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
+echo "✅ Systemvoraussetzungen erfüllt"
+
+# Download und Installation
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix_de.sh && \
 chmod +x docker_backup_de.sh test_rsync_fix_de.sh && \
-echo "✅ Installation abgeschlossen! Kompatibilität testen: ./test_rsync_fix_de.sh"
+echo "✅ Installation abgeschlossen! Weiter: Kompatibilität testen mit ./test_rsync_fix_de.sh"
 ```
 
 ### 2️⃣ Configure Your Paths
 Edit these 5 lines in [`docker_backup.sh`](docker_backup.sh) (lines 25-37):
+
+**Common NAS Configurations:**
 ```bash
-DATA_DIR="/volume1/docker-nas/data"          # Your Docker data directory
-STACKS_DIR="/volume1/docker-nas/stacks"      # Your Docker Compose files
-BACKUP_SOURCE="/volume1/docker-nas"          # Source directory to backup
-BACKUP_DEST="/volume2/backups/docker-backup" # Where to store backups
-LOG_DIR="/volume1/docker-nas/logs"           # Log file location
+# UGREEN NAS (DXP2800, DXP4800, etc.)
+DATA_DIR="/volume1/docker-nas/data"
+STACKS_DIR="/volume1/docker-nas/stacks"
+BACKUP_SOURCE="/volume1/docker-nas"
+BACKUP_DEST="/volume2/backups/docker-backup"
+LOG_DIR="/volume1/docker-nas/logs"
+
+# Synology NAS
+DATA_DIR="/volume1/docker/data"
+STACKS_DIR="/volume1/docker/stacks"
+BACKUP_SOURCE="/volume1/docker"
+BACKUP_DEST="/volume2/backups/docker-backup"
+LOG_DIR="/volume1/docker/logs"
+
+# QNAP NAS
+DATA_DIR="/share/Container/data"
+STACKS_DIR="/share/Container/stacks"
+BACKUP_SOURCE="/share/Container"
+BACKUP_DEST="/share/Backup/docker-backup"
+LOG_DIR="/share/Container/logs"
+
+# Custom Linux Server
+DATA_DIR="/opt/docker/data"
+STACKS_DIR="/opt/docker/stacks"
+BACKUP_SOURCE="/opt/docker"
+BACKUP_DEST="/backup/docker"
+LOG_DIR="/var/log/docker-backup"
 ```
 
 ### 3️⃣ Test & Run
@@ -103,6 +139,24 @@ LOG_DIR="/volume1/docker-nas/logs"           # Log file location
 # Automated backup (for cron)
 ./docker_backup.sh --auto
 ```
+
+### 4️⃣ Next Steps Checklist
+After installation, follow these steps in order:
+
+**✅ Immediate Setup (Required):**
+1. **Test compatibility**: `./test_rsync_fix.sh`
+2. **Configure paths**: Edit script with your NAS paths
+3. **Test configuration**: `./docker_backup.sh --dry-run`
+4. **First backup**: `./docker_backup.sh` (interactive)
+
+**⚙️ Production Setup (Recommended):**
+5. **Setup automation**: Add to cron for daily backups
+6. **Test restore**: Verify you can restore from backup
+7. **Monitor logs**: Check backup logs regularly
+
+**🔒 Security Setup (Optional):**
+8. **Enable encryption**: Use `--preserve-acl` for sensitive data
+9. **Secure backup location**: Ensure backup destination has proper permissions
 
 ## 🌍 Language Support
 

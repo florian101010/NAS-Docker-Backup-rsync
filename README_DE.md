@@ -95,14 +95,32 @@ LOG_DIR="/volume1/docker-nas/logs"           # Log-Datei-Speicherort
 ### 3️⃣ Testen & Ausführen
 ```bash
 # Zuerst testen (sicher - keine Änderungen)
-./docker_backup.sh --dry-run
+./docker_backup_de.sh --dry-run
 
 # Interaktives Backup ausführen
-./docker_backup.sh
+./docker_backup_de.sh
 
 # Automatisiertes Backup (für Cron)
-./docker_backup.sh --auto
+./docker_backup_de.sh --auto
 ```
+
+### 4️⃣ Nächste Schritte Checkliste
+Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
+
+**✅ Sofortige Einrichtung (Erforderlich):**
+1. **Kompatibilität testen**: `./test_rsync_fix_de.sh`
+2. **Pfade konfigurieren**: Script mit Ihren NAS-Pfaden bearbeiten
+3. **Konfiguration testen**: `./docker_backup_de.sh --dry-run`
+4. **Erstes Backup**: `./docker_backup_de.sh` (interaktiv)
+
+**⚙️ Produktions-Setup (Empfohlen):**
+5. **Automatisierung einrichten**: Zu Cron für tägliche Backups hinzufügen
+6. **Wiederherstellung testen**: Überprüfen Sie, dass Sie aus Backup wiederherstellen können
+7. **Logs überwachen**: Backup-Logs regelmäßig prüfen
+
+**🔒 Sicherheits-Setup (Optional):**
+8. **Verschlüsselung aktivieren**: `--preserve-acl` für sensible Daten verwenden
+9. **Backup-Speicherort sichern**: Stellen Sie sicher, dass Backup-Ziel korrekte Berechtigungen hat
 
 ## 🌍 Sprachunterstützung
 
