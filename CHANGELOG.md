@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.4] - 2025-07-31 🧹 **LOG OUTPUT CLEANUP & OPTIMIZATION**
+
+### Improved
+- **Cleaner Log Output**: Removed redundant and verbose logging messages
+  - Eliminated repetitive DEBUG messages during healthcheck process
+    - Removed `"Healthcheck: Prüfe Stack $stack_name..."` for each individual stack
+    - Removed `"Healthcheck: Stack $stack_name - Total: $total_count, Running: $running_count"` per stack
+  - Removed redundant INFO messages during stack discovery
+    - Eliminated `"Erkenne Docker-Stacks in $STACKS_DIR..."` message
+    - Removed verbose `"Gefundene Stacks: ${#ALL_STACKS[@]} (stack1 stack2 stack3...)"` listing
+  - Streamlined output focuses on essential information only
+
+### Enhanced
+- **Optimized User Experience**: Significantly cleaner terminal output
+  - Backup completion now shows clean, focused status information
+  - Eliminated 22+ redundant DEBUG messages per backup run (one per stack)
+  - Removed duplicate stack listing that was already shown in final summary
+  - Faster visual parsing of backup results without information overload
+  - All essential information preserved in compact final status overview
+
+### Technical
+- **Maintained Functionality**: All core features preserved
+  - Complete container status information still available in final summary
+  - Stack processing information retained in "CONTAINER-ÄNDERUNGEN" section
+  - Healthcheck results fully displayed in consolidated status overview
+  - Log files still contain all necessary information for troubleshooting
+  - No impact on backup reliability or container management functionality
+
+---
+
 ## [3.5.3] - 2025-07-31 🎯 **HEALTHCHECK & BACKUP STATISTICS ENHANCEMENT**
 
 ### Fixed

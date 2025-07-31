@@ -403,8 +403,6 @@ confirm_action() {
 
 # Function to collect all Docker stacks (robust array handling)
 discover_docker_stacks() {
-    log_message "INFO" "Discovering Docker stacks in $STACKS_DIR..."
-
     # Clear global array
     ALL_STACKS=()
 
@@ -415,8 +413,6 @@ discover_docker_stacks() {
             ALL_STACKS+=("$stack_name")
         fi
     done < <(find "$STACKS_DIR" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
-
-    log_message "INFO" "Found stacks: ${#ALL_STACKS[@]} (${ALL_STACKS[*]})"
 }
 
 # Function to stop all Docker stacks
@@ -682,7 +678,6 @@ perform_consolidated_health_check() {
         set +e
         
         # Increased timeouts for 22 stacks and better error handling
-        log_message "DEBUG" "Health check: Checking stack $stack_name..."
         
         # Count all containers (with increased timeout)
         local all_containers_output=""
@@ -709,8 +704,6 @@ perform_consolidated_health_check() {
                 fi
             fi
         fi
-        
-        log_message "DEBUG" "Health check: Stack $stack_name - Total: $total_count, Running: $running_count"
         
         # Update statistics
         ((total_containers += total_count))
