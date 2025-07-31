@@ -55,6 +55,10 @@
 - **🔒 Sicherheitsfeatures**: Fail-Fast-Design, Input-Validierung und sichere Berechtigungsbehandlung
 - **🌐 NAS-Optimiert**: Getestet auf UGREEN (DXP2800) - (TBC) kompatibel mit Synology, QNAP und benutzerdefinierten Linux-NAS-Systemen
 
+## ⚠️ Wichtiger Haftungsausschluss
+
+**Dieses Script wird "wie es ist" ohne jegliche Gewährleistung bereitgestellt.** Testen Sie immer gründlich in einer sicheren Umgebung und führen Sie unabhängige Backups durch, bevor Sie es produktiv einsetzen. Die Autoren übernehmen keine Verantwortung für Datenverlust, Systemschäden oder Serviceunterbrechungen, die durch die Nutzung dieses Scripts entstehen können.
+
 ## 📋 Anforderungen
 
 - **OS**: Linux (getestet auf Ubuntu, Debian, UGREEN NAS DXP2800)
