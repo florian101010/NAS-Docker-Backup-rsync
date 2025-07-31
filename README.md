@@ -26,7 +26,7 @@
 
 **🏆 Why choose this script:** Traditional backup methods **corrupt Docker data** when containers are running. This script solves that problem by intelligently managing your entire Docker ecosystem - automatically discovering containers, gracefully stopping them for data consistency, creating comprehensive backups of everything (stacks, volumes, configs), and seamlessly restarting services.
 
-**✅ Designed for Compatibility:** Works perfectly on UGREEN NAS and is designed for high compatibility with Synology, QNAP, custom Linux NAS setups, Ubuntu, and Debian.
+✅ **Optimized for UGREEN NAS**, with high compatibility for Synology, QNAP, custom Linux NAS, Ubuntu, and Debian.
 ---
 
 ## Table of Contents
@@ -378,6 +378,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 🏠 **Home Labs**: Protect your self-hosted services (Plex, Nextcloud, etc.)
 - 🏢 **Small Business**: Backup critical Docker applications safely
 - 🔧 **Development**: Consistent backup of development environments
+- 📊 **Production**: Reliable backup for production Docker stacks
 
 ## 🙏 Acknowledgments
 

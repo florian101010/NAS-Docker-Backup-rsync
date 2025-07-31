@@ -26,7 +26,7 @@
 
 **🏆 Warum dieses Script wählen:** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, persistente Daten) und nahtloser Service-Neustart (Netzwerke werden bei `down` von Compose neu erstellt; bei `--use-stop` bleiben Netzwerke erhalten).
 
-**✅ Entwickelt für Kompatibilität:** Funktioniert perfekt auf UGREEN NAS und ist für hohe Kompatibilität mit Synology, QNAP, eigenen Linux-NAS-Setups, Ubuntu und Debian ausgelegt.
+✅ **Optimiert für UGREEN NAS**, mit hoher Kompatibilität für Synology, QNAP, eigene Linux-NAS-Setups, Ubuntu und Debian.
 ---
 
 ## Inhaltsverzeichnis
@@ -378,6 +378,7 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) Da
 - 🏠 **Home Labs**: Schützen Sie Ihre selbst gehosteten Services (Plex, Nextcloud, etc.)
 - 🏢 **Kleine Unternehmen**: Sichern Sie kritische Docker-Anwendungen sicher
 - 🔧 **Entwicklung**: Konsistente Backups von Entwicklungsumgebungen
+- 📊 **Produktion**: Zuverlässiges Backup für Produktions-Docker-Stacks
 
 ## 🙏 Danksagungen
 
