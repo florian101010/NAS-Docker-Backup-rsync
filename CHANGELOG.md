@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0] - 2025-07-31
+
+### 🌍 MULTI-LANGUAGE ENHANCEMENT
+
+This release significantly improves the user experience with complete language consistency and enhanced documentation.
+
+#### Added
+- **German Test Script**: `test_rsync_fix_de.sh` - Fully localized German version of the rsync compatibility test
+- **Enhanced README Documentation**: Professional language selection with prominent badges and navigation
+- **System Requirements Check**: Automated Docker and rsync validation in installation commands
+- **Structured Next Steps Workflow**: Clear post-installation checklist with prioritized steps
+- **Improved Installation Experience**: Separate, copy-friendly bash blocks for each language version
+
+#### Enhanced
+- **Complete Language Consistency**: German users now get fully German experience (scripts + tests + documentation)
+- **Professional Repository Presentation**: Enhanced badges, language selection, and visual structure
+- **User Guidance**: Clear workflow from installation to production setup with structured checklists
+- **Technical Dependencies**: Proper acknowledgment of rsync and Docker ecosystem in documentation
+
+#### Documentation
+- **Bilingual README Structure**: Professional language selection with flag indicators
+- **Enhanced Usability**: Streamlined installation process with system validation
+- **Production-Ready Guidance**: Clear path from installation to automated backup setup
+
 ## [3.4.9] - 2025-07-30
 
 ### 🚨 SECURITY FIXES
