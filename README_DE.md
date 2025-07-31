@@ -29,31 +29,7 @@ Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container lauf
 
 ---
 
-## Inhaltsverzeichnis
-
-- [🚀 Hauptfunktionen](#-hauptfunktionen)
-- [⚠️ Wichtiger Haftungsausschluss](#️-wichtiger-haftungsausschluss)
-- [📋 Anforderungen](#-anforderungen)
-- [⚡ Schnellstart (5 Minuten)](#-schnellstart-5-minuten)
-- [🌍 Sprachunterstützung](#-sprachunterstützung)
-- [📊 Verwendungsbeispiele](#-verwendungsbeispiele)
-- [📖 Detaillierte Konfiguration](#-detaillierte-konfiguration)
-- [🔄 Automatisierung mit Cron](#-automatisierung-mit-cron)
-- [🛡️ Sicherheitsfeatures](#️-sicherheitsfeatures)
-- [📊 Überwachung & Logging](#-überwachung--logging)
-- [🔧 Fehlerbehebung](#-fehlerbehebung)
-- [🔐 Backup-Verschlüsselung](#-backup-verschlüsselung)
-- [🤝 Mitwirken](#-mitwirken)
-- [📄 Lizenz](#-lizenz)
-- [🎯 Anwendungsfälle](#-anwendungsfälle)
-- [🙏 Danksagungen](#-danksagungen)
-- [📈 Versionshistorie](#-versionshistorie)
-- [📚 Dokumentation](#-dokumentation)
-- [📸 Screenshots](#-screenshots)
-
----
-
-## � Hauptfunktionen
+##  Key Features
 
 ### 🐳 **Intelligente Docker-Verwaltung**
 - **🔍 Automatische Container-Erkennung**: Findet alle Docker Compose Stacks und Container automatisch
@@ -79,6 +55,62 @@ Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container lauf
 - **🕒 Flexible Zeitplanung**: Perfekt für Cron-Automatisierung mit verschiedenen Timing-Optionen
 - **🔒 Sicherheitsfeatures**: Fail-Fast-Design, Input-Validierung und sichere Berechtigungsbehandlung
 - **🌐 NAS-Optimiert**: Ausführlich auf UGREEN NAS (DXP2800) getestet. Entwickelt für hohe Kompatibilität mit Synology, QNAP und anderen benutzerdefinierten Linux-NAS-Systemen.
+
+---
+
+## Inhaltsverzeichnis
+
+- [🐳 NAS Docker Backup Script](#-nas-docker-backup-script)
+  - [🌍 Choose Your Language / Sprache wählen](#-choose-your-language--sprache-wählen)
+  - [Deutsche Version](#deutsche-version)
+  - [Key Features](#key-features)
+    - [🐳 **Intelligente Docker-Verwaltung**](#-intelligente-docker-verwaltung)
+    - [🚀 **Performance \& Zuverlässigkeit**](#-performance--zuverlässigkeit)
+    - [💾 **Erweiterte Backup-Funktionen**](#-erweiterte-backup-funktionen)
+    - [⚙️ **Enterprise-Grade Konfiguration**](#️-enterprise-grade-konfiguration)
+  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
+  - [⚠️ Wichtiger Haftungsausschluss](#️-wichtiger-haftungsausschluss)
+  - [📋 Anforderungen](#-anforderungen)
+  - [⚡ Schnellstart (5 Minuten)](#-schnellstart-5-minuten)
+    - [1️⃣ Ein-Zeilen-Installation mit Systemprüfung](#1️⃣-ein-zeilen-installation-mit-systemprüfung)
+    - [2️⃣ Ihre Pfade Konfigurieren](#2️⃣-ihre-pfade-konfigurieren)
+    - [3️⃣ Testen \& Ausführen](#3️⃣-testen--ausführen)
+    - [4️⃣ Nächste Schritte Checkliste](#4️⃣-nächste-schritte-checkliste)
+  - [🌍 Sprachunterstützung](#-sprachunterstützung)
+  - [📊 Verwendungsbeispiele](#-verwendungsbeispiele)
+  - [📖 Detaillierte Konfiguration](#-detaillierte-konfiguration)
+    - [Kommandozeilen-Optionen](#kommandozeilen-optionen)
+  - [🔄 Automatisierung mit Cron](#-automatisierung-mit-cron)
+    - [Sichere parallele Cron-Beispiele (v3.5.1+)](#sichere-parallele-cron-beispiele-v351)
+  - [🛡️ Sicherheitsfeatures](#️-sicherheitsfeatures)
+    - [Fail-Safe Design](#fail-safe-design)
+    - [Erforderliche Dependencies](#erforderliche-dependencies)
+    - [Backup-Verifizierung](#backup-verifizierung)
+  - [📊 Überwachung \& Logging](#-überwachung--logging)
+    - [Log-Dateien](#log-dateien)
+    - [Container-Status-Indikatoren](#container-status-indikatoren)
+  - [🔧 Fehlerbehebung](#-fehlerbehebung)
+    - [Häufige Probleme](#häufige-probleme)
+    - [Dependency-Validierung](#dependency-validierung)
+  - [🔐 Backup-Verschlüsselung](#-backup-verschlüsselung)
+    - [Schnelle Verschlüsselungs-Einrichtung](#schnelle-verschlüsselungs-einrichtung)
+    - [Automatisierte verschlüsselte Backups](#automatisierte-verschlüsselte-backups)
+    - [Verschlüsselte Backups wiederherstellen](#verschlüsselte-backups-wiederherstellen)
+  - [🤝 Mitwirken](#-mitwirken)
+    - [Entwicklungsumgebung einrichten](#entwicklungsumgebung-einrichten)
+  - [📄 Lizenz](#-lizenz)
+  - [🎯 Anwendungsfälle](#-anwendungsfälle)
+  - [🙏 Danksagungen](#-danksagungen)
+  - [📈 Versionshistorie](#-versionshistorie)
+  - [📚 Dokumentation](#-dokumentation)
+    - [Schnellstart](#schnellstart)
+    - [Detaillierte Anleitungen](#detaillierte-anleitungen)
+    - [Automatisierung](#automatisierung)
+    - [Entwicklung](#entwicklung)
+  - [📸 Screenshots](#-screenshots)
+    - [Backup-Prozess in Aktion](#backup-prozess-in-aktion)
+
+---
 
 ## ⚠️ Wichtiger Haftungsausschluss
 

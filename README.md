@@ -29,17 +29,46 @@ Traditional backup methods **corrupt Docker data** when containers are running. 
 
 ---
 
+## 🚀 Key Features
+
+### � **Smart Docker Management**
+- **🔍 Automatic Container Discovery**: Finds all Docker Compose stacks and containers automatically
+- **⏸️ Graceful Container Shutdown**: Safely stops containers to prevent data corruption during backup
+- **🔄 Intelligent Restart**: Automatically restarts all services after backup completion
+- **📦 Complete Stack Backup**: Backs up Docker Compose files, volumes, and persistent data (networks recreated by Compose when using `down`; with `--use-stop` networks are kept)
+- **🔧 Flexible Stop Modes**: Choose between `docker compose stop` (fast) or `down` (complete cleanup)
+
+### 🚀 **Performance & Reliability**
+- **⚡ Parallel Processing**: Configurable parallel container operations (1-16 jobs) for faster backups
+- **🛡️ Production-Safe**: Thread-safe operations with atomic lock protection
+- **🎯 Smart Recovery**: Automatic container restart even on backup failures with signal handling
+- **📊 Real-time Monitoring**: Live container status tracking with color-coded progress indicators
+
+### 💾 **Advanced Backup Features**
+- **🔄 rsync-based Synchronization**: Standard rsync behavior with intelligent flag validation and multi-tier fallback
+- **🔐 External Encryption**: Script creates unencrypted backups. Encryption via external GPG pipelines after backup completion (examples provided)
+- **✅ Backup Verification**: Automatic verification of backup integrity and completeness
+- **📈 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
+
+### ⚙️ **Enterprise-Grade Configuration**
+- **🎛️ Highly Configurable**: Extensive command-line options for timeouts, buffers, and behavior
+- **🕒 Flexible Scheduling**: Perfect for cron automation with various timing options
+- **🔒 Security Features**: Fail-fast design, input validation, and secure permission handling
+- **🌐 NAS Optimized**: Extensively tested on UGREEN NAS (DXP2800). Designed for high compatibility with Synology, QNAP, and other custom Linux NAS systems.
+
+---
+
 ## Table of Contents
 
 - [🐳 NAS - Docker Backup Script (rsync)](#-nas---docker-backup-script-rsync)
   - [🌍 Choose Your Language / Sprache wählen](#-choose-your-language--sprache-wählen)
   - [English Version](#english-version)
-  - [Table of Contents](#table-of-contents)
   - [🚀 Key Features](#-key-features)
     - [� **Smart Docker Management**](#-smart-docker-management)
     - [🚀 **Performance \& Reliability**](#-performance--reliability)
     - [💾 **Advanced Backup Features**](#-advanced-backup-features)
     - [⚙️ **Enterprise-Grade Configuration**](#️-enterprise-grade-configuration)
+  - [Table of Contents](#table-of-contents)
   - [⚠️ Important Disclaimer](#️-important-disclaimer)
   - [📋 Requirements](#-requirements)
   - [⚡ Quick Start (5 Minutes)](#-quick-start-5-minutes)
@@ -82,33 +111,6 @@ Traditional backup methods **corrupt Docker data** when containers are running. 
     - [Backup Process in Action](#backup-process-in-action)
 
 ---
-
-## 🚀 Key Features
-
-### � **Smart Docker Management**
-- **🔍 Automatic Container Discovery**: Finds all Docker Compose stacks and containers automatically
-- **⏸️ Graceful Container Shutdown**: Safely stops containers to prevent data corruption during backup
-- **🔄 Intelligent Restart**: Automatically restarts all services after backup completion
-- **📦 Complete Stack Backup**: Backs up Docker Compose files, volumes, and persistent data (networks recreated by Compose when using `down`; with `--use-stop` networks are kept)
-- **🔧 Flexible Stop Modes**: Choose between `docker compose stop` (fast) or `down` (complete cleanup)
-
-### 🚀 **Performance & Reliability**
-- **⚡ Parallel Processing**: Configurable parallel container operations (1-16 jobs) for faster backups
-- **🛡️ Production-Safe**: Thread-safe operations with atomic lock protection
-- **🎯 Smart Recovery**: Automatic container restart even on backup failures with signal handling
-- **📊 Real-time Monitoring**: Live container status tracking with color-coded progress indicators
-
-### 💾 **Advanced Backup Features**
-- **🔄 rsync-based Synchronization**: Standard rsync behavior with intelligent flag validation and multi-tier fallback
-- **🔐 External Encryption**: Script creates unencrypted backups. Encryption via external GPG pipelines after backup completion (examples provided)
-- **✅ Backup Verification**: Automatic verification of backup integrity and completeness
-- **📈 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
-
-### ⚙️ **Enterprise-Grade Configuration**
-- **🎛️ Highly Configurable**: Extensive command-line options for timeouts, buffers, and behavior
-- **🕒 Flexible Scheduling**: Perfect for cron automation with various timing options
-- **🔒 Security Features**: Fail-fast design, input validation, and secure permission handling
-- **🌐 NAS Optimized**: Extensively tested on UGREEN NAS (DXP2800). Designed for high compatibility with Synology, QNAP, and other custom Linux NAS systems.
 
 ## ⚠️ Important Disclaimer
 
