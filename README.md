@@ -125,7 +125,7 @@ LOG_DIR="/path/to/your/logs"
 | `--timeout-stop N` | Container stop timeout (10-3600s) | 60s |
 | `--timeout-start N` | Container start timeout (10-3600s) | 120s |
 | `--buffer-percent N` | Storage buffer percentage (10-100%) | 20% |
-| `--preserve-acl` | Preserve ACLs and extended attributes | Disabled |
+| `--preserve-acl` | Preserve ACLs and extended attributes | Enabled |
 | `--skip-backup` | Only restart containers | Disabled |
 | `--no-verify` | Skip backup verification | Enabled |
 
