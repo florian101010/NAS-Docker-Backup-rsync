@@ -392,8 +392,9 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 ### Backup Process in Action
 
-<img width="2764" height="2950" alt="100_screenshot" src="https://github.com/user-attachments/assets/ab6a50bc-f63f-40e1-b66e-3ea3bd81e997" />
-<img width="2764" height="2950" alt="300_screenshot" src="https://github.com/user-attachments/assets/93045756-e1f7-4011-8d6d-81f6103d4263" />
-<img width="2764" height="2950" alt="200_screenshot" src="https://github.com/user-attachments/assets/35878374-269e-4404-a005-921dca27d8b8" />
+<img width="1672" height="2886" alt="github1_screenshot_optimized" src="https://github.com/user-attachments/assets/c93101ed-8cf3-4d9a-bdf1-2f8d916adf4f" />
+<img width="1672" height="2886" alt="github2_screenshot_optimized" src="https://github.com/user-attachments/assets/c41afa70-a1cb-4983-b88c-d6f3bf144232" />
+<img width="1672" height="2886" alt="github3_screenshot_optimized" src="https://github.com/user-attachments/assets/0357fff5-9466-4f83-b2a4-85f452d290a9" />
+
 
 
