@@ -1,5 +1,18 @@
 # 🐳 NAS Docker Backup Script
 
+<div align="center">
+
+## 🌍 Choose Your Language / Sprache wählen
+
+[![English](https://img.shields.io/badge/🇺🇸_English-blue?style=for-the-badge)](#english-version)
+[![Deutsch](https://img.shields.io/badge/🇩🇪_Deutsch-red?style=for-the-badge)](README_DE.md)
+
+---
+
+</div>
+
+## English Version
+
 [![Version](https://img.shields.io/badge/version-3.4.9-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Bash](https://img.shields.io/badge/bash-4.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
@@ -273,6 +286,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- 🛠️ **Built on rsync**: Powered by the robust [rsync project](https://rsync.samba.org/) for reliable file synchronization
+- 🐳 **Docker Integration**: Leverages [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) ecosystem
 - ✅ **Tested & Optimized**: UGREEN NAS DXP2800
 - 🌟 **Open Source**: MIT licensed for maximum flexibility
 
