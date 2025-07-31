@@ -3,7 +3,7 @@
 # ================================================================
 # Docker NAS Backup Script
 # Automatic backup of all Docker containers and persistent data
-# Date: July 31, 2025 - Version 3.5.5
+# Date: July 31, 2025 - Version 3.5.7
 # GitHub: https://github.com/florian101010/NAS-Docker-Backup-rsync
 # ================================================================
 
@@ -94,19 +94,10 @@ declare -a ALL_STACKS=()
 GLOBAL_EXIT_CODE=0
 
 # ================================================================
-# PREFLIGHT CHECKS - CRITICAL DEPENDENCIES
+# SUDO INITIALIZATION - MUST BE BEFORE PREFLIGHT CHECKS
 # ================================================================
 
-# Check for required tools before any operations
-if ! command -v flock >/dev/null 2>&1; then
-    echo -e "${RED}❌ ERROR: 'flock' is required for safe locking (util-linux).${NC}"
-    echo "Install with: sudo apt install util-linux (Ubuntu/Debian) or sudo yum install util-linux (CentOS/RHEL)"
-    exit 1
-fi
-
-# jq is no longer required - using docker compose ps directly
-
-# Sudo optimization: One-time privilege check
+# Sudo optimization: One-time privilege check (moved before preflight checks)
 SUDO_CMD=""
 if [[ $EUID -eq 0 ]]; then
     # Already running as root - no sudo needed
@@ -121,6 +112,33 @@ else
         exit 1
     fi
 fi
+
+# ================================================================
+# PREFLIGHT CHECKS - CRITICAL DEPENDENCIES
+# ================================================================
+
+# Check for required tools before any operations
+for bin in timeout rsync docker flock; do
+    if ! command -v "$bin" >/dev/null 2>&1; then
+        echo -e "${RED}❌ ERROR: '$bin' is required.${NC}"
+        case "$bin" in
+            timeout) echo "Install with: sudo apt install coreutils (Ubuntu/Debian)" ;;
+            rsync) echo "Install with: sudo apt install rsync" ;;
+            docker) echo "Install Docker first" ;;
+            flock) echo "Install with: sudo apt install util-linux" ;;
+        esac
+        exit 1
+    fi
+done
+
+# Check docker compose plugin availability (now SUDO_CMD is initialized)
+if ! $SUDO_CMD docker compose version >/dev/null 2>&1; then
+    echo -e "${RED}❌ ERROR: 'docker compose' plugin not available.${NC}"
+    echo "Install with: sudo apt install docker-compose-plugin"
+    exit 1
+fi
+
+# jq is no longer required - using docker compose ps directly
 
 # Lock file for protection against double execution
 LOCK_FILE="/tmp/docker_backup.lock"
@@ -254,6 +272,18 @@ log_message() {
     fi
 }
 
+# Helper function to start specific stacks
+start_specific_stacks() {
+    local names=("$@")
+    for stack_name in "${names[@]}"; do
+        local stack_dir="$STACKS_DIR/$stack_name"
+        if [[ -f "$stack_dir/docker-compose.yml" ]]; then
+            timeout "$COMPOSE_TIMEOUT_START" bash -c "cd '$stack_dir' && $SUDO_CMD docker compose up -d" \
+              2>&1 | process_docker_output || true
+        fi
+    done
+}
+
 # Cleanup function for signal handling
 cleanup() {
     local exit_code=$?
@@ -268,10 +298,10 @@ cleanup() {
     else
         log_message "WARN" "Cleanup executed (Signal/Exit: $exit_code)"
 
-        # Try to restart containers if they were stopped
+        # Only restart stacks that WE stopped during cleanup
         if [[ ${#RUNNING_STACKS[@]} -gt 0 ]]; then
             log_message "INFO" "Starting stopped containers after cleanup..."
-            start_all_docker_stacks || true  # Ignore errors in cleanup
+            start_specific_stacks "${RUNNING_STACKS[@]}" || true  # Ignore errors in cleanup
         fi
 
         log_message "INFO" "=== DOCKER NAS BACKUP CLEANUP FINISHED ==="
@@ -705,8 +735,8 @@ perform_consolidated_health_check() {
         if [[ $total_count -gt 0 ]]; then
             local running_containers_output=""
             if running_containers_output=$(timeout 15 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps 2>/dev/null"); then
-                # Count lines with "Up" status (more robust than --status running)
-                running_count=$(echo "$running_containers_output" | grep -c '\sUp\s' 2>/dev/null || echo 0)
+                # Count lines with "Up" status (POSIX-compatible regex)
+                running_count=$(echo "$running_containers_output" | grep -c '[[:space:]]Up[[:space:]]' 2>/dev/null || echo 0)
             else
                 log_message "WARN" "Health check: Timeout getting running status for stack: $stack_name"
                 # Fallback: Use docker ps directly
@@ -780,6 +810,30 @@ perform_backup() {
     log_message "INFO" "Performing delete-guard checks..."
     echo -e "${BLUE}🛡️ Performing safety checks...${NC}"
     
+    # Hard safety: Prevent rsync --delete from wiping the source
+    local src=$(readlink -f "$BACKUP_SOURCE")
+    local dst=$(readlink -f "$BACKUP_DEST")
+    
+    if [[ -z "$src" || -z "$dst" ]]; then
+        log_message "ERROR" "Could not resolve source/destination paths"
+        echo -e "${RED}❌ ERROR: Path resolution failed${NC}"
+        return 1
+    fi
+    
+    # Prevent dest==src or dest inside src
+    if [[ "$dst" == "$src" || "$dst" == "$src"/* ]]; then
+        log_message "ERROR" "Backup destination resides in source (danger with --delete): $dst"
+        echo -e "${RED}❌ ERROR: BACKUP_DEST must not be inside BACKUP_SOURCE${NC}"
+        return 1
+    fi
+    
+    # Prevent obviously dangerous destinations
+    if [[ "$dst" == "/" || "$dst" == "/root" || "$dst" == "/home" ]]; then
+        log_message "ERROR" "Refusing to write to broad system directory: $dst"
+        echo -e "${RED}❌ ERROR: Unsafe BACKUP_DEST${NC}"
+        return 1
+    fi
+    
     # Check 1: Source must contain minimum files
     local min_files_found=$(find "$BACKUP_SOURCE" -mindepth 1 -print -quit 2>/dev/null)
     if [[ -z "$min_files_found" ]]; then
@@ -828,7 +882,7 @@ perform_backup() {
     RSYNC_FLAGS="-a --delete"
     
     # Exclude log directory from backup (prevents growth/noise)
-    RSYNC_FLAGS+=" --exclude '/logs/**'"
+    RSYNC_FLAGS+=" --exclude=/logs/**"
 
     # Test flags with real rsync call (safer than grep)
     test_rsync_flag() {
@@ -900,7 +954,7 @@ perform_backup() {
     execute_rsync_backup() {
         local source="$1"
         local dest="$2"
-        local flags="$RSYNC_FLAGS"
+        local flags="${3:-$RSYNC_FLAGS}"
 
         # Validate paths
         if [[ ! -d "$source" ]]; then
@@ -940,15 +994,18 @@ perform_backup() {
         # Debug output
         log_message "INFO" "Executing rsync: ${rsync_cmd[*]}"
 
-        # Execute command
+        # Execute command (safe for set -e -o pipefail)
+        set +e
         "${rsync_cmd[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee -a "$LOG_FILE"
-        return $?
+        local rc=$?
+        set -e
+        return $rc
     }
 
     # Execute backup with fallback mechanism
     local rsync_exit_code
     local backup_success=false
-    local original_flags="$rsync_opts"
+    # Remove unbound variable reference
 
     # Attempt 1: With optimized flags
     log_message "INFO" "Attempting backup with optimized flags: $RSYNC_FLAGS"

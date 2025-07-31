@@ -5,6 +5,84 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.7] - 2025-07-31 🔧 **CRITICAL BUG FIXES & INITIALIZATION ORDER**
+
+### 🛑 Critical Bug Fixes
+- **CRITICAL**: Fixed `$SUDO_CMD` usage before initialization in preflight checks
+  - Moved SUDO initialization block before preflight checks to prevent `set -u` failures
+  - Script would crash immediately on startup under strict mode (`set -euo pipefail`)
+  - **Impact**: Script now starts reliably without "unbound variable" errors
+  - **Risk**: Without this fix, script would terminate before any operations could begin
+
+- **Fixed**: Health check regex pattern for container status detection
+  - Changed from `\sUp\s` to `[[:space:]]Up[[:space:]]` for POSIX compatibility
+  - Ensures proper detection of running containers across different grep implementations
+  - **Impact**: Health checks now accurately count running containers
+  - **Risk**: Without fix, health check would show 0 running containers even when containers were up
+
+- **Fixed**: Parameter consistency in `execute_rsync_backup` function
+  - Function now properly uses passed flags parameter with fallback to global variable
+  - Changed from `local flags="$RSYNC_FLAGS"` to `local flags="${3:-$RSYNC_FLAGS}"`
+  - **Impact**: Improved maintainability and API consistency
+  - **Risk**: No functional impact, but better code quality and future-proofing
+
+### 🧹 Code Quality Improvements
+- Enhanced error handling and initialization order for better reliability
+- Improved POSIX compliance for better portability across different systems
+- Consistent parameter handling across all functions
+- Better separation of concerns between initialization and validation phases
+
+### 📝 Documentation Updates
+- Updated version to 3.5.7 in both English and German scripts
+- Improved code comments explaining initialization sequence
+- Enhanced inline documentation for critical initialization order
+
+---
+
+## [3.5.6] - 2025-07-31 🛑 **CRITICAL SECURITY FIXES & DATA PROTECTION**
+
+### 🛑 Critical Security Fixes
+- **CRITICAL**: Fixed rsync pipeline abort with `set -e -o pipefail`
+  - Prevents script termination before fallback attempts can execute
+  - Wrapped rsync pipeline with `set +e`/`set -e` for safe exit code capture
+  - **Impact**: Prevents silent backup failure when rsync returns non-zero exit codes
+  - **Risk**: Without this fix, backup could abort before trying fallback options
+
+- **CRITICAL**: Removed unbound variable `rsync_opts` causing crashes under `set -u`
+  - Eliminated undefined variable reference that caused immediate script termination
+  - **Impact**: Script now runs reliably without variable expansion errors
+  - **Risk**: Script would crash with "unbound variable" error on startup
+
+- **CRITICAL**: Fixed exclude pattern quotes breaking log exclusion
+  - Changed `--exclude '/logs/**'` to `--exclude=/logs/**` for proper rsync parsing
+  - **Impact**: Log directory now properly excluded from backups, preventing growth
+  - **Risk**: Without fix, logs were included in backup, causing size bloat
+
+- **CRITICAL**: Added hard delete-guard checks to prevent data loss
+  - Enhanced path validation with `readlink -f` for absolute path resolution
+  - Prevents `BACKUP_DEST` inside `BACKUP_SOURCE` (catastrophic with `--delete`)
+  - Blocks dangerous destinations like `/`, `/root`, `/home`
+  - **Impact**: Prevents accidental source directory deletion with `rsync --delete`
+  - **Risk**: Could wipe entire source directory if paths misconfigured
+
+### 🔧 High-Impact Improvements
+- **Enhanced Dependency Validation**: Added preflight checks for `timeout` and `docker compose`
+  - Comprehensive tool validation before any operations begin
+  - Clear installation instructions for missing dependencies
+  - **Impact**: Prevents confusing failures during backup execution
+
+- **Improved Cleanup Safety**: Cleanup now only restarts stacks that were actually stopped
+  - Added `start_specific_stacks()` helper function
+  - Prevents unintended startup of manually stopped containers
+  - **Impact**: Safer cleanup behavior respects user's container state
+
+### 📝 Documentation Updates
+- Removed all `jq` references from documentation (README, QUICKSTART, MANUAL)
+- Updated system requirements to reflect actual dependencies
+- Enhanced troubleshooting guides with new safety features
+
+---
+
 ## [3.5.5] - 2025-07-31 🔧 **CRITICAL PARALLEL MODE FIXES & DEPENDENCY CLEANUP**
 
 ### Fixed

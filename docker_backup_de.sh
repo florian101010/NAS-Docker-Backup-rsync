@@ -3,7 +3,7 @@
 # ================================================================
 # Docker NAS Backup Skript
 # Automatisches Backup aller Docker-Container und persistenten Daten
-# Stand: 31. Juli 2025 - Version 3.5.5
+# Stand: 31. Juli 2025 - Version 3.5.7
 # GitHub: https://github.com/florian101010/NAS-Docker-Backup-rsync
 # ================================================================
 
@@ -94,19 +94,10 @@ declare -a ALL_STACKS=()
 GLOBAL_EXIT_CODE=0
 
 # ================================================================
-# PREFLIGHT CHECKS - KRITISCHE DEPENDENCIES
+# SUDO INITIALISIERUNG - MUSS VOR PREFLIGHT CHECKS STEHEN
 # ================================================================
 
-# Prüfe erforderliche Tools vor allen Operationen
-if ! command -v flock >/dev/null 2>&1; then
-    echo -e "${RED}❌ FEHLER: 'flock' ist erforderlich für sicheres Locking (util-linux).${NC}"
-    echo "Installation mit: sudo apt install util-linux (Ubuntu/Debian) oder sudo yum install util-linux (CentOS/RHEL)"
-    exit 1
-fi
-
-# jq ist nicht mehr erforderlich - verwenden docker compose ps direkt
-
-# Sudo-Optimierung: Einmalige Privilegien-Prüfung
+# Sudo-Optimierung: Einmalige Privilegien-Prüfung (vor Preflight Checks verschoben)
 SUDO_CMD=""
 if [[ $EUID -eq 0 ]]; then
     # Bereits als root - kein sudo nötig
@@ -121,6 +112,33 @@ else
         exit 1
     fi
 fi
+
+# ================================================================
+# PREFLIGHT CHECKS - KRITISCHE DEPENDENCIES
+# ================================================================
+
+# Prüfe erforderliche Tools vor allen Operationen
+for bin in timeout rsync docker flock; do
+    if ! command -v "$bin" >/dev/null 2>&1; then
+        echo -e "${RED}❌ FEHLER: '$bin' ist erforderlich.${NC}"
+        case "$bin" in
+            timeout) echo "Installation mit: sudo apt install coreutils (Ubuntu/Debian)" ;;
+            rsync) echo "Installation mit: sudo apt install rsync" ;;
+            docker) echo "Installieren Sie Docker zuerst" ;;
+            flock) echo "Installation mit: sudo apt install util-linux" ;;
+        esac
+        exit 1
+    fi
+done
+
+# Prüfe docker compose Plugin-Verfügbarkeit (jetzt ist SUDO_CMD initialisiert)
+if ! $SUDO_CMD docker compose version >/dev/null 2>&1; then
+    echo -e "${RED}❌ FEHLER: 'docker compose' Plugin nicht verfügbar.${NC}"
+    echo "Installation mit: sudo apt install docker-compose-plugin"
+    exit 1
+fi
+
+# jq ist nicht mehr erforderlich - verwenden docker compose ps direkt
 
 # Lock-Datei für Schutz gegen doppelte Ausführung
 LOCK_FILE="/tmp/docker_backup.lock"
@@ -254,6 +272,18 @@ log_message() {
     fi
 }
 
+# Hilfsfunktion zum Starten spezifischer Stacks
+start_specific_stacks() {
+    local names=("$@")
+    for stack_name in "${names[@]}"; do
+        local stack_dir="$STACKS_DIR/$stack_name"
+        if [[ -f "$stack_dir/docker-compose.yml" ]]; then
+            timeout "$COMPOSE_TIMEOUT_START" bash -c "cd '$stack_dir' && $SUDO_CMD docker compose up -d" \
+              2>&1 | process_docker_output || true
+        fi
+    done
+}
+
 # Cleanup-Funktion für Signal-Handling
 cleanup() {
     local exit_code=$?
@@ -268,10 +298,10 @@ cleanup() {
     else
         log_message "WARN" "Cleanup ausgeführt (Signal/Exit: $exit_code)"
 
-        # Versuche Container wieder zu starten falls sie gestoppt wurden
+        # Nur Stacks neu starten, die WIR während des Cleanup gestoppt haben
         if [[ ${#RUNNING_STACKS[@]} -gt 0 ]]; then
             log_message "INFO" "Starte gestoppte Container nach Cleanup..."
-            start_all_docker_stacks || true  # Ignoriere Fehler im Cleanup
+            start_specific_stacks "${RUNNING_STACKS[@]}" || true  # Ignoriere Fehler im Cleanup
         fi
 
         log_message "INFO" "=== DOCKER NAS BACKUP CLEANUP BEENDET ==="
@@ -705,8 +735,8 @@ perform_consolidated_health_check() {
         if [[ $total_count -gt 0 ]]; then
             local running_containers_output=""
             if running_containers_output=$(timeout 15 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps 2>/dev/null"); then
-                # Zähle Zeilen mit "Up" Status (robuster als --status running)
-                running_count=$(echo "$running_containers_output" | grep -c '\sUp\s' 2>/dev/null || echo 0)
+                # Zähle Zeilen mit "Up" Status (POSIX-kompatible Regex)
+                running_count=$(echo "$running_containers_output" | grep -c '[[:space:]]Up[[:space:]]' 2>/dev/null || echo 0)
             else
                 log_message "WARN" "Healthcheck: Timeout beim Abrufen des Running-Status für Stack: $stack_name"
                 # Fallback: Verwende docker ps direkt
@@ -780,6 +810,30 @@ perform_backup() {
     log_message "INFO" "Führe Delete-Guard-Prüfungen durch..."
     echo -e "${BLUE}🛡️ Führe Sicherheitsprüfungen durch...${NC}"
     
+    # Harte Sicherheit: Verhindere rsync --delete vom Löschen der Quelle
+    local src=$(readlink -f "$BACKUP_SOURCE")
+    local dst=$(readlink -f "$BACKUP_DEST")
+    
+    if [[ -z "$src" || -z "$dst" ]]; then
+        log_message "ERROR" "Konnte Quell-/Zielpfade nicht auflösen"
+        echo -e "${RED}❌ FEHLER: Pfadauflösung fehlgeschlagen${NC}"
+        return 1
+    fi
+    
+    # Verhindere dst==src oder dst innerhalb src
+    if [[ "$dst" == "$src" || "$dst" == "$src"/* ]]; then
+        log_message "ERROR" "Backup-Ziel liegt in der Quelle (Gefahr mit --delete): $dst"
+        echo -e "${RED}❌ FEHLER: BACKUP_DEST darf nicht innerhalb BACKUP_SOURCE liegen${NC}"
+        return 1
+    fi
+    
+    # Verhindere offensichtlich gefährliche Ziele
+    if [[ "$dst" == "/" || "$dst" == "/root" || "$dst" == "/home" ]]; then
+        log_message "ERROR" "Verweigere Schreibung in breites Systemverzeichnis: $dst"
+        echo -e "${RED}❌ FEHLER: Unsicheres BACKUP_DEST${NC}"
+        return 1
+    fi
+    
     # Prüfung 1: Quelle muss mindestens Dateien enthalten
     local min_files_found=$(find "$BACKUP_SOURCE" -mindepth 1 -print -quit 2>/dev/null)
     if [[ -z "$min_files_found" ]]; then
@@ -828,7 +882,7 @@ perform_backup() {
     RSYNC_FLAGS="-a --delete"
     
     # Schließe Log-Verzeichnis vom Backup aus (verhindert Wachstum/Rauschen)
-    RSYNC_FLAGS+=" --exclude '/logs/**'"
+    RSYNC_FLAGS+=" --exclude=/logs/**"
 
     # Teste Flags mit echtem rsync-Aufruf (sicherer als grep)
     test_rsync_flag() {
@@ -900,7 +954,7 @@ perform_backup() {
     execute_rsync_backup() {
         local source="$1"
         local dest="$2"
-        local flags="$RSYNC_FLAGS"
+        local flags="${3:-$RSYNC_FLAGS}"
 
         # Validiere Pfade
         if [[ ! -d "$source" ]]; then
@@ -940,15 +994,18 @@ perform_backup() {
         # Debug-Ausgabe
         log_message "INFO" "Führe rsync aus: ${rsync_cmd[*]}"
 
-        # Führe Kommando aus
+        # Führe Kommando aus (sicher für set -e -o pipefail)
+        set +e
         "${rsync_cmd[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee -a "$LOG_FILE"
-        return $?
+        local rc=$?
+        set -e
+        return $rc
     }
 
     # Führe Backup durch mit Fallback-Mechanismus
     local rsync_exit_code
     local backup_success=false
-    local original_flags="$rsync_opts"
+    # Entferne unbound Variable-Referenz
 
     # Versuch 1: Mit optimierten Flags
     log_message "INFO" "Versuche Backup mit optimierten Flags: $RSYNC_FLAGS"
