@@ -3,7 +3,7 @@
 # ================================================================
 # Docker NAS Backup Script
 # Automatic backup of all Docker containers and persistent data
-# Date: July 31, 2025 - Version 3.5.2
+# Date: July 31, 2025 - Version 3.5.5
 # GitHub: https://github.com/florian101010/NAS-Docker-Backup-rsync
 # ================================================================
 
@@ -104,11 +104,7 @@ if ! command -v flock >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! command -v jq >/dev/null 2>&1; then
-    echo -e "${RED}❌ ERROR: 'jq' is required for container health checks.${NC}"
-    echo "Install with: sudo apt install jq (Ubuntu/Debian) or sudo yum install jq (CentOS/RHEL)"
-    exit 1
-fi
+# jq is no longer required - using docker compose ps directly
 
 # Sudo optimization: One-time privilege check
 SUDO_CMD=""
@@ -454,26 +450,34 @@ stop_all_docker_stacks() {
 
         # Export SUDO_CMD, variables and functions for sub-shells (defensive programming)
         export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE LOG_FD
+        export GREEN RED YELLOW BLUE CYAN NC  # Color variables for parallel mode
         export -f process_docker_output format_container_status log_write log_message
 
-        # Parallel stopping with xargs (robust handling of stack names with special characters)
-        printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "
-            stack_dir='$STACKS_DIR/{}'
-            if [[ -f \"\$stack_dir/docker-compose.yml\" ]]; then
-                running_containers=\$(cd \"\$stack_dir\" && $SUDO_CMD docker compose ps -q 2>/dev/null | wc -l)
-                if [[ \$running_containers -gt 0 ]]; then
-                    echo \"  → Stopping stack (parallel): {}\"
-                    # LOG_FILE is now exported - direct logging with flock for thread safety
-                    if timeout '$COMPOSE_TIMEOUT_STOP' bash -c \"cd '\$stack_dir' && $SUDO_CMD docker compose $docker_cmd\" 2>&1 | process_docker_output; then
-                        echo \"    ${GREEN}✅ Stack ${YELLOW}{} ${GREEN}stopped${NC}\"
-                        touch '$temp_dir/{}.success'
+        # Parallel stopping with xargs (robust parameter passing)
+        printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} \
+          bash -c '
+            stacks_dir="$1"
+            stack_name="$2"
+            timeout_stop="$3"
+            docker_cmd="$4"
+            temp_dir="$5"
+            sudo_cmd="$6"
+            stack_dir="$stacks_dir/$stack_name"
+
+            if [[ -f "$stack_dir/docker-compose.yml" ]]; then
+                running_containers=$(cd "$stack_dir" && $sudo_cmd docker compose ps -q 2>/dev/null | wc -l)
+                if [[ $running_containers -gt 0 ]]; then
+                    echo "  → Stopping stack (parallel): $stack_name"
+                    if timeout "$timeout_stop" bash -c "cd \"$stack_dir\" && $sudo_cmd docker compose $docker_cmd" 2>&1 | process_docker_output; then
+                        echo "    ${GREEN}✅ Stack ${YELLOW}$stack_name ${GREEN}stopped${NC}"
+                        touch "$temp_dir/$stack_name.success"
                     else
-                        echo \"    ${RED}❌ Error stopping: ${YELLOW}{}${NC}\"
-                        touch '$temp_dir/{}.failed'
+                        echo "    ${RED}❌ Error stopping: ${YELLOW}$stack_name${NC}"
+                        touch "$temp_dir/$stack_name.failed"
                     fi
                 fi
             fi
-        "
+          ' _ "$STACKS_DIR" "{}" "$COMPOSE_TIMEOUT_STOP" "$docker_cmd" "$temp_dir" "$SUDO_CMD"
 
         # Collect results (logs are written directly)
         for stack_name in "${ALL_STACKS[@]}"; do
@@ -567,23 +571,30 @@ start_all_docker_stacks() {
 
         # Export SUDO_CMD, variables and functions for sub-shells (defensive programming)
         export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE LOG_FD
+        export GREEN RED YELLOW BLUE CYAN NC  # Color variables for parallel mode
         export -f process_docker_output format_container_status log_write log_message
 
-        # Parallel starting with xargs (robust handling of stack names with special characters)
-        printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "
-            stack_dir='$STACKS_DIR/{}'
-            if [[ -f \"\$stack_dir/docker-compose.yml\" ]]; then
-                echo \"  → Starting stack (parallel): {}\"
-                # LOG_FILE is now exported - direct logging with flock for thread safety
-                if timeout '$COMPOSE_TIMEOUT_START' bash -c \"cd '\$stack_dir' && $SUDO_CMD docker compose up -d\" 2>&1 | process_docker_output; then
-                    echo \"    ${GREEN}✅ Stack ${GREEN}{} ${GREEN}started${NC}\"
-                    touch '$temp_dir/{}.success'
+        # Parallel starting with xargs (robust parameter passing)
+        printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} \
+          bash -c '
+            stacks_dir="$1"
+            stack_name="$2"
+            timeout_start="$3"
+            temp_dir="$4"
+            sudo_cmd="$5"
+            stack_dir="$stacks_dir/$stack_name"
+
+            if [[ -f "$stack_dir/docker-compose.yml" ]]; then
+                echo "  → Starting stack (parallel): $stack_name"
+                if timeout "$timeout_start" bash -c "cd \"$stack_dir\" && $sudo_cmd docker compose up -d" 2>&1 | process_docker_output; then
+                    echo "    ${GREEN}✅ Stack ${GREEN}$stack_name ${GREEN}started${NC}"
+                    touch "$temp_dir/$stack_name.success"
                 else
-                    echo \"    ${RED}❌ Error starting: ${GREEN}{}${NC}\"
-                    touch '$temp_dir/{}.failed'
+                    echo "    ${RED}❌ Error starting: ${GREEN}$stack_name${NC}"
+                    touch "$temp_dir/$stack_name.failed"
                 fi
             fi
-        "
+          ' _ "$STACKS_DIR" "{}" "$COMPOSE_TIMEOUT_START" "$temp_dir" "$SUDO_CMD"
 
         # Collect results (logs are written directly)
         for stack_name in "${ALL_STACKS[@]}"; do
@@ -813,11 +824,11 @@ perform_backup() {
     echo -e "${BLUE}Started:${NC} $backup_timestamp"
     echo ""
 
-    # rsync options for consistent backup (UGREEN NAS compatible - minimal options)
-    local rsync_opts="-a --delete"
-
     # Robust rsync flag validation for UGREEN NAS compatibility
     RSYNC_FLAGS="-a --delete"
+    
+    # Exclude log directory from backup (prevents growth/noise)
+    RSYNC_FLAGS+=" --exclude '/logs/**'"
 
     # Test flags with real rsync call (safer than grep)
     test_rsync_flag() {
@@ -838,20 +849,17 @@ perform_backup() {
     # Test and add supported flags
     for flag in "--progress" "--stats" "--info=progress2"; do
         if test_rsync_flag "$flag"; then
-            RSYNC_FLAGS="$RSYNC_FLAGS $flag"
+            RSYNC_FLAGS+=" $flag"
             log_message "INFO" "rsync flag added: $flag"
         else
             log_message "WARN" "rsync flag not supported: $flag"
             # Fallback for --info=progress2
             if [[ "$flag" == "--info=progress2" ]] && test_rsync_flag "--progress"; then
-                RSYNC_FLAGS="$RSYNC_FLAGS --progress"
+                RSYNC_FLAGS+=" --progress"
                 log_message "INFO" "Fallback: --progress instead of --info=progress2"
             fi
         fi
     done
-
-    # Use the validated flags (without quotes for correct expansion)
-    rsync_opts=$RSYNC_FLAGS
 
     # Extended options for ACLs and extended attributes (with fallback)
     if [[ "$PRESERVE_ACL" == true ]]; then
@@ -860,8 +868,19 @@ perform_backup() {
             # Test ACL support at destination (with random suffix against race conditions)
             local acl_test_file="$BACKUP_DEST/.acl_test_$$_$(date +%s)"
             if $SUDO_CMD touch "$acl_test_file" 2>/dev/null && $SUDO_CMD setfacl -m u:$(whoami):rw "$acl_test_file" 2>/dev/null; then
-                rsync_opts="$rsync_opts -AX"
-                log_message "INFO" "ACLs and extended attributes will be backed up"
+                # Test and add ACL/xattr flags individually
+                if test_rsync_flag "-A"; then
+                    RSYNC_FLAGS+=" -A"
+                    log_message "INFO" "ACL support added"
+                fi
+                if test_rsync_flag "-X"; then
+                    RSYNC_FLAGS+=" -X"
+                    log_message "INFO" "Extended attributes support added"
+                fi
+                if test_rsync_flag "-H"; then
+                    RSYNC_FLAGS+=" -H"
+                    log_message "INFO" "Hardlink support added"
+                fi
                 echo "🔒 Backing up ACLs and extended attributes..."
                 $SUDO_CMD rm -f "$acl_test_file" 2>/dev/null
             else
@@ -881,7 +900,7 @@ perform_backup() {
     execute_rsync_backup() {
         local source="$1"
         local dest="$2"
-        local flags="$3"
+        local flags="$RSYNC_FLAGS"
 
         # Validate paths
         if [[ ! -d "$source" ]]; then
@@ -932,8 +951,8 @@ perform_backup() {
     local original_flags="$rsync_opts"
 
     # Attempt 1: With optimized flags
-    log_message "INFO" "Attempting backup with optimized flags: $rsync_opts"
-    if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$rsync_opts"; then
+    log_message "INFO" "Attempting backup with optimized flags: $RSYNC_FLAGS"
+    if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$RSYNC_FLAGS"; then
         rsync_exit_code=0
         backup_success=true
         log_message "INFO" "Backup with optimized flags successful"
@@ -942,10 +961,10 @@ perform_backup() {
         log_message "WARN" "Backup with optimized flags failed (Exit: $rsync_exit_code), trying fallback..."
 
         # Attempt 2: Minimal safe flags
-        rsync_opts="-a --delete --progress"
-        log_message "INFO" "Fallback: Using minimal flags: $rsync_opts"
+        RSYNC_FLAGS="-a --delete --progress"
+        log_message "INFO" "Fallback: Using minimal flags: $RSYNC_FLAGS"
 
-        if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$rsync_opts"; then
+        if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$RSYNC_FLAGS"; then
             rsync_exit_code=0
             backup_success=true
             log_message "INFO" "Backup with minimal flags successful"
@@ -954,10 +973,10 @@ perform_backup() {
             log_message "WARN" "Minimal flags also failed (Exit: $rsync_exit_code), trying basic fallback..."
 
             # Attempt 3: Absolutely minimal flags
-            rsync_opts="-a --delete"
-            log_message "INFO" "Basic fallback: Using only: $rsync_opts"
+            RSYNC_FLAGS="-a --delete"
+            log_message "INFO" "Basic fallback: Using only: $RSYNC_FLAGS"
 
-            if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$rsync_opts"; then
+            if execute_rsync_backup "$BACKUP_SOURCE" "$BACKUP_DEST" "$RSYNC_FLAGS"; then
                 rsync_exit_code=0
                 backup_success=true
                 log_message "INFO" "Backup with basic flags successful"

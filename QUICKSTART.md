@@ -9,7 +9,7 @@
 ## ⚡ Get Started Immediately
 
 ### 📋 **What you need:**
-- ✅ Linux system with Docker
+- ✅ Linux system with Docker, rsync, flock
 - ✅ Docker containers already running
 - ✅ 5 minutes of your time
 

@@ -226,7 +226,6 @@ The script backs up your complete Docker setup while containers are cleanly stop
 command -v docker >/dev/null 2>&1 || { echo "❌ Docker not installed. Install Docker first."; exit 1; }
 command -v rsync >/dev/null 2>&1 || { echo "❌ rsync not installed. Install: sudo apt install rsync"; exit 1; }
 command -v flock >/dev/null 2>&1 || { echo "❌ flock not installed (package: util-linux)."; exit 1; }
-command -v jq >/dev/null 2>&1 || { echo "❌ jq not installed (required for health checks)."; exit 1; }
 echo "✅ System requirements met"
 ```
 

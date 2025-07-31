@@ -63,7 +63,7 @@
 
 - **OS**: Linux (tested on Ubuntu, Debian, UGREEN NAS DXP2800)
 - **Shell**: Bash 4.0+
-- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock, jq
+- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock
 - **Permissions**: sudo access or root execution
 
 ## ⚡ Quick Start (5 Minutes)
@@ -76,7 +76,6 @@
 command -v docker >/dev/null 2>&1 || { echo "❌ Docker not installed. Install Docker first."; exit 1; }
 command -v rsync >/dev/null 2>&1 || { echo "❌ rsync not installed. Install: sudo apt install rsync"; exit 1; }
 command -v flock >/dev/null 2>&1 || { echo "❌ flock not installed (prevents overlapping backups). Install: sudo apt install util-linux"; exit 1; }
-command -v jq >/dev/null 2>&1 || { echo "❌ jq not installed (parses container health status). Install: sudo apt install jq"; exit 1; }
 echo "✅ System requirements met"
 
 # Download and install
@@ -92,7 +91,6 @@ echo "✅ Installation complete! Next: Test compatibility with ./test_rsync_fix.
 command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Installieren Sie Docker zuerst."; exit 1; }
 command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
 command -v flock >/dev/null 2>&1 || { echo "❌ flock nicht installiert (verhindert doppelte Backups). Installation: sudo apt install util-linux"; exit 1; }
-command -v jq >/dev/null 2>&1 || { echo "❌ jq nicht installiert (analysiert Container-Status). Installation: sudo apt install jq"; exit 1; }
 echo "✅ Systemvoraussetzungen erfüllt"
 
 # Download und Installation
@@ -221,7 +219,6 @@ After installation, follow these steps in order:
 - **Atomic Operations**: Lock-protected execution prevents race conditions
 
 ### Required Dependencies
-- **`jq`**: Used to parse `docker compose ps --format json` so the script can wait until containers are *running* and (if present) *healthy* before declaring success
 - **`flock`**: Provides exclusive execution (no overlapping runs) and thread-safe logging when using parallel operations
 
 ### Backup Verification
@@ -255,9 +252,6 @@ After installation, follow these steps in order:
 sudo apt install util-linux  # Ubuntu/Debian
 sudo yum install util-linux  # CentOS/RHEL
 
-# jq not found error
-sudo apt install jq          # Ubuntu/Debian
-sudo yum install jq          # CentOS/RHEL
 ```
 
 **Containers won't start:**
@@ -295,9 +289,6 @@ sudo chown -R $(whoami):$(id -gn) /path/to/backup/destination
 
 **Quick smoke tests:**
 ```bash
-# Validate jq works
-echo '[]' | jq -e 'length == 0' >/dev/null && echo "✅ jq OK"
-
 # Validate flock works (mutex simulation)
 LOCK=/tmp/test.lock; exec 9>"$LOCK"; flock -n 9 && echo "✅ flock OK"
 ```

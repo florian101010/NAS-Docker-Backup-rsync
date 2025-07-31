@@ -226,7 +226,6 @@ Das Script sichert Ihr komplettes Docker-Setup, während die Container sauber ge
 command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Installieren Sie Docker zuerst."; exit 1; }
 command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
 command -v flock >/dev/null 2>&1 || { echo "❌ flock nicht installiert (Paket: util-linux)."; exit 1; }
-command -v jq >/dev/null 2>&1 || { echo "❌ jq nicht installiert (erforderlich für Health-Checks)."; exit 1; }
 echo "✅ Systemvoraussetzungen erfüllt"
 ```
 

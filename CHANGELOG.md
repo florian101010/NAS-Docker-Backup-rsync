@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.5] - 2025-07-31 🔧 **CRITICAL PARALLEL MODE FIXES & DEPENDENCY CLEANUP**
+
+### Fixed
+- **Critical Parallel Mode Bug**: Fixed variable expansion in parallel processing
+  - Variables like `$STACKS_DIR`, `$COMPOSE_TIMEOUT_STOP/START`, `$docker_cmd` were not expanded in sub-shells
+  - Replaced unsafe single-quoted variable references with robust parameter passing
+  - Used `bash -c '...' _ "$var1" "$var2"` pattern for safe variable expansion
+  - Prevents silent failures in parallel mode (`PARALLEL_JOBS > 1`)
+  - **Impact**: Parallel mode now works correctly instead of silently failing
+
+- **Parallel Mode Color Variables**: Fixed "unbound variable" errors with `set -u`
+  - Exported color variables (`GREEN`, `RED`, `YELLOW`, `BLUE`, `CYAN`, `NC`) for sub-shells
+  - Prevents script termination when parallel jobs try to use color codes
+  - Ensures consistent colored output in both serial and parallel modes
+
+### Removed
+- **Unnecessary jq Dependency**: Eliminated unused `jq` requirement
+  - Removed preflight check for `jq` package installation
+  - Health checks now use `docker compose ps` directly without JSON parsing
+  - Reduces system requirements and installation complexity
+  - **Impact**: Script works on systems without `jq` installed
+
+### Enhanced
+- **Improved rsync Flag Handling**: Unified and optimized backup flag management
+  - Consolidated duplicate `rsync_opts` and `RSYNC_FLAGS` variables into single `RSYNC_FLAGS`
+  - Added automatic log directory exclusion (`--exclude '/logs/**'`) to prevent backup growth
+  - Individual ACL/xattr flag testing (`-A`, `-X`, `-H`) for better compatibility
+  - Cleaner flag accumulation with `+=` operator instead of string concatenation
+  - More robust fallback mechanism with consistent variable usage
+
+### Technical
+- **Robust Parameter Passing**: Enhanced parallel processing reliability
+  - All parallel `xargs` blocks now use safe parameter passing
+  - Prevents variable expansion issues in complex shell environments
+  - Maintains thread safety while ensuring correct variable values
+  - Consistent implementation across both stop and start operations
+
+---
+
 ## [3.5.4] - 2025-07-31 🧹 **LOG OUTPUT CLEANUP & OPTIMIZATION**
 
 ### Improved
