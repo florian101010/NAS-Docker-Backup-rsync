@@ -1272,6 +1272,9 @@ else
     fi
     echo -e "${BLUE}Container starten:${NC} $([ "$CONTAINER_START_SUCCESS" == true ] && echo -e "${GREEN}✅ Erfolgreich${NC}" || echo -e "${RED}❌ Fehler${NC}")"
 
+    # Deaktiviere EXIT trap VOR dem Healthcheck (verhindert doppelten Container-Start)
+    trap - EXIT
+
     # Kompakter Gesundheitscheck (nur wenn Container erfolgreich gestartet wurden)
     if [[ "$CONTAINER_START_SUCCESS" == true && "$DRY_RUN" == false ]]; then
         perform_consolidated_health_check
@@ -1305,9 +1308,6 @@ if [[ "$SKIP_BACKUP" == false && "$BACKUP_SUCCESS" == true ]]; then
     echo -e "  ${CYAN}4.${NC} Backup-Verzeichnis: ${BLUE}$BACKUP_DEST${NC}"
 fi
 
-# Deaktiviere EXIT trap vor normalem Exit (idempotent)
-trap - EXIT
-
-# Einmaliger Abschluss-Log (nur hier, nicht doppelt)
+# Einmaliger Abschluss-Log (trap bereits früher deaktiviert)
 log_message "INFO" "=== DOCKER NAS BACKUP BEENDET ==="
 exit $GLOBAL_EXIT_CODE
