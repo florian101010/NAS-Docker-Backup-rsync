@@ -66,10 +66,15 @@
 
 ### 1️⃣ One-Line Installation
 ```bash
-# Download and setup (copy-paste ready)
+# English version (copy-paste ready)
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh && \
 chmod +x docker_backup.sh && \
 echo "✅ Installation complete! Edit paths in script, then run: ./docker_backup.sh --dry-run"
+
+# German version (Deutsche Version)
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
+chmod +x docker_backup_de.sh && \
+echo "✅ Installation abgeschlossen! Pfade im Script bearbeiten, dann ausführen: ./docker_backup_de.sh --dry-run"
 ```
 
 ### 2️⃣ Configure Your Paths
