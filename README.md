@@ -273,9 +273,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- ✅ **Tested & Optimized**: UGREEN NAS DXP2800, Synology, QNAP
-- 🤝 **Community Driven**: Built with feedback from 100+ users
-- 🔒 **Security Audited**: Reviewed by security professionals
+- ✅ **Tested & Optimized**: UGREEN NAS DXP2800
 - 🌟 **Open Source**: MIT licensed for maximum flexibility
 
 ## 📈 Version History
