@@ -663,7 +663,7 @@ perform_consolidated_health_check() {
     local healthy_containers=0
     local unhealthy_containers=0
     
-    # Robuste Prüfung mit Timeout und Fehlerbehandlung
+    # Vereinfachter Ansatz: Verwende docker compose ps ohne JSON
     for stack_name in "${ALL_STACKS[@]}"; do
         local stack_dir="$STACKS_DIR/$stack_name"
         
@@ -671,54 +671,32 @@ perform_consolidated_health_check() {
             continue
         fi
         
-        # Container-Status für diesen Stack abrufen mit Timeout
-        local containers=""
-        if timeout 10 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps --format json 2>/dev/null" > /tmp/healthcheck_$$.json; then
-            containers=$(cat /tmp/healthcheck_$$.json 2>/dev/null)
-            rm -f /tmp/healthcheck_$$.json 2>/dev/null
+        # Einfache Container-Zählung ohne JSON-Parsing
+        local running_count=0
+        local total_count=0
+        
+        # Timeout für docker compose Aufrufe
+        if timeout 5 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps -q 2>/dev/null" > /tmp/containers_$$.txt; then
+            # Zähle alle Container
+            total_count=$(grep -c . /tmp/containers_$$.txt 2>/dev/null || echo 0)
+            
+            # Zähle laufende Container
+            if [[ $total_count -gt 0 ]]; then
+                running_count=$(timeout 5 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps -q --status running 2>/dev/null" | wc -l)
+            fi
+            
+            rm -f /tmp/containers_$$.txt 2>/dev/null
         fi
         
-        if [[ -n "$containers" ]]; then
-            local stack_healthy=true
-            local stack_container_count=0
-            
-            # Vereinfachte JSON-Verarbeitung ohne jq-Pipeline
-            while IFS= read -r container; do
-                if [[ -n "$container" && "$container" != "null" ]]; then
-                    ((stack_container_count++))
-                    ((total_containers++))
-                    
-                    # Sichere jq-Aufrufe mit expliziter Fehlerbehandlung
-                    local status="unknown"
-                    local health="none"
-                    
-                    if command -v jq >/dev/null 2>&1; then
-                        status=$(echo "$container" | jq -r '.State // "unknown"' 2>/dev/null || echo 'unknown')
-                        health=$(echo "$container" | jq -r '.Health // "none"' 2>/dev/null || echo 'none')
-                    fi
-                    
-                    # Container-Status prüfen
-                    if [[ "$status" == "running" ]]; then
-                        if [[ "$health" == "none" || "$health" == "healthy" ]]; then
-                            ((healthy_containers++))
-                        else
-                            stack_healthy=false
-                            ((unhealthy_containers++))
-                        fi
-                    else
-                        stack_healthy=false
-                        ((unhealthy_containers++))
-                    fi
-                fi
-            done <<< "$(echo "$containers" | jq -c '.[]' 2>/dev/null || echo "$containers")"
-            
-            if [[ "$stack_healthy" == true && $stack_container_count -gt 0 ]]; then
-                ((healthy_stacks++))
-            else
-                ((unhealthy_stacks++))
-            fi
-        else
-            # Stack ohne Container oder Fehler beim Abrufen
+        # Aktualisiere Statistiken
+        ((total_containers += total_count))
+        ((healthy_containers += running_count))
+        ((unhealthy_containers += (total_count - running_count)))
+        
+        # Stack-Status bestimmen
+        if [[ $total_count -gt 0 && $running_count -eq $total_count ]]; then
+            ((healthy_stacks++))
+        elif [[ $total_count -gt 0 ]]; then
             ((unhealthy_stacks++))
         fi
     done
@@ -726,15 +704,15 @@ perform_consolidated_health_check() {
     # Kompakte Zusammenfassung
     echo ""
     echo -e "${CYAN}=== CONTAINER STATUS ===${NC}"
-    echo -e "${GREEN}✅ Gesunde Container: $healthy_containers${NC} | ${RED}❌ Problematische: $unhealthy_containers${NC} | ${BLUE}📊 Gesamt: $total_containers${NC}"
-    echo -e "${GREEN}✅ Gesunde Stacks: $healthy_stacks${NC} | ${YELLOW}⚠️ Mit Problemen: $unhealthy_stacks${NC} | ${BLUE}📊 Gesamt: ${#ALL_STACKS[@]}${NC}"
+    echo -e "${GREEN}✅ Laufende Container: $healthy_containers${NC} | ${RED}❌ Gestoppte: $unhealthy_containers${NC} | ${BLUE}📊 Gesamt: $total_containers${NC}"
+    echo -e "${GREEN}✅ Vollständig laufende Stacks: $healthy_stacks${NC} | ${YELLOW}⚠️ Mit gestoppten Containern: $unhealthy_stacks${NC} | ${BLUE}📊 Gesamt: ${#ALL_STACKS[@]}${NC}"
     
     if [[ $unhealthy_stacks -eq 0 && $unhealthy_containers -eq 0 ]]; then
-        echo -e "${GREEN}🎉 Alle Container sind gesund und laufen ordnungsgemäß${NC}"
-        log_message "INFO" "Gesundheitscheck: Alle $total_containers Container in $healthy_stacks Stacks sind gesund"
+        echo -e "${GREEN}🎉 Alle Container sind gestartet und laufen${NC}"
+        log_message "INFO" "Gesundheitscheck: Alle $total_containers Container in $healthy_stacks Stacks laufen"
     else
-        echo -e "${YELLOW}⚠️ Einige Container benötigen Aufmerksamkeit - prüfe mit 'docker ps' für Details${NC}"
-        log_message "WARN" "Gesundheitscheck: $unhealthy_containers problematische Container in $unhealthy_stacks Stacks"
+        echo -e "${YELLOW}⚠️ Einige Container sind gestoppt - prüfe mit 'docker ps' für Details${NC}"
+        log_message "WARN" "Gesundheitscheck: $unhealthy_containers gestoppte Container in $unhealthy_stacks Stacks"
     fi
     
     log_message "INFO" "Gesundheitscheck abgeschlossen"
