@@ -193,7 +193,7 @@ After installation, follow these steps in order:
 | `--buffer-percent N` | Storage buffer percentage (10-100%) | 20% |
 | `--preserve-acl` | Preserve ACLs and extended attributes (not encryption) | Enabled |
 | `--skip-backup` | Only restart containers | Disabled |
-| `--no-verify` | Skip backup verification | Disabled |
+| `--no-verify` | Skip backup verification | Verification is **ON** by default |
 
 ## 🔄 Automation with Cron
 

@@ -90,11 +90,12 @@ sudo crontab -e
 Öffne `docker_backup.sh` (oder `docker_backup_de.sh` für deutsche Version) und ändere diese Zeilen:
 
 ```bash
-# Zeile 19-24 im Script:
-DATA_DIR="/path/to/your/docker/data"         # Deine Container-Daten
-STACKS_DIR="/path/to/your/docker/stacks"     # Deine docker-compose Dateien
-BACKUP_SOURCE="/path/to/your/docker"         # Was gesichert wird
-BACKUP_DEST="/path/to/your/backup/destination"  # Wohin gesichert wird
+# Zeile 25-37 im Script:
+DATA_DIR="/volume1/docker-nas/data"          # Dein Docker-Datenverzeichnis
+STACKS_DIR="/volume1/docker-nas/stacks"      # Deine Docker Compose Dateien
+BACKUP_SOURCE="/volume1/docker-nas"          # Quellverzeichnis für Backup
+BACKUP_DEST="/volume2/backups/docker-nas-backup" # Wo Backups gespeichert werden
+LOG_DIR="/volume1/docker-nas/logs"           # Log-Datei-Speicherort
 ```
 
 ### 🎛️ **Häufige Anpassungen:**
@@ -290,7 +291,7 @@ sudo ./docker_backup.sh --skip-backup --auto
 ## � Weitere Hilfe
 
 - 📖 **Vollständige Anleitung**: [`README.md`](README.md)
-- 🔧 **Technische Details**: [`docker_backup_usage.md`](docker_backup_usage.md)
+- 🔧 **Technische Details**: [`docs/DE/ANLEITUNG_DE.md`](docs/DE/ANLEITUNG_DE.md)
 - ❓ **Bei Problemen**: Siehe FAQ in README.md
 
 ---

@@ -267,7 +267,7 @@ sudo ./test_rsync_fix.sh
 | `--auto` | Automatic execution without confirmation |
 | `--dry-run` | Test mode without changes |
 | `--skip-backup` | Only stops/starts containers (no backup) |
-| `--no-verify` | Skips backup verification |
+| `--no-verify` | Skips backup verification (verification is **ON** by default) |
 | `--use-stop` | Uses `docker compose stop` instead of `down` |
 | `--preserve-acl` | Preserves ACLs and extended attributes (not encryption) |
 | `--timeout-stop N` | Timeout for container stop (10-3600s, default: 60s) |

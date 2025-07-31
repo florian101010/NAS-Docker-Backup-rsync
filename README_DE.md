@@ -193,7 +193,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 | `--buffer-percent N` | Speicher-Puffer-Prozentsatz (10-100%) | 20% |
 | `--preserve-acl` | ACLs und erweiterte Attribute bewahren (keine Verschlüsselung) | Aktiviert |
 | `--skip-backup` | Nur Container neu starten | Deaktiviert |
-| `--no-verify` | Backup-Verifizierung überspringen | Deaktiviert |
+| `--no-verify` | Backup-Verifizierung überspringen | Verifizierung ist **AN** per Standard |
 
 ## 🔄 Automatisierung mit Cron
 
