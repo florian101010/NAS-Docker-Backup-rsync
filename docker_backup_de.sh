@@ -663,30 +663,51 @@ perform_consolidated_health_check() {
     local healthy_containers=0
     local unhealthy_containers=0
     
-    # Vereinfachter Ansatz: Verwende docker compose ps ohne JSON
+    echo -e "${BLUE}🔍 Prüfe Status von ${#ALL_STACKS[@]} Stacks...${NC}"
+    
+    # Robuster Ansatz: Verwende docker compose ps ohne temporäre Dateien
     for stack_name in "${ALL_STACKS[@]}"; do
         local stack_dir="$STACKS_DIR/$stack_name"
         
         if [[ ! -f "$stack_dir/docker-compose.yml" ]]; then
+            log_message "WARN" "Healthcheck: docker-compose.yml nicht gefunden für Stack: $stack_name"
             continue
         fi
         
-        # Einfache Container-Zählung ohne JSON-Parsing
+        # Robuste Container-Zählung ohne temporäre Dateien
         local running_count=0
         local total_count=0
         
-        # Timeout für docker compose Aufrufe
-        if timeout 5 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps -q 2>/dev/null" > /tmp/containers_$$.txt; then
-            # Zähle alle Container
-            total_count=$(grep -c . /tmp/containers_$$.txt 2>/dev/null || echo 0)
-            
-            # Zähle laufende Container
-            if [[ $total_count -gt 0 ]]; then
-                running_count=$(timeout 5 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps -q --status running 2>/dev/null" | wc -l)
+        # Erhöhte Timeouts für 22 Stacks und bessere Fehlerbehandlung
+        log_message "DEBUG" "Healthcheck: Prüfe Stack $stack_name..."
+        
+        # Zähle alle Container (mit erhöhtem Timeout)
+        local all_containers_output=""
+        if all_containers_output=$(timeout 15 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps -q 2>/dev/null"); then
+            if [[ -n "$all_containers_output" ]]; then
+                total_count=$(echo "$all_containers_output" | grep -c '^[a-f0-9]' 2>/dev/null || echo 0)
             fi
-            
-            rm -f /tmp/containers_$$.txt 2>/dev/null
+        else
+            log_message "WARN" "Healthcheck: Timeout beim Abrufen der Container für Stack: $stack_name"
+            continue
         fi
+        
+        # Zähle laufende Container (robuster Ansatz ohne --status flag)
+        if [[ $total_count -gt 0 ]]; then
+            local running_containers_output=""
+            if running_containers_output=$(timeout 15 bash -c "cd '$stack_dir' && $SUDO_CMD docker compose ps 2>/dev/null"); then
+                # Zähle Zeilen mit "Up" Status (robuster als --status running)
+                running_count=$(echo "$running_containers_output" | grep -c '\sUp\s' 2>/dev/null || echo 0)
+            else
+                log_message "WARN" "Healthcheck: Timeout beim Abrufen des Running-Status für Stack: $stack_name"
+                # Fallback: Verwende docker ps direkt
+                if [[ -n "$all_containers_output" ]]; then
+                    running_count=$(echo "$all_containers_output" | xargs -r $SUDO_CMD docker inspect --format='{{.State.Running}}' 2>/dev/null | grep -c 'true' || echo 0)
+                fi
+            fi
+        fi
+        
+        log_message "DEBUG" "Healthcheck: Stack $stack_name - Total: $total_count, Running: $running_count"
         
         # Aktualisiere Statistiken
         ((total_containers += total_count))
@@ -1094,6 +1115,77 @@ verify_backup() {
     fi
 }
 
+# Funktion für kompakte Backup-Statistiken am Ende
+show_backup_summary() {
+    if [[ "$SKIP_BACKUP" == true ]]; then
+        return 0
+    fi
+    
+    echo ""
+    echo -e "${BLUE}🔍 Backup Übersicht - Dateigrößen und Anzahl:${NC}"
+    
+    # Prüfe ob Backup-Verzeichnis existiert
+    if [[ ! -d "$BACKUP_DEST" ]]; then
+        echo -e "${YELLOW}⚠️ Backup-Verzeichnis nicht gefunden für Statistiken${NC}"
+        return 0
+    fi
+    
+    # Berechne Größen und Dateianzahl (mit Timeout für große Verzeichnisse)
+    local source_size=""
+    local backup_size=""
+    local source_files=""
+    local source_dirs=""
+    local backup_files=""
+    local backup_dirs=""
+    
+    # Verwende timeout um bei sehr großen Verzeichnissen nicht zu hängen
+    if timeout 30 bash -c "$SUDO_CMD du -sb '$BACKUP_SOURCE' 2>/dev/null" > /tmp/source_size_$$.txt; then
+        source_size=$(cut -f1 /tmp/source_size_$$.txt 2>/dev/null)
+        rm -f /tmp/source_size_$$.txt 2>/dev/null
+    fi
+    
+    if timeout 30 bash -c "$SUDO_CMD du -sb '$BACKUP_DEST' 2>/dev/null" > /tmp/backup_size_$$.txt; then
+        backup_size=$(cut -f1 /tmp/backup_size_$$.txt 2>/dev/null)
+        rm -f /tmp/backup_size_$$.txt 2>/dev/null
+    fi
+    
+    # Datei- und Verzeichnisanzahl (mit Timeout)
+    if timeout 20 bash -c "$SUDO_CMD find '$BACKUP_SOURCE' -type f 2>/dev/null | wc -l" > /tmp/source_files_$$.txt; then
+        source_files=$(cat /tmp/source_files_$$.txt 2>/dev/null)
+        rm -f /tmp/source_files_$$.txt 2>/dev/null
+    fi
+    
+    if timeout 20 bash -c "$SUDO_CMD find '$BACKUP_SOURCE' -type d 2>/dev/null | wc -l" > /tmp/source_dirs_$$.txt; then
+        source_dirs=$(cat /tmp/source_dirs_$$.txt 2>/dev/null)
+        rm -f /tmp/source_dirs_$$.txt 2>/dev/null
+    fi
+    
+    if timeout 20 bash -c "$SUDO_CMD find '$BACKUP_DEST' -type f 2>/dev/null | wc -l" > /tmp/backup_files_$$.txt; then
+        backup_files=$(cat /tmp/backup_files_$$.txt 2>/dev/null)
+        rm -f /tmp/backup_files_$$.txt 2>/dev/null
+    fi
+    
+    if timeout 20 bash -c "$SUDO_CMD find '$BACKUP_DEST' -type d 2>/dev/null | wc -l" > /tmp/backup_dirs_$$.txt; then
+        backup_dirs=$(cat /tmp/backup_dirs_$$.txt 2>/dev/null)
+        rm -f /tmp/backup_dirs_$$.txt 2>/dev/null
+    fi
+    
+    # Ausgabe der Statistiken
+    if [[ -n "$source_size" && -n "$backup_size" ]]; then
+        echo -e "${BLUE}Quellgröße:${NC} ${CYAN}$(format_bytes $source_size)${NC}"
+        echo -e "${BLUE}Backup-Größe:${NC} ${CYAN}$(format_bytes $backup_size)${NC}"
+    else
+        echo -e "${YELLOW}⚠️ Größenberechnung nicht verfügbar${NC}"
+    fi
+    
+    if [[ -n "$source_files" && -n "$source_dirs" && -n "$backup_files" && -n "$backup_dirs" ]]; then
+        echo -e "${BLUE}Quelldateien:${NC} ${CYAN}$source_files${NC}, ${BLUE}Quellordner:${NC} ${CYAN}$source_dirs${NC}"
+        echo -e "${BLUE}Backup-Dateien:${NC} ${CYAN}$backup_files${NC}, ${BLUE}Backup-Ordner:${NC} ${CYAN}$backup_dirs${NC}"
+    else
+        echo -e "${YELLOW}⚠️ Dateianzahl-Berechnung nicht verfügbar${NC}"
+    fi
+}
+
 # ================================================================
 # HAUPTPROGRAMM
 # ================================================================
@@ -1263,12 +1355,17 @@ else
         echo -e "${BLUE}Backup erstellen:${NC} $([ "$BACKUP_SUCCESS" == true ] && echo -e "${GREEN}✅ Erfolgreich${NC}" || echo -e "${RED}❌ Fehler${NC}")"
     fi
     echo -e "${BLUE}Container starten:${NC} $([ "$CONTAINER_START_SUCCESS" == true ] && echo -e "${GREEN}✅ Erfolgreich${NC}" || echo -e "${RED}❌ Fehler${NC}")"
+    
+    # Zeige kompakte Backup-Statistiken
+    show_backup_summary
 
     # Deaktiviere EXIT trap VOR dem Healthcheck (verhindert doppelten Container-Start)
     trap - EXIT
 
     # Kompakter Gesundheitscheck (immer ausführen wenn nicht DRY_RUN, unabhängig vom Container-Start-Status)
     if [[ "$DRY_RUN" == false ]]; then
+        # Stelle sicher, dass ALL_STACKS vor dem Healthcheck befüllt ist
+        discover_docker_stacks
         perform_consolidated_health_check
     fi
 

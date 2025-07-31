@@ -122,3 +122,4 @@ docs/DE/DOCKER_PERMISSIONS_GUIDE.md
 config/local.conf
 config/*.local
 *.personal.sh
+test_healthcheck.sh

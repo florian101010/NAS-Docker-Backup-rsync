@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.3] - 2025-07-31 🎯 **HEALTHCHECK & BACKUP STATISTICS ENHANCEMENT**
+
+### Fixed
+- **Critical Healthcheck Issue**: Resolved missing healthcheck output at backup completion
+  - Fixed empty `ALL_STACKS` array causing "⚠️ Keine Stacks für Healthcheck gefunden" message
+  - Added explicit `discover_docker_stacks` call before healthcheck execution
+  - Ensures reliable container status overview after every backup run
+  - Eliminated silent healthcheck failures that left users without status information
+  - **Enhanced Healthcheck Robustness**: Improved timeout handling and error recovery
+    - Increased timeouts from 5s to 15s for 22 stacks compatibility
+    - Removed temporary file dependencies for better reliability
+    - Added fallback mechanisms using `docker inspect` for container status
+    - Eliminated `--status running` flag for broader Docker version compatibility
+    - Added comprehensive debug logging for troubleshooting
+
+- **Double Container Start Prevention**: Completely eliminated duplicate container startup cycles
+  - Moved `trap - EXIT` deactivation before healthcheck to prevent cleanup loop
+  - Prevents unintended `cleanup()` function execution during normal script completion
+  - Eliminates confusing double "SCHRITT 3" execution in terminal output
+
+### Enhanced
+- **Backup Statistics Overview**: New comprehensive backup summary at completion
+  - Added `show_backup_summary()` function with detailed backup metrics
+  - Displays source vs backup file sizes (formatted with human-readable units)
+  - Shows file and directory counts for source and backup locations
+  - Integrated into status overview between container operations and healthcheck
+  - Includes timeout protection (30s for size calculation, 20s for file counting)
+  - Graceful fallback messages when calculations are unavailable
+
+- **Robust Implementation**: Enhanced reliability and error handling
+  - Timeout protection prevents hanging on large directory calculations
+  - Thread-safe temporary file handling for concurrent operations
+  - Automatic cleanup of temporary calculation files
+  - Skips statistics display when `--skip-backup` option is used
+  - Consistent implementation in both English and German scripts
+
+### Technical
+- **Improved Script Flow**: Optimized backup completion sequence
+  - Healthcheck now guaranteed to execute with populated stack data
+  - Clean separation between backup statistics and container health monitoring
+  - Better user experience with comprehensive status information
+  - Enhanced logging for troubleshooting and monitoring
+
+---
+
 ## [3.5.2] - 2025-07-31 ⚡ **PERFORMANCE & STABILITY OPTIMIZATION**
 
 ### Performance Improvements
