@@ -116,7 +116,7 @@ For passwordless sudo (recommended for Cron):
 sudo visudo
 
 # Add (replace 'username' with your username):
-username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/bin/docker-compose, /usr/bin/rsync
+username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/local/bin/docker, /usr/bin/rsync
 ```
 
 ---
@@ -218,8 +218,8 @@ crontab -l
 # Daily at 2:00: Complete backup
 0 2 * * * /path/to/docker_backup.sh --auto --parallel 4 --buffer-percent 20
 
-# Weekly: Backup with ACL and encryption
-0 1 * * 0 /path/to/docker_backup.sh --auto --preserve-acl && /path/to/encrypt_backup.sh
+# Weekly: Backup with ACL preservation
+0 1 * * 0 /path/to/docker_backup.sh --auto --preserve-acl
 ```
 
 **Advantages**:
@@ -232,12 +232,12 @@ crontab -l
 - More storage space required
 - More complex maintenance
 
-### Strategy 4: Encrypted Backups
+### Strategy 4: External Encryption
 
 **Suitable for**: Security-critical environments
 
 ```bash
-# Daily encrypted backup
+# Daily backup with external encryption
 0 2 * * * /path/to/docker_backup.sh --auto --parallel 4 && tar -czf - /path/to/backup/destination/ | gpg --symmetric --cipher-algo AES256 --passphrase-file /path/to/.backup_password > /path/to/backup/destination/docker-backup-encrypted_$(date +\%Y\%m\%d_\%H\%M\%S).tar.gz.gpg && rm -rf /path/to/backup/destination/
 
 # Weekly cleanup of old encrypted backups
@@ -353,7 +353,7 @@ sudo ls -la /var/log/cron*
 
 #### PID/Lock File Protection
 
-The script (Version 3.4.9+) automatically prevents duplicate execution:
+The script (Version 3.5.1+) automatically prevents duplicate execution with thread-safe logging:
 
 ```bash
 # Multiple cron jobs are safe
@@ -433,7 +433,7 @@ sudo -n docker ps
 ```bash
 # Set up passwordless sudo
 sudo visudo
-# Add: username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/bin/docker-compose
+# Add: username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/local/bin/docker
 ```
 
 #### Problem: Logs are not created
@@ -610,4 +610,4 @@ diff /tmp/interactive_env.txt /tmp/cron_env.txt
 
 ---
 
-**Version 3.4.9 Compatibility**: All examples are optimized for the current script version and use the implemented security fixes for safe parallelization.
+**Version 3.5.1 Compatibility**: All examples are optimized for the current script version and use the implemented security fixes including thread-safe logging for safe parallelization.

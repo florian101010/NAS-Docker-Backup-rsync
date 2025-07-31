@@ -195,7 +195,7 @@ After installation, follow these steps in order:
 
 ## 🔄 Automation with Cron
 
-### Safe Parallel Cron Examples (v3.4.9+)
+### Safe Parallel Cron Examples (v3.5.1+)
 
 ```bash
 # Daily fast backup with parallelization

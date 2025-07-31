@@ -183,7 +183,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 
 ## 🔄 Automatisierung mit Cron
 
-### Sichere parallele Cron-Beispiele (v3.4.9+)
+### Sichere parallele Cron-Beispiele (v3.5.1+)
 
 ```bash
 # Tägliches schnelles Backup mit Parallelisierung

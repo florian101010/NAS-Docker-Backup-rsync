@@ -116,7 +116,7 @@ Für passwordless sudo (empfohlen für Cron):
 sudo visudo
 
 # Hinzufügen (ersetzen Sie 'username' mit Ihrem Benutzernamen):
-username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/bin/docker-compose, /usr/bin/rsync
+username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/local/bin/docker, /usr/bin/rsync
 ```
 
 ---
@@ -218,8 +218,8 @@ crontab -l
 # Täglich um 2:00: Vollständiges Backup
 0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 4 --buffer-percent 20
 
-# Wöchentlich: Backup mit ACL und Verschlüsselung
-0 1 * * 0 /pfad/zum/docker_backup.sh --auto --preserve-acl && /pfad/zum/encrypt_backup.sh
+# Wöchentlich: Backup mit ACL-Erhaltung
+0 1 * * 0 /pfad/zum/docker_backup.sh --auto --preserve-acl
 ```
 
 **Vorteile**:
@@ -232,12 +232,12 @@ crontab -l
 - Mehr Speicherplatz erforderlich
 - Komplexere Wartung
 
-### Strategie 4: Verschlüsselte Backups
+### Strategie 4: Externe Verschlüsselung
 
 **Geeignet für**: Sicherheitskritische Umgebungen
 
 ```bash
-# Tägliches verschlüsseltes Backup
+# Tägliches Backup mit externer Verschlüsselung
 0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 4 && tar -czf - /pfad/zum/backup/ziel/ | gpg --symmetric --cipher-algo AES256 --passphrase-file /pfad/zum/.backup_password > /pfad/zum/backup/ziel/docker-backup-encrypted_$(date +\%Y\%m\%d_\%H\%M\%S).tar.gz.gpg && rm -rf /pfad/zum/backup/ziel/
 
 # Wöchentliche Bereinigung alter verschlüsselter Backups
@@ -353,7 +353,7 @@ sudo ls -la /var/log/cron*
 
 #### PID/Lock-Datei Schutz
 
-Das Script (Version 3.4.9+) verhindert automatisch doppelte Ausführung:
+Das Script (Version 3.5.1+) verhindert automatisch doppelte Ausführung mit thread-sicherem Logging:
 
 ```bash
 # Mehrfache Cron-Jobs sind sicher
@@ -433,7 +433,7 @@ sudo -n docker ps
 ```bash
 # Passwordless sudo einrichten
 sudo visudo
-# Hinzufügen: username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/bin/docker-compose
+# Hinzufügen: username ALL=(ALL) NOPASSWD: /usr/bin/docker, /usr/local/bin/docker
 ```
 
 #### Problem: Logs werden nicht erstellt
@@ -610,4 +610,4 @@ diff /tmp/interactive_env.txt /tmp/cron_env.txt
 
 ---
 
-**Version 3.4.9 Kompatibilität**: Alle Beispiele sind für die aktuelle Script-Version optimiert und nutzen die implementierten Sicherheitsfixes für sichere Parallelisierung.
+**Version 3.5.1 Kompatibilität**: Alle Beispiele sind für die aktuelle Script-Version optimiert und nutzen die implementierten Sicherheitsfixes inklusive thread-sicherem Logging für sichere Parallelisierung.

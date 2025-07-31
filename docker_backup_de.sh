@@ -333,8 +333,8 @@ validate_environment() {
             return 1
         fi
         # Setze korrekte Berechtigungen (dynamisch ermittelt)
-        local current_user=$(whoami)
-        local current_group=$(id -gn)
+        local current_user="${SUDO_USER:-$(whoami)}"
+        local current_group=$(id -gn "$current_user" 2>/dev/null || id -gn)
         $SUDO_CMD chown -R "$current_user:$current_group" "$BACKUP_DEST"
         $SUDO_CMD chmod -R 775 "$BACKUP_DEST"
         log_message "INFO" "Backup-Verzeichnis Berechtigungen gesetzt: $current_user:$current_group"
@@ -649,6 +649,45 @@ perform_backup() {
         log_message "INFO" "[DRY-RUN] Backup-Simulation"
         return 0
     fi
+
+    # Kritischer Delete-Guard: Schutz vor leerer Quelle mit --delete
+    log_message "INFO" "Führe Delete-Guard-Prüfungen durch..."
+    echo -e "${BLUE}🛡️ Führe Sicherheitsprüfungen durch...${NC}"
+    
+    # Prüfung 1: Quelle muss mindestens Dateien enthalten
+    local min_files_found=$(find "$BACKUP_SOURCE" -mindepth 1 -print -quit 2>/dev/null)
+    if [[ -z "$min_files_found" ]]; then
+        log_message "ERROR" "Delete-Guard: Quellverzeichnis scheint leer - Abbruch zum Schutz vor Datenverlust"
+        echo -e "${RED}❌ FEHLER: Quellverzeichnis scheint leer - Abbruch zum Schutz vor Datenverlust${NC}"
+        return 1
+    fi
+    
+    # Prüfung 2: Optionale Sentinel-Datei-Prüfung (falls .backup_root_ok existiert)
+    local sentinel_file="$BACKUP_SOURCE/.backup_root_ok"
+    if [[ -f "$sentinel_file" ]]; then
+        log_message "INFO" "Delete-Guard: Sentinel-Datei gefunden - Quelle validiert"
+        echo -e "${GREEN}✅ Sentinel-Datei validiert${NC}"
+    else
+        # Prüfung 3: Minimale Verzeichnisstruktur (docker-nas sollte stacks + data haben)
+        local critical_subdirs=("$STACKS_DIR" "$DATA_DIR")
+        local missing_dirs=()
+        for dir in "${critical_subdirs[@]}"; do
+            if [[ ! -d "$dir" ]]; then
+                missing_dirs+=("$dir")
+            fi
+        done
+        
+        if [[ ${#missing_dirs[@]} -gt 0 ]]; then
+            log_message "ERROR" "Delete-Guard: Kritische Verzeichnisse fehlen: ${missing_dirs[*]}"
+            echo -e "${RED}❌ FEHLER: Kritische Verzeichnisse fehlen - Abbruch${NC}"
+            return 1
+        fi
+        
+        log_message "INFO" "Delete-Guard: Kritische Verzeichnisstruktur validiert"
+        echo -e "${GREEN}✅ Verzeichnisstruktur validiert${NC}"
+    fi
+    
+    log_message "INFO" "Delete-Guard-Prüfungen bestanden - fahre mit Backup fort"
 
     # Backup-Zeitstempel
     local backup_start=$(date +%s)

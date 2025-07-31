@@ -333,8 +333,8 @@ validate_environment() {
             return 1
         fi
         # Set correct permissions (dynamically determined)
-        local current_user=$(whoami)
-        local current_group=$(id -gn)
+        local current_user="${SUDO_USER:-$(whoami)}"
+        local current_group=$(id -gn "$current_user" 2>/dev/null || id -gn)
         $SUDO_CMD chown -R "$current_user:$current_group" "$BACKUP_DEST"
         $SUDO_CMD chmod -R 775 "$BACKUP_DEST"
         log_message "INFO" "Backup directory permissions set: $current_user:$current_group"
@@ -440,8 +440,8 @@ stop_all_docker_stacks() {
         local temp_dir=$(mktemp -d)
 
         # Export SUDO_CMD, variables and functions for sub-shells (defensive programming)
-        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE
-        export -f process_docker_output format_container_status
+        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE LOG_FD
+        export -f process_docker_output format_container_status log_write log_message
 
         # Parallel stopping with xargs (robust handling of stack names with special characters)
         printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "
@@ -553,8 +553,8 @@ start_all_docker_stacks() {
         local temp_dir=$(mktemp -d)
 
         # Export SUDO_CMD, variables and functions for sub-shells (defensive programming)
-        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE
-        export -f process_docker_output format_container_status
+        export SUDO_CMD LOG_FILE BACKUP_DEST BACKUP_SOURCE LOG_FD
+        export -f process_docker_output format_container_status log_write log_message
 
         # Parallel starting with xargs (robust handling of stack names with special characters)
         printf '%s\0' "${ALL_STACKS[@]}" | xargs -0 -r -P "$PARALLEL_JOBS" -I {} bash -c "
@@ -649,6 +649,45 @@ perform_backup() {
         log_message "INFO" "[DRY-RUN] Backup simulation"
         return 0
     fi
+
+    # Critical Delete-Guard: Protect against empty source with --delete
+    log_message "INFO" "Performing delete-guard checks..."
+    echo -e "${BLUE}🛡️ Performing safety checks...${NC}"
+    
+    # Check 1: Source must contain minimum files
+    local min_files_found=$(find "$BACKUP_SOURCE" -mindepth 1 -print -quit 2>/dev/null)
+    if [[ -z "$min_files_found" ]]; then
+        log_message "ERROR" "Delete-Guard: Source directory appears empty - aborting to prevent data loss"
+        echo -e "${RED}❌ ERROR: Source directory appears empty - aborting to prevent data loss${NC}"
+        return 1
+    fi
+    
+    # Check 2: Optional sentinel file check (if .backup_root_ok exists)
+    local sentinel_file="$BACKUP_SOURCE/.backup_root_ok"
+    if [[ -f "$sentinel_file" ]]; then
+        log_message "INFO" "Delete-Guard: Sentinel file found - source validated"
+        echo -e "${GREEN}✅ Sentinel file validated${NC}"
+    else
+        # Check 3: Minimum directory structure (docker-nas should have stacks + data)
+        local critical_subdirs=("$STACKS_DIR" "$DATA_DIR")
+        local missing_dirs=()
+        for dir in "${critical_subdirs[@]}"; do
+            if [[ ! -d "$dir" ]]; then
+                missing_dirs+=("$dir")
+            fi
+        done
+        
+        if [[ ${#missing_dirs[@]} -gt 0 ]]; then
+            log_message "ERROR" "Delete-Guard: Critical directories missing: ${missing_dirs[*]}"
+            echo -e "${RED}❌ ERROR: Critical directories missing - aborting${NC}"
+            return 1
+        fi
+        
+        log_message "INFO" "Delete-Guard: Critical directory structure validated"
+        echo -e "${GREEN}✅ Directory structure validated${NC}"
+    fi
+    
+    log_message "INFO" "Delete-Guard checks passed - proceeding with backup"
 
     # Backup timestamp
     local backup_start=$(date +%s)
