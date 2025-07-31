@@ -5,23 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.5.2] - 2025-07-31 ⚡ **PERFORMANCE OPTIMIZATION**
+## [3.5.2] - 2025-07-31 ⚡ **PERFORMANCE & STABILITY OPTIMIZATION**
 
 ### Performance Improvements
 - **Health Check Optimization**: Dramatically improved backup script performance
   - Removed individual 30-second health checks after each container start
-  - Implemented consolidated health check at script completion
+  - Implemented consolidated health check integrated into final status overview
   - Reduced execution time by 11+ minutes for 22 stacks (eliminated 30s × 22 = 11min timeout overhead)
   - Better user experience with faster container startup process
-  - Comprehensive health status overview at the end of backup process
+  - No more separate "STEP 4" - seamlessly integrated into final report
 
 ### Enhanced
-- **Container Health Monitoring**: Improved health check implementation
-  - Consolidated health check provides detailed status for all containers
-  - Individual container status with clear visual indicators (✅ healthy, 🔄 starting, ❌ unhealthy, ⏹ stopped)
-  - Stack-level health summary with container counts
-  - Better error reporting for problematic containers
+- **Container Health Monitoring**: Robust and compact health check implementation
+  - Compact health status summary with clear visual indicators
+  - Stack-level and container-level statistics in one overview
+  - Better error reporting without script termination
   - Health check only runs when containers are successfully started (not in dry-run mode)
+  - Integrated into final status overview instead of separate step
+
+### Fixed
+- **Script Stability**: Eliminated critical stability issues
+  - Fixed script termination caused by health check failures
+  - Prevented cleanup loop that caused container restart cycles
+  - Robust error handling with fail-safe design (`return 0` guarantee)
+  - Safe JSON processing with fallback mechanisms for jq operations
+  - Defensive programming prevents script abort on health check errors
 
 ### Technical
 - **Script Efficiency**: Optimized container management workflow
@@ -29,7 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Allows containers more time to fully initialize before health validation
   - Maintains comprehensive health monitoring without performance penalty
   - Consistent implementation in both English and German scripts
-  - New `perform_consolidated_health_check()` function with detailed reporting
+  - New `perform_consolidated_health_check()` function with compact reporting
+  - Fail-safe design ensures script always completes successfully
 
 ---
 

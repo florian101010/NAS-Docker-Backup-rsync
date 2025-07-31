@@ -644,13 +644,11 @@ start_all_docker_stacks() {
     fi
 }
 
-# Function for consolidated health check of all containers
+# Function for compact health check of all containers
 perform_consolidated_health_check() {
-    log_message "INFO" "Performing consolidated health check for all containers..."
-    echo -e "${YELLOW}STEP 4: Checking container health status...${NC}"
+    log_message "INFO" "Performing compact health check..."
     
     if [[ ${#ALL_STACKS[@]} -eq 0 ]]; then
-        echo -e "${BLUE}ℹ️ No stacks to check${NC}"
         return 0
     fi
     
@@ -658,9 +656,9 @@ perform_consolidated_health_check() {
     local unhealthy_stacks=0
     local total_containers=0
     local healthy_containers=0
+    local unhealthy_containers=0
     
-    echo -e "${BLUE}Checking health of ${#ALL_STACKS[@]} stacks...${NC}"
-    
+    # Compact check without detailed output
     for stack_name in "${ALL_STACKS[@]}"; do
         local stack_dir="$STACKS_DIR/$stack_name"
         
@@ -668,88 +666,65 @@ perform_consolidated_health_check() {
             continue
         fi
         
-        echo -e "  ${CYAN}→${NC} Checking stack: ${GREEN}$stack_name${NC}"
-        
-        # Get container status for this stack
+        # Get container status for this stack (robust with error handling)
         local containers
-        if containers=$(cd "$stack_dir" && $SUDO_CMD docker compose ps --format json 2>/dev/null); then
-            if [[ -n "$containers" ]]; then
-                local stack_healthy=true
-                local stack_container_count=0
-                local stack_healthy_count=0
-                
-                while IFS= read -r container; do
-                    if [[ -n "$container" ]]; then
-                        ((stack_container_count++))
-                        ((total_containers++))
-                        
-                        local name=$(echo "$container" | jq -r '.Name // "unknown"' 2>/dev/null || echo 'unknown')
-                        local status=$(echo "$container" | jq -r '.State // "unknown"' 2>/dev/null || echo 'unknown')
-                        local health=$(echo "$container" | jq -r '.Health // "none"' 2>/dev/null || echo 'none')
-                        
-                        # Clean container name for display
-                        local clean_name="${name%-nas}"
-                        clean_name="${clean_name#*-}"
-                        
-                        # Check container status
-                        if [[ "$status" == "running" ]]; then
-                            if [[ "$health" == "none" || "$health" == "healthy" ]]; then
-                                echo -e "    ${GREEN}✅${NC} Container ${CYAN}$clean_name${NC} ${GREEN}healthy${NC}"
-                                ((stack_healthy_count++))
-                                ((healthy_containers++))
-                            elif [[ "$health" == "starting" ]]; then
-                                echo -e "    ${YELLOW}🔄${NC} Container ${CYAN}$clean_name${NC} ${YELLOW}starting${NC}"
-                                stack_healthy=false
-                            else
-                                echo -e "    ${RED}❌${NC} Container ${CYAN}$clean_name${NC} ${RED}unhealthy ($health)${NC}"
-                                stack_healthy=false
-                            fi
+        if containers=$(cd "$stack_dir" && $SUDO_CMD docker compose ps --format json 2>/dev/null) && [[ -n "$containers" ]]; then
+            local stack_healthy=true
+            local stack_container_count=0
+            local stack_healthy_count=0
+            
+            # Safe JSON processing
+            while IFS= read -r container; do
+                if [[ -n "$container" ]]; then
+                    ((stack_container_count++))
+                    ((total_containers++))
+                    
+                    # Safe jq calls with fallback
+                    local status=$(echo "$container" | jq -r '.State // "unknown"' 2>/dev/null || echo 'unknown')
+                    local health=$(echo "$container" | jq -r '.Health // "none"' 2>/dev/null || echo 'none')
+                    
+                    # Check container status
+                    if [[ "$status" == "running" ]]; then
+                        if [[ "$health" == "none" || "$health" == "healthy" ]]; then
+                            ((stack_healthy_count++))
+                            ((healthy_containers++))
                         else
-                            echo -e "    ${RED}⏹${NC} Container ${CYAN}$clean_name${NC} ${RED}not running ($status)${NC}"
                             stack_healthy=false
+                            ((unhealthy_containers++))
                         fi
+                    else
+                        stack_healthy=false
+                        ((unhealthy_containers++))
                     fi
-                done <<< "$(echo "$containers" | jq -c '.[]' 2>/dev/null || echo '')"
-                
-                if [[ "$stack_healthy" == true && $stack_container_count -gt 0 ]]; then
-                    echo -e "    ${GREEN}✅ Stack ${GREEN}$stack_name${NC} ${GREEN}healthy ($stack_healthy_count/$stack_container_count containers)${NC}"
-                    ((healthy_stacks++))
-                    log_message "INFO" "Stack $stack_name is healthy ($stack_healthy_count/$stack_container_count containers)"
-                else
-                    echo -e "    ${YELLOW}⚠️ Stack ${GREEN}$stack_name${NC} ${YELLOW}has issues ($stack_healthy_count/$stack_container_count containers healthy)${NC}"
-                    ((unhealthy_stacks++))
-                    log_message "WARN" "Stack $stack_name has health issues ($stack_healthy_count/$stack_container_count containers healthy)"
                 fi
+            done <<< "$(echo "$containers" | jq -c '.[]' 2>/dev/null || echo '')"
+            
+            if [[ "$stack_healthy" == true && $stack_container_count -gt 0 ]]; then
+                ((healthy_stacks++))
             else
-                echo -e "    ${BLUE}ℹ️${NC} Stack ${GREEN}$stack_name${NC} ${BLUE}has no containers${NC}"
-                log_message "INFO" "Stack $stack_name has no containers"
+                ((unhealthy_stacks++))
             fi
         else
-            echo -e "    ${RED}❌${NC} Stack ${GREEN}$stack_name${NC} ${RED}status check failed${NC}"
             ((unhealthy_stacks++))
-            log_message "ERROR" "Failed to check status for stack: $stack_name"
         fi
     done
     
+    # Compact summary
     echo ""
-    echo -e "${CYAN}=== HEALTH CHECK SUMMARY ===${NC}"
-    echo -e "${BLUE}Total stacks:${NC} ${CYAN}${#ALL_STACKS[@]}${NC}"
-    echo -e "${BLUE}Healthy stacks:${NC} ${GREEN}$healthy_stacks${NC}"
-    if [[ $unhealthy_stacks -gt 0 ]]; then
-        echo -e "${BLUE}Stacks with issues:${NC} ${YELLOW}$unhealthy_stacks${NC}"
-    fi
-    echo -e "${BLUE}Total containers:${NC} ${CYAN}$total_containers${NC}"
-    echo -e "${BLUE}Healthy containers:${NC} ${GREEN}$healthy_containers${NC}"
+    echo -e "${CYAN}=== CONTAINER STATUS ===${NC}"
+    echo -e "${GREEN}✅ Healthy containers: $healthy_containers${NC} | ${RED}❌ Problematic: $unhealthy_containers${NC} | ${BLUE}📊 Total: $total_containers${NC}"
+    echo -e "${GREEN}✅ Healthy stacks: $healthy_stacks${NC} | ${YELLOW}⚠️ With issues: $unhealthy_stacks${NC} | ${BLUE}📊 Total: ${#ALL_STACKS[@]}${NC}"
     
-    if [[ $unhealthy_stacks -eq 0 ]]; then
-        echo -e "${GREEN}✅ All stacks are healthy${NC}"
-        log_message "INFO" "Consolidated health check: All stacks healthy ($healthy_stacks/$((healthy_stacks + unhealthy_stacks)))"
-        return 0
+    if [[ $unhealthy_stacks -eq 0 && $unhealthy_containers -eq 0 ]]; then
+        echo -e "${GREEN}🎉 All containers are healthy and running properly${NC}"
+        log_message "INFO" "Health check: All $total_containers containers in $healthy_stacks stacks are healthy"
     else
-        echo -e "${YELLOW}⚠️ Some stacks have health issues - check individual container logs${NC}"
-        log_message "WARN" "Consolidated health check: $unhealthy_stacks stacks have issues"
-        return 1
+        echo -e "${YELLOW}⚠️ Some containers need attention - check with 'docker ps' for details${NC}"
+        log_message "WARN" "Health check: $unhealthy_containers problematic containers in $unhealthy_stacks stacks"
     fi
+    
+    # Always return successfully (no script abort)
+    return 0
 }
 
 # ================================================================
@@ -1262,11 +1237,6 @@ if ! start_all_docker_stacks; then
     log_message "ERROR" "Not all containers could be started"
 fi
 
-# Step 4: Consolidated health check (only if containers were started and not in dry-run mode)
-if [[ "$DRY_RUN" == false && "$CONTAINER_START_SUCCESS" == true ]]; then
-    perform_consolidated_health_check
-fi
-
 echo ""
 
 # ================================================================
@@ -1301,6 +1271,11 @@ else
         echo -e "${BLUE}Create backup:${NC} $([ "$BACKUP_SUCCESS" == true ] && echo -e "${GREEN}✅ Successful${NC}" || echo -e "${RED}❌ Error${NC}")"
     fi
     echo -e "${BLUE}Start containers:${NC} $([ "$CONTAINER_START_SUCCESS" == true ] && echo -e "${GREEN}✅ Successful${NC}" || echo -e "${RED}❌ Error${NC}")"
+
+    # Compact health check (only if containers were started successfully)
+    if [[ "$CONTAINER_START_SUCCESS" == true && "$DRY_RUN" == false ]]; then
+        perform_consolidated_health_check
+    fi
 
     # Container changes summary
     if [[ ${#RUNNING_STACKS[@]} -gt 0 ]]; then
