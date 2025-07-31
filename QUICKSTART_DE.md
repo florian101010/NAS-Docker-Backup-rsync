@@ -1,7 +1,7 @@
 # 🚀 Docker Backup Script - Quickstart Guide
 
 > **In 5 Minuten zum ersten Backup!**
-> Version 3.4.7 "UGREEN NAS Fully Compatible"
+> Version 3.5.1 "Production Ready"
 > **✅ GETESTET UND BESTÄTIGT FUNKTIONAL - 30. Juli 2025**
 
 ---
@@ -142,7 +142,7 @@ sudo ./docker_backup_de.sh --dry-run
 # Paralleles Backup (4 Container gleichzeitig)
 ./docker_backup.sh --auto --parallel 4
 
-# Mit ACL-Unterstützung (Berechtigungen sichern)
+# Mit ACL-Unterstützung (Dateiberechtigungen sichern, keine Verschlüsselung)
 ./docker_backup.sh --auto --preserve-acl
 
 # Ohne Verifikation (schneller)
@@ -166,7 +166,7 @@ sudo ./docker_backup_de.sh --dry-run
 ### 💾 **Speicherplatz:**
 - **Benötigt**: ~100% der Quellgröße
 - **Empfohlen**: 120% für Puffer
-- **Backup-Typ**: Inkrementell (nur Änderungen)
+- **Backup-Typ**: Inkrementelle Synchronisation (nur Änderungen, keine Snapshot-Historie)
 
 ---
 
@@ -291,7 +291,7 @@ sudo ./docker_backup.sh --skip-backup
 
 ---
 
-## ✅ Checkliste Version 3.4.7
+## ✅ Checkliste Version 3.5.1
 
 - [ ] Scripts ausführbar gemacht (`chmod +x docker_backup.sh test_rsync_fix.sh`)
 - [ ] **NEU:** rsync-Fixes getestet (`sudo ./test_rsync_fix.sh`)
@@ -304,7 +304,7 @@ sudo ./docker_backup.sh --skip-backup
 
 **🎉 Alles erledigt? Perfekt! Dein Docker-Backup läuft jetzt automatisch.**
 
-### **🏆 Version 3.4.7 Highlights:**
+### **🏆 Version 3.5.1 Highlights:**
 - ✅ **Robuste rsync-Flag-Validierung** → Echte Tests statt grep
 - ✅ **Verbesserte Array-basierte Ausführung** → Sichere Parameter-Übergabe
 - ✅ **Dreistufiger Fallback-Mechanismus** → Automatische Kompatibilität

@@ -13,7 +13,7 @@
 
 ## Deutsche Version
 
-[![Version](https://img.shields.io/badge/version-3.5.0-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
+[![Version](https://img.shields.io/badge/version-3.5.1-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Bash](https://img.shields.io/badge/bash-4.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
 [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)](https://www.kernel.org/)
@@ -34,7 +34,7 @@
 - **🔍 Automatische Container-Erkennung**: Findet alle Docker Compose Stacks und Container automatisch
 - **⏸️ Sanftes Container-Herunterfahren**: Stoppt Container sicher, um Datenkorruption während des Backups zu verhindern
 - **🔄 Intelligenter Neustart**: Startet alle Services nach Backup-Abschluss automatisch neu
-- **📦 Vollständiges Stack-Backup**: Sichert Docker Compose Dateien, Volumes, Netzwerke und persistente Daten
+- **📦 Vollständiges Stack-Backup**: Sichert Docker Compose Dateien, Volumes und persistente Daten (Netzwerke werden von Compose neu erstellt)
 - **🔧 Flexible Stopp-Modi**: Wählen Sie zwischen `docker compose stop` (schnell) oder `down` (vollständige Bereinigung)
 
 ### 🚀 **Performance & Zuverlässigkeit**
@@ -44,8 +44,8 @@
 - **📊 Echtzeit-Überwachung**: Live Container-Status-Verfolgung mit farbcodierten Fortschrittsanzeigen
 
 ### 💾 **Erweiterte Backup-Funktionen**
-- **🔄 Inkrementelle Backups**: rsync-basiert mit intelligenter Flag-Validierung und mehrstufigem Fallback
-- **🔐 Backup-Verschlüsselung**: GPG-basierte Verschlüsselungsunterstützung für sichere Backup-Speicherung
+- **🔄 Inkrementelle Synchronisation**: rsync-basierte Synchronisation ohne Snapshot-Historie, mit intelligenter Flag-Validierung und mehrstufigem Fallback
+- **🔐 Backup-Verschlüsselung**: Optionale Post-Backup-Verschlüsselung via externe GPG-Pipelines (Beispiele enthalten)
 - **✅ Backup-Verifizierung**: Automatische Überprüfung der Backup-Integrität und Vollständigkeit
 - **📈 Umfassendes Logging**: Detaillierte Logs mit ANSI-freier Ausgabe und race-condition-freiem parallelem Logging
 
@@ -63,7 +63,7 @@
 
 - **OS**: Linux (getestet auf Ubuntu, Debian, UGREEN NAS DXP2800)
 - **Shell**: Bash 4.0+
-- **Tools**: Docker, docker-compose, rsync, flock
+- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock
 - **Berechtigungen**: sudo-Zugriff oder Root-Ausführung
 
 ## ⚡ Schnellstart (5 Minuten)
@@ -129,7 +129,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 
 **🔒 Sicherheits-Setup (Optional):**
 
-8. **Verschlüsselung aktivieren**: `--preserve-acl` für sensible Daten verwenden
+8. **ACLs bewahren**: `--preserve-acl` für Dateiberechtigungen verwenden (keine Verschlüsselung)
 9. **Backup-Speicherort sichern**: Stellen Sie sicher, dass Backup-Ziel korrekte Berechtigungen hat
 
 ## 🌍 Sprachunterstützung
@@ -154,7 +154,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 # ⚡ Hochleistungs-paralleles Backup
 ./docker_backup.sh --auto --parallel 4 --use-stop
 
-# 🔒 Sicheres Backup mit Verschlüsselung
+# 🔒 Sicheres Backup mit ACL-Bewahrung
 ./docker_backup.sh --auto --preserve-acl
 ```
 
@@ -177,7 +177,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 | `--timeout-stop N` | Container-Stopp-Timeout (10-3600s) | 60s |
 | `--timeout-start N` | Container-Start-Timeout (10-3600s) | 120s |
 | `--buffer-percent N` | Speicher-Puffer-Prozentsatz (10-100%) | 20% |
-| `--preserve-acl` | ACLs und erweiterte Attribute bewahren | Aktiviert |
+| `--preserve-acl` | ACLs und erweiterte Attribute bewahren (keine Verschlüsselung) | Aktiviert |
 | `--skip-backup` | Nur Container neu starten | Deaktiviert |
 | `--no-verify` | Backup-Verifizierung überspringen | Deaktiviert |
 
@@ -209,7 +209,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 - Datei- und Verzeichnisanzahl-Verifizierung
 - ACL- und erweiterte Attribute-Unterstützung (wenn verfügbar)
 - Detaillierte Fehlerberichterstattung mit spezifischer rsync-Exit-Code-Analyse
-- GPG-Verschlüsselungsunterstützung für sichere Backup-Speicherung
+- Optionale Post-Backup-Verschlüsselung via externe GPG-Pipelines
 
 ## 📊 Überwachung & Logging
 
@@ -262,7 +262,7 @@ sudo chown -R $(whoami):$(id -gn) /pfad/zu/backup/ziel
 
 ## 🔐 Backup-Verschlüsselung
 
-Das Script unterstützt Backup-Verschlüsselung für sichere Speicherung sensibler Daten.
+Das Script erstellt unverschlüsselte Backups. Für Verschlüsselung verwenden Sie externe GPG-Pipelines **nach** Backup-Abschluss wie unten gezeigt.
 
 ### Schnelle Verschlüsselungs-Einrichtung
 

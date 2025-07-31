@@ -13,7 +13,7 @@
 
 ## English Version
 
-[![Version](https://img.shields.io/badge/version-3.5.0-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
+[![Version](https://img.shields.io/badge/version-3.5.1-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Bash](https://img.shields.io/badge/bash-4.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
 [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)](https://www.kernel.org/)
@@ -34,7 +34,7 @@
 - **🔍 Automatic Container Discovery**: Finds all Docker Compose stacks and containers automatically
 - **⏸️ Graceful Container Shutdown**: Safely stops containers to prevent data corruption during backup
 - **🔄 Intelligent Restart**: Automatically restarts all services after backup completion
-- **📦 Complete Stack Backup**: Backs up Docker Compose files, volumes, networks, and persistent data
+- **📦 Complete Stack Backup**: Backs up Docker Compose files, volumes, and persistent data (networks recreated by Compose)
 - **🔧 Flexible Stop Modes**: Choose between `docker compose stop` (fast) or `down` (complete cleanup)
 
 ### 🚀 **Performance & Reliability**
@@ -44,8 +44,8 @@
 - **📊 Real-time Monitoring**: Live container status tracking with color-coded progress indicators
 
 ### 💾 **Advanced Backup Features**
-- **🔄 Incremental Backups**: rsync-based with intelligent flag validation and multi-tier fallback
-- **🔐 Backup Encryption**: GPG-based encryption support for secure backup storage
+- **🔄 Incremental Sync**: rsync-based synchronization without snapshot history, with intelligent flag validation and multi-tier fallback
+- **🔐 Backup Encryption**: Optional post-backup encryption via external GPG (examples provided)
 - **✅ Backup Verification**: Automatic verification of backup integrity and completeness
 - **📈 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
 
@@ -63,7 +63,7 @@
 
 - **OS**: Linux (tested on Ubuntu, Debian, UGREEN NAS DXP2800)
 - **Shell**: Bash 4.0+
-- **Tools**: Docker, docker-compose, rsync, flock
+- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock
 - **Permissions**: sudo access or root execution
 
 ## ⚡ Quick Start (5 Minutes)
@@ -141,7 +141,7 @@ After installation, follow these steps in order:
 
 **🔒 Security Setup (Optional):**
 
-8. **Enable encryption**: Use `--preserve-acl` for sensitive data
+8. **Preserve ACLs**: Use `--preserve-acl` for file permissions (not encryption)
 9. **Secure backup location**: Ensure backup destination has proper permissions
 
 ## 🌍 Language Support
@@ -166,7 +166,7 @@ After installation, follow these steps in order:
 # ⚡ High-performance parallel backup
 ./docker_backup.sh --auto --parallel 4 --use-stop
 
-# 🔒 Secure backup with encryption
+# 🔒 Secure backup with ACL preservation
 ./docker_backup.sh --auto --preserve-acl
 ```
 
@@ -189,7 +189,7 @@ After installation, follow these steps in order:
 | `--timeout-stop N` | Container stop timeout (10-3600s) | 60s |
 | `--timeout-start N` | Container start timeout (10-3600s) | 120s |
 | `--buffer-percent N` | Storage buffer percentage (10-100%) | 20% |
-| `--preserve-acl` | Preserve ACLs and extended attributes | Enabled |
+| `--preserve-acl` | Preserve ACLs and extended attributes (not encryption) | Enabled |
 | `--skip-backup` | Only restart containers | Disabled |
 | `--no-verify` | Skip backup verification | Disabled |
 
@@ -221,7 +221,7 @@ After installation, follow these steps in order:
 - File and directory count verification
 - ACL and extended attributes support (when available)
 - Detailed error reporting with specific rsync exit code analysis
-- GPG encryption support for secure backup storage
+- Optional post-backup encryption via external GPG pipelines
 
 ## 📊 Monitoring & Logging
 
@@ -274,7 +274,7 @@ sudo chown -R $(whoami):$(id -gn) /path/to/backup/destination
 
 ## 🔐 Backup Encryption
 
-The script supports backup encryption for secure storage of sensitive data.
+The script creates unencrypted backups. For encryption, use external GPG pipelines **after** backup completion as shown below.
 
 ### Quick Encryption Setup
 

@@ -3,7 +3,7 @@
 # ================================================================
 # Docker NAS Backup Skript
 # Automatisches Backup aller Docker-Container und persistenten Daten
-# Stand: 30. Juli 2025 - Version 3.4.9
+# Stand: 31. Juli 2025 - Version 3.5.1
 # GitHub: https://github.com/florian101010/NAS-Docker-Backup-rsync
 # ================================================================
 
@@ -47,6 +47,10 @@ LOG_FILE="$LOG_DIR/docker_backup_$(date +%Y%m%d_%H%M%S).log"
 # Frühe Log-Initialisierung (vor ersten log_message Calls)
 mkdir -p "$LOG_DIR"
 : > "$LOG_FILE"
+
+# Thread-sicheres Logging Setup
+LOG_FD=200
+exec 200>>"$LOG_FILE"
 
 # Sichere Log-Datei Berechtigungen
 if [[ $EUID -eq 0 ]]; then
@@ -163,8 +167,8 @@ process_docker_output() {
         # Entferne ANSI-Codes für Log-Datei
         local clean_line=$(echo "$line" | sed 's/\x1b\[[0-9;]*m//g')
 
-        # Schreibe in Log-Datei
-        echo "$clean_line" >> "$LOG_FILE"
+        # Thread-sichere Schreibung in Log-Datei
+        log_write "$clean_line"
 
         # Formatiere Container-Status für Terminal-Ausgabe
         if [[ "$show_container_status" == "true" ]] && format_container_status "$line" >/dev/null 2>&1; then
@@ -204,6 +208,16 @@ format_bytes() {
     fi
 }
 
+# Thread-sichere Log-Schreibfunktion
+log_write() {
+    local message="$1"
+    if [[ -n "${LOG_FD:-}" ]]; then
+        flock -w 5 "$LOG_FD"
+        printf '%s\n' "$message" >&"$LOG_FD"
+        flock -u "$LOG_FD"
+    fi
+}
+
 # Einheitliche Logging-Funktion (ANSI-bereinigt für Log-Dateien)
 log_message() {
     local level="$1"
@@ -219,10 +233,11 @@ log_message() {
         echo "$log_entry" | sed 's/\x1b\[[0-9;]*m//g' >&2
     fi
 
-    # Log-Datei ohne ANSI-Codes (falls LOG_FILE gesetzt)
+    # Thread-sichere Log-Datei-Schreibung (falls LOG_FILE gesetzt)
     if [[ -n "${LOG_FILE:-}" && -f "$LOG_FILE" ]]; then
         # Entferne ANSI-Escape-Sequenzen für Log-Datei
-        echo "$log_entry" | sed 's/\x1b\[[0-9;]*m//g' >> "$LOG_FILE"
+        local clean_entry=$(echo "$log_entry" | sed 's/\x1b\[[0-9;]*m//g')
+        log_write "$clean_entry"
     fi
 }
 
@@ -299,8 +314,8 @@ validate_environment() {
         return 1
     fi
 
-    # Prüfe kritische Verzeichnisse
-    local critical_dirs=("$DATA_DIR" "$STACKS_DIR")
+    # Prüfe kritische Verzeichnisse einschließlich Backup-Quelle
+    local critical_dirs=("$DATA_DIR" "$STACKS_DIR" "$BACKUP_SOURCE")
     for dir in "${critical_dirs[@]}"; do
         if [[ ! -d "$dir" ]]; then
             log_message "ERROR" "Kritisches Verzeichnis nicht gefunden: $dir"

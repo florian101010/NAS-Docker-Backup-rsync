@@ -260,7 +260,7 @@ sudo ./test_rsync_fix.sh
 | `--skip-backup` | Only stops/starts containers (no backup) |
 | `--no-verify` | Skips backup verification |
 | `--use-stop` | Uses `docker compose stop` instead of `down` |
-| `--preserve-acl` | Backs up ACLs and extended attributes |
+| `--preserve-acl` | Backs up ACLs and extended attributes (not encryption) |
 | `--timeout-stop N` | Timeout for container stop (10-3600s, default: 60s) |
 | `--timeout-start N` | Timeout for container start (10-3600s, default: 120s) |
 | `--parallel N` | Parallel jobs for container ops (1-16, default: 1) |
@@ -564,7 +564,7 @@ ls -la /volume2/backups/docker-nas_backups/
 
 ### Backup Encryption Basics
 
-Encryption protects your backup data from unauthorized access. The script first creates a normal backup, which is then encrypted.
+Encryption protects your backup data from unauthorized access. The script creates unencrypted backups. For encryption, use external GPG pipelines **after** backup completion as shown below.
 
 ### Creating encrypted backup
 

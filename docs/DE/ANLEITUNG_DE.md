@@ -280,7 +280,7 @@ sudo ./test_rsync_fix.sh
 | `--skip-backup` | Stoppt/startet nur Container (kein Backup) |
 | `--no-verify` | Überspringt Backup-Verifikation |
 | `--use-stop` | Verwendet `docker compose stop` statt `down` |
-| `--preserve-acl` | Sichert ACLs und extended attributes |
+| `--preserve-acl` | Sichert ACLs und extended attributes (keine Verschlüsselung) |
 | `--timeout-stop N` | Timeout für Container-Stop (10-3600s, Standard: 60s) |
 | `--timeout-start N` | Timeout für Container-Start (10-3600s, Standard: 120s) |
 | `--parallel N` | Parallele Jobs für Container-Ops (1-16, Standard: 1) |
@@ -592,7 +592,7 @@ ls -la /volume2/backups/docker-nas_backups/
 
 ### Grundlagen der Backup-Verschlüsselung
 
-Die Verschlüsselung schützt Ihre Backup-Daten vor unbefugtem Zugriff. Das Script erstellt zunächst ein normales Backup, welches dann verschlüsselt wird.
+Die Verschlüsselung schützt Ihre Backup-Daten vor unbefugtem Zugriff. Das Script erstellt unverschlüsselte Backups. Für Verschlüsselung verwenden Sie externe GPG-Pipelines **nach** Backup-Abschluss wie unten gezeigt.
 
 ### Verschlüsseltes Backup erstellen
 

@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.1] - 2025-07-31
+
+### 🔧 CRITICAL FIXES & DOCUMENTATION CORRECTIONS
+
+This release addresses critical security vulnerabilities and corrects misleading documentation claims identified through comprehensive code analysis.
+
+#### Fixed
+- **CRITICAL**: Thread-safe logging with flock protection for parallel operations
+- **CRITICAL**: Misleading encryption claims in documentation (--preserve-acl is ACL preservation, not encryption)
+- **CRITICAL**: Docker Compose v2 requirement clarification (script uses `docker compose`, not `docker-compose`)
+- **CRITICAL**: Early backup source validation to prevent late failures
+- **CRITICAL**: Network backup claims corrected (networks are recreated by Compose, not backed up)
+- **CRITICAL**: Incremental backup terminology clarified (sync vs. snapshots)
+
+#### Added
+- Thread-safe logging architecture with atomic flock operations
+- Comprehensive backup source validation in environment checks
+- Accurate feature descriptions across all documentation languages
+
+#### Changed
+- All documentation now correctly describes script capabilities without misleading claims
+- Version synchronization across all files and documentation
+- Improved fail-fast validation with comprehensive directory checks
+
+#### Security
+- Eliminates race conditions in parallel logging operations
+- Prevents silent backup failures in multi-threaded environments
+- Corrects false security expectations from documentation
+
+---
+
 ## [3.5.0] - 2025-07-31
 
 ### 🌍 MULTI-LANGUAGE ENHANCEMENT
@@ -214,7 +245,7 @@ This release addresses critical security vulnerabilities that affect parallel op
 - Unified logging function with ANSI-free log file output
 - Enhanced trap handling distinguishing normal exit from signals/errors
 - Configurable timeouts with `--timeout-stop` and `--timeout-start` flags
-- ACL and extended attributes support with `--preserve-acl` flag
+- ACL and extended attributes support with `--preserve-acl` flag (not encryption)
 - ANSI-free Docker logs with `--ansi never` flag
 
 ### Changed

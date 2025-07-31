@@ -1,7 +1,7 @@
 # 🚀 Docker Backup Script - Quick Start Guide
 
 > **Get your first backup running in 5 minutes!**
-> Version 3.4.9 "Production Ready"
+> Version 3.5.1 "Production Ready"
 > **✅ TESTED AND CONFIRMED FUNCTIONAL - July 30, 2025**
 
 ---
@@ -142,7 +142,7 @@ sudo ./docker_backup_de.sh --dry-run
 # Parallel backup (4 containers simultaneously)
 ./docker_backup.sh --auto --parallel 4
 
-# With ACL support (preserve permissions)
+# With ACL support (preserve file permissions, not encryption)
 ./docker_backup.sh --auto --preserve-acl
 
 # Without verification (faster)
@@ -166,7 +166,7 @@ sudo ./docker_backup_de.sh --dry-run
 ### 💾 **Storage space:**
 - **Required**: ~100% of source size
 - **Recommended**: 120% for buffer
-- **Backup type**: Incremental (only changes)
+- **Backup type**: Incremental sync (only changes, no snapshot history)
 
 ---
 
@@ -290,7 +290,7 @@ sudo ./docker_backup.sh --skip-backup
 
 ---
 
-## ✅ Checklist Version 3.4.9
+## ✅ Checklist Version 3.5.1
 
 - [ ] Scripts made executable (`chmod +x docker_backup.sh test_rsync_fix.sh`)
 - [ ] **NEW:** rsync fixes tested (`sudo ./test_rsync_fix.sh`)
@@ -303,7 +303,7 @@ sudo ./docker_backup.sh --skip-backup
 
 **🎉 Everything done? Perfect! Your Docker backup now runs automatically.**
 
-### **🏆 Version 3.4.9 Highlights:**
+### **🏆 Version 3.5.1 Highlights:**
 - ✅ **Critical security fixes** → Safe parallelization
 - ✅ **Robust rsync flag validation** → Real tests instead of grep
 - ✅ **Improved array-based execution** → Secure parameter passing
