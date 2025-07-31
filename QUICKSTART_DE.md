@@ -9,7 +9,7 @@
 ## ⚡ Sofort loslegen
 
 ### 📋 **Was du brauchst:**
-- ✅ Linux-System mit Docker
+- ✅ Linux-System mit Docker, rsync, flock, jq
 - ✅ Docker-Container laufen bereits
 - ✅ 5 Minuten Zeit
 

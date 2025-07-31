@@ -220,7 +220,17 @@ Das Script sichert Ihr komplettes Docker-Setup, während die Container sauber ge
 
 ## Installation
 
-1. Lade die Scripts herunter:
+1. Prüfe Systemvoraussetzungen:
+```bash
+# Systemvoraussetzungen prüfen
+command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Installieren Sie Docker zuerst."; exit 1; }
+command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
+command -v flock >/dev/null 2>&1 || { echo "❌ flock nicht installiert (Paket: util-linux)."; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "❌ jq nicht installiert (erforderlich für Health-Checks)."; exit 1; }
+echo "✅ Systemvoraussetzungen erfüllt"
+```
+
+2. Lade die Scripts herunter:
 ```bash
 # Scripts direkt herunterladen
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
@@ -246,7 +256,7 @@ Dieses Projekt bietet Scripts in mehreren Sprachen:
 
 **Hinweis**: Beide Versionen haben identische Funktionalität. Wähle basierend auf deiner Sprachpräferenz.
 
-2. Teste die rsync-Fixes (empfohlen):
+3. Teste die rsync-Fixes (empfohlen):
 ```bash
 # Teste rsync-Kompatibilität vor erstem Backup
 sudo ./test_rsync_fix.sh

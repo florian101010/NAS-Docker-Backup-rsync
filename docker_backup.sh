@@ -93,6 +93,23 @@ declare -a ALL_STACKS=()
 # Global exit code variable (avoids collision with $?)
 GLOBAL_EXIT_CODE=0
 
+# ================================================================
+# PREFLIGHT CHECKS - CRITICAL DEPENDENCIES
+# ================================================================
+
+# Check for required tools before any operations
+if ! command -v flock >/dev/null 2>&1; then
+    echo -e "${RED}❌ ERROR: 'flock' is required for safe locking (util-linux).${NC}"
+    echo "Install with: sudo apt install util-linux (Ubuntu/Debian) or sudo yum install util-linux (CentOS/RHEL)"
+    exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo -e "${RED}❌ ERROR: 'jq' is required for container health checks.${NC}"
+    echo "Install with: sudo apt install jq (Ubuntu/Debian) or sudo yum install jq (CentOS/RHEL)"
+    exit 1
+fi
+
 # Sudo optimization: One-time privilege check
 SUDO_CMD=""
 if [[ $EUID -eq 0 ]]; then

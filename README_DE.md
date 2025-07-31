@@ -75,6 +75,8 @@
 # Systemvoraussetzungen prüfen
 command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Installieren Sie Docker zuerst."; exit 1; }
 command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
+command -v flock >/dev/null 2>&1 || { echo "❌ flock nicht installiert (Paket: util-linux)."; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "❌ jq nicht installiert (erforderlich für Health-Checks)."; exit 1; }
 echo "✅ Systemvoraussetzungen erfüllt"
 
 # Download und Installation
@@ -210,6 +212,10 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 - **Input-Validierung**: Alle Parameter mit Bereichsprüfung validiert
 - **Atomare Operationen**: Lock-geschützte Ausführung verhindert Race-Conditions
 
+### Erforderliche Dependencies
+- **`jq`**: Dient zum Parsen von `docker compose ps --format json`, damit das Script erst dann „erfolgreich" meldet, wenn Container *laufen* und (falls vorhanden) *healthy* sind
+- **`flock`**: Sorgt für exklusive Ausführung (keine Überschneidungen) und thread-sicheres Logging bei parallelisierten Operationen
+
 ### Backup-Verifizierung
 - Verzeichnisgrößen-Vergleich mit konfigurierbarer Toleranz
 - Datei- und Verzeichnisanzahl-Verifizierung
@@ -234,6 +240,17 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 ## 🔧 Fehlerbehebung
 
 ### Häufige Probleme
+
+**Fehlende Dependencies:**
+```bash
+# flock nicht gefunden Fehler
+sudo apt install util-linux  # Ubuntu/Debian
+sudo yum install util-linux  # CentOS/RHEL
+
+# jq nicht gefunden Fehler
+sudo apt install jq          # Ubuntu/Debian
+sudo yum install jq          # CentOS/RHEL
+```
 
 **Container starten nicht:**
 ```bash
@@ -264,6 +281,17 @@ ls -la /pfad/zu/backup/ziel
 
 # Berechtigungen korrigieren falls nötig
 sudo chown -R $(whoami):$(id -gn) /pfad/zu/backup/ziel
+```
+
+### Dependency-Validierung
+
+**Schnelle Smoke-Tests:**
+```bash
+# Validiere jq funktioniert
+echo '[]' | jq -e 'length == 0' >/dev/null && echo "✅ jq OK"
+
+# Validiere flock funktioniert (Mutex-Simulation)
+LOCK=/tmp/test.lock; exec 9>"$LOCK"; flock -n 9 && echo "✅ flock OK"
 ```
 
 ## 🔐 Backup-Verschlüsselung

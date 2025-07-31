@@ -23,6 +23,8 @@ This is the first public release of the NAS Docker Backup Script - a production-
 - Automatic container recovery on script interruption (CTRL+C, kill signals)
 - Secure log file permissions with proper owner assignment
 - Input validation with range checking for parameters
+- **Early dependency validation**: Preflight checks for `jq` and `flock` with clear error messages
+- **Comprehensive documentation**: Updated README with complete dependency requirements and troubleshooting
 
 #### ⚡ **Performance Features**
 - Configurable parallel container operations (1-16 jobs) for faster backups
@@ -43,16 +45,27 @@ This is the first public release of the NAS Docker Backup Script - a production-
 - Localized test scripts and comprehensive documentation
 
 #### 🔧 **Technical Specifications**
-- **Requirements**: Linux, Bash 4.0+, Docker Compose v2, rsync, flock
+- **Requirements**: Linux, Bash 4.0+, Docker Compose v2, rsync, flock, jq
 - **Tested Platforms**: Ubuntu, Debian, UGREEN NAS DXP2800 (to be tested: Synology, QNAP)
 - **Backup Method**: rsync incremental synchronization (not snapshot-based)
 - **ACL Support**: Optional ACL and extended attributes preservation (ext4/XFS/Btrfs/ZFS)
+- **Dependency Management**: Automated validation with installation guidance for all required tools
 
 #### 📊 **Well-Tested & Reliable**
 - Robust error handling with detailed exit code analysis
 - Backup verification (size, file count, integrity checks)
 - Cron-safe automation with proper environment handling
 - Clean logging with ANSI-free output
+- **Enhanced UX**: Clear dependency validation prevents confusing error states
+- **Production-ready**: Fail-fast design with helpful installation guidance
+
+#### 🆕 **Latest Improvements (v3.5.1)**
+- **Enhanced Documentation**: Updated README with complete `jq` and `flock` requirements
+- **Improved System Checks**: Extended one-line system validation in both English and German
+- **Better Error Messages**: Clear dependency validation with distribution-specific installation commands
+- **Preflight Validation**: Early checks prevent confusing "backup already running" messages when dependencies are missing
+- **Troubleshooting Guide**: Added specific sections for dependency installation and validation
+- **Smoke Tests**: Quick validation commands for `jq` and `flock` functionality
 
 ---
 

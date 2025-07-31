@@ -220,7 +220,17 @@ The script backs up your complete Docker setup while containers are cleanly stop
 
 ## Installation
 
-1. Download the scripts:
+1. Check system requirements:
+```bash
+# Check system requirements first
+command -v docker >/dev/null 2>&1 || { echo "❌ Docker not installed. Install Docker first."; exit 1; }
+command -v rsync >/dev/null 2>&1 || { echo "❌ rsync not installed. Install: sudo apt install rsync"; exit 1; }
+command -v flock >/dev/null 2>&1 || { echo "❌ flock not installed (package: util-linux)."; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "❌ jq not installed (required for health checks)."; exit 1; }
+echo "✅ System requirements met"
+```
+
+2. Download the scripts:
 ```bash
 # Download the scripts directly
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh
@@ -230,7 +240,7 @@ wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/mai
 chmod +x docker_backup.sh test_rsync_fix.sh
 ```
 
-2. Test the rsync fixes (recommended):
+3. Test the rsync fixes (recommended):
 ```bash
 # Test rsync compatibility before first backup
 sudo ./test_rsync_fix.sh
