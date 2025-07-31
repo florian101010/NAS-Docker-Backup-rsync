@@ -65,16 +65,21 @@
 ## ⚡ Schnellstart (5 Minuten)
 
 ### 1️⃣ Ein-Zeilen-Installation
-```bash
-# Deutsche Version (copy-paste bereit)
-wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
-chmod +x docker_backup_de.sh && \
-echo "✅ Installation abgeschlossen! Pfade im Script bearbeiten, dann ausführen: ./docker_backup_de.sh --dry-run"
 
-# English version (Englische Version)
+**🇩🇪 Deutsche Version:**
+```bash
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix_de.sh && \
+chmod +x docker_backup_de.sh test_rsync_fix_de.sh && \
+echo "✅ Installation abgeschlossen! Kompatibilität testen: ./test_rsync_fix_de.sh"
+```
+
+**🇺🇸 English Version:**
+```bash
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup.sh && \
-chmod +x docker_backup.sh && \
-echo "✅ Installation complete! Edit paths in script, then run: ./docker_backup.sh --dry-run"
+wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix.sh && \
+chmod +x docker_backup.sh test_rsync_fix.sh && \
+echo "✅ Installation complete! Test compatibility: ./test_rsync_fix.sh"
 ```
 
 ### 2️⃣ Ihre Pfade Konfigurieren
