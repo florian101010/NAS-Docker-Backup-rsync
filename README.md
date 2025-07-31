@@ -24,7 +24,8 @@
 
 **🎯 Perfect for:** Home labs • Small businesses • Production environments • Any Docker setup on NAS devices
 
-**🏆 Why choose this script:** Traditional backup methods **corrupt Docker data** when containers are running. This script solves that problem by intelligently managing your entire Docker ecosystem - automatically discovering containers, gracefully stopping them for data consistency, creating comprehensive backups of everything (stacks, volumes, configs), and seamlessly restarting services.
+**🏆 Why choose this script:**
+Traditional backup methods **corrupt Docker data** when containers are running. This script solves that problem by intelligently managing your entire Docker ecosystem - automatically discovering containers, gracefully stopping them for data consistency, creating comprehensive backups of everything (stacks, volumes, configs), and seamlessly restarting services.
 
 ---
 
