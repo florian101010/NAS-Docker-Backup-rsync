@@ -1275,8 +1275,8 @@ else
     # Deactivate EXIT trap BEFORE health check (prevents double container start)
     trap - EXIT
 
-    # Compact health check (only if containers were started successfully)
-    if [[ "$CONTAINER_START_SUCCESS" == true && "$DRY_RUN" == false ]]; then
+    # Compact health check (always run when not DRY_RUN, regardless of container start status)
+    if [[ "$DRY_RUN" == false ]]; then
         perform_consolidated_health_check
     fi
 
