@@ -123,3 +123,4 @@ config/local.conf
 config/*.local
 *.personal.sh
 test_healthcheck.sh
+acl_test.sh
