@@ -470,7 +470,7 @@ Alle Aktionen werden protokolliert:
 4. **Prüfe regelmäßig die Logs**
 5. **Teste die Backup-Wiederherstellung** gelegentlich
 6. **Halte genügend freien Speicherplatz** vor (mindestens 120% der Quellgröße)
-7. **🔒 Verwende Parallelisierung sicher** - Nur mit Version 3.4.9 oder höher
+7. **🔒 Verwende Parallelisierung sicher** - Nur mit Version 3.5.1 oder höher
 
 ### 🚨 KRITISCHE SICHERHEITSWARNUNG
 **Versionen vor 3.5.1 haben kritische Bugs bei `--parallel N>1`:**

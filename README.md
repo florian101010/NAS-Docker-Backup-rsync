@@ -34,7 +34,7 @@
 - **🔍 Automatic Container Discovery**: Finds all Docker Compose stacks and containers automatically
 - **⏸️ Graceful Container Shutdown**: Safely stops containers to prevent data corruption during backup
 - **🔄 Intelligent Restart**: Automatically restarts all services after backup completion
-- **📦 Complete Stack Backup**: Backs up Docker Compose files, volumes, and persistent data (networks recreated by Compose)
+- **📦 Complete Stack Backup**: Backs up Docker Compose files, volumes, and persistent data (networks recreated by Compose when using `down`; with `--use-stop` networks are kept)
 - **🔧 Flexible Stop Modes**: Choose between `docker compose stop` (fast) or `down` (complete cleanup)
 
 ### 🚀 **Performance & Reliability**
@@ -63,7 +63,7 @@
 
 - **OS**: Linux (tested on Ubuntu, Debian, UGREEN NAS DXP2800)
 - **Shell**: Bash 4.0+
-- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock
+- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock, jq
 - **Permissions**: sudo access or root execution
 
 ## ⚡ Quick Start (5 Minutes)
@@ -108,7 +108,7 @@ nano docker_backup.sh
 DATA_DIR="/volume1/docker-nas/data"          # Your Docker data directory
 STACKS_DIR="/volume1/docker-nas/stacks"      # Your Docker Compose files
 BACKUP_SOURCE="/volume1/docker-nas"          # Source directory to backup - other example: /volume1/@docker
-BACKUP_DEST="/volume2/backups/docker-backup" # Where to store backups
+BACKUP_DEST="/volume2/backups/docker-nas-backup" # Where to store backups
 LOG_DIR="/volume1/docker-nas/logs"           # Log file location
 ```
 

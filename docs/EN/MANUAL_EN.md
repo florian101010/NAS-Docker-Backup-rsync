@@ -442,7 +442,7 @@ All actions are logged:
 4. **Check logs regularly**
 5. **Test backup restoration** occasionally
 6. **Keep enough free disk space** (at least 120% of source size)
-7. **🔒 Use parallelization safely** - Only with Version 3.4.9 or higher
+7. **🔒 Use parallelization safely** - Only with Version 3.5.1 or higher
 
 ### 🚨 CRITICAL SECURITY WARNING
 **Versions before 3.5.1 have critical bugs with `--parallel N>1`:**

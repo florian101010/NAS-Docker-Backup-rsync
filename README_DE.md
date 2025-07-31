@@ -24,7 +24,7 @@
 
 **🎯 Perfekt für:** Home Labs • Kleine Unternehmen • Produktionsumgebungen • Jedes Docker-Setup auf NAS-Geräten
 
-**🏆 Warum dieses Script wählen:** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, persistente Daten) und nahtloser Service-Neustart (Netzwerke werden von Compose neu erstellt).
+**🏆 Warum dieses Script wählen:** Herkömmliche Backup-Methoden **beschädigen Docker-Daten**, wenn Container laufen. Dieses Script löst das Problem durch intelligente Verwaltung Ihres gesamten Docker-Ökosystems - automatische Container-Erkennung, sanftes Stoppen für Datenkonsistenz, umfassende Backups von allem (Stacks, Volumes, persistente Daten) und nahtloser Service-Neustart (Netzwerke werden bei `down` von Compose neu erstellt; bei `--use-stop` bleiben Netzwerke erhalten).
 
 **✅ Getestet & Optimiert für:** UGREEN NAS • kompatibel mit Synology • QNAP • Custom Linux NAS • Ubuntu • Debian
 
@@ -34,7 +34,7 @@
 - **🔍 Automatische Container-Erkennung**: Findet alle Docker Compose Stacks und Container automatisch
 - **⏸️ Sanftes Container-Herunterfahren**: Stoppt Container sicher, um Datenkorruption während des Backups zu verhindern
 - **🔄 Intelligenter Neustart**: Startet alle Services nach Backup-Abschluss automatisch neu
-- **📦 Vollständiges Stack-Backup**: Sichert Docker Compose Dateien, Volumes und persistente Daten (Netzwerke werden von Compose neu erstellt)
+- **📦 Vollständiges Stack-Backup**: Sichert Docker Compose Dateien, Volumes und persistente Daten (Netzwerke werden bei `down` von Compose neu erstellt; bei `--use-stop` bleiben Netzwerke erhalten)
 - **🔧 Flexible Stopp-Modi**: Wählen Sie zwischen `docker compose stop` (schnell) oder `down` (vollständige Bereinigung)
 
 ### 🚀 **Performance & Zuverlässigkeit**
@@ -63,15 +63,21 @@
 
 - **OS**: Linux (getestet auf Ubuntu, Debian, UGREEN NAS DXP2800)
 - **Shell**: Bash 4.0+
-- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock
+- **Tools**: Docker Compose v2 (`docker compose`), rsync, flock, jq
 - **Berechtigungen**: sudo-Zugriff oder Root-Ausführung
 
 ## ⚡ Schnellstart (5 Minuten)
 
-### 1️⃣ Ein-Zeilen-Installation
+### 1️⃣ Ein-Zeilen-Installation mit Systemprüfung
 
 **🇩🇪 Deutsche Version:**
 ```bash
+# Systemvoraussetzungen prüfen
+command -v docker >/dev/null 2>&1 || { echo "❌ Docker nicht installiert. Installieren Sie Docker zuerst."; exit 1; }
+command -v rsync >/dev/null 2>&1 || { echo "❌ rsync nicht installiert. Installation: sudo apt install rsync"; exit 1; }
+echo "✅ Systemvoraussetzungen erfüllt"
+
+# Download und Installation
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/docker_backup_de.sh && \
 wget https://raw.githubusercontent.com/florian101010/NAS-Docker-Backup-rsync/main/test_rsync_fix_de.sh && \
 chmod +x docker_backup_de.sh test_rsync_fix_de.sh && \
@@ -96,7 +102,7 @@ nano docker_backup_de.sh
 DATA_DIR="/volume1/docker-nas/data"          # Ihr Docker-Datenverzeichnis
 STACKS_DIR="/volume1/docker-nas/stacks"      # Ihre Docker Compose Dateien
 BACKUP_SOURCE="/volume1/docker-nas"          # Quellverzeichnis für Backup - anderes Beispiel: /volume1/@docker
-BACKUP_DEST="/volume2/backups/docker-backup" # Wo Backups gespeichert werden
+BACKUP_DEST="/volume2/backups/docker-nas-backup" # Wo Backups gespeichert werden
 LOG_DIR="/volume1/docker-nas/logs"           # Log-Datei-Speicherort
 ```
 

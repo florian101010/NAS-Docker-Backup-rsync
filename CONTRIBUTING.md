@@ -9,7 +9,7 @@ Thank you for your interest in contributing to the Docker NAS Backup Script! Thi
 Before creating an issue, please:
 
 1. **Search existing issues** to avoid duplicates
-2. **Use the latest version** (v3.4.9+) to ensure the issue hasn't been fixed
+2. **Use the latest version** (v3.5.1+) to ensure the issue hasn't been fixed
 3. **Test with `--dry-run`** to isolate the problem
 4. **Include system information** (OS, Docker version, NAS type)
 
