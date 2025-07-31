@@ -20,7 +20,7 @@
 [![Downloads](https://img.shields.io/github/downloads/florian101010/NAS-Docker-Backup-rsync/total.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
 [![Stars](https://img.shields.io/github/stars/florian101010/NAS-Docker-Backup-rsync.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/stargazers)
 
-> **Die ultimative Docker-Backup-Lösung für NAS-Systeme** - Null Datenverlust, minimale Ausfallzeit, maximale Zuverlässigkeit.
+> **Automatisiertes Docker Backup-Script für NAS-Systeme** - stoppt Container schonend, synchronisiert Daten mit rsync und startet alles wieder.
 
 **🎯 Perfekt für:** Home Labs • Kleine Unternehmen • Produktionsumgebungen • Jedes Docker-Setup auf NAS-Geräten
 
