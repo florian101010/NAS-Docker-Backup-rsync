@@ -166,7 +166,7 @@ sudo ./docker_backup_de.sh --dry-run
 ### 💾 **Speicherplatz:**
 - **Benötigt**: ~100% der Quellgröße
 - **Empfohlen**: 120% für Puffer
-- **Backup-Typ**: Inkrementelle Synchronisation (nur Änderungen, keine Snapshot-Historie)
+- **Backup-Typ**: rsync-basierte Synchronisation (Standard-rsync-Verhalten)
 
 ---
 

@@ -237,7 +237,7 @@ crontab -l
 **Geeignet für**: Sicherheitskritische Umgebungen
 
 ```bash
-# Tägliches Backup mit externer Verschlüsselung
+# Tägliches Backup mit externer Verschlüsselung (Script erstellt unverschlüsseltes Backup, dann externe GPG-Verschlüsselung)
 0 2 * * * /pfad/zum/docker_backup.sh --auto --parallel 4 && tar -czf - /pfad/zum/backup/ziel/ | gpg --symmetric --cipher-algo AES256 --passphrase-file /pfad/zum/.backup_password > /pfad/zum/backup/ziel/docker-backup-encrypted_$(date +\%Y\%m\%d_\%H\%M\%S).tar.gz.gpg && rm -rf /pfad/zum/backup/ziel/
 
 # Wöchentliche Bereinigung alter verschlüsselter Backups

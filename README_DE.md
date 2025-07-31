@@ -13,7 +13,7 @@
 
 ## Deutsche Version
 
-[![Version](https://img.shields.io/badge/version-3.5.1-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
+[![Version](https://img.shields.io/badge/version-3.5.7-blue.svg)](https://github.com/florian101010/NAS-Docker-Backup-rsync/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Bash](https://img.shields.io/badge/bash-4.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
 [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey.svg)](https://www.kernel.org/)
@@ -44,8 +44,8 @@
 - **📊 Echtzeit-Überwachung**: Live Container-Status-Verfolgung mit farbcodierten Fortschrittsanzeigen
 
 ### 💾 **Erweiterte Backup-Funktionen**
-- **🔄 Inkrementelle Synchronisation**: rsync-basierte Synchronisation ohne Snapshot-Historie, mit intelligenter Flag-Validierung und mehrstufigem Fallback
-- **🔐 Post-Backup-Verschlüsselung**: Optionale Verschlüsselung via **externe** GPG-Pipelines **nach** Backup-Abschluss (Beispiele enthalten)
+- **🔄 rsync-basierte Synchronisation**: Standard-rsync-Verhalten mit intelligenter Flag-Validierung und mehrstufigem Fallback
+- **🔐 Externe Verschlüsselung**: Das Skript erstellt unverschlüsselte Backups. Verschlüsselung erfolgt über externe GPG-Pipelines nach Backup-Abschluss (Beispiele enthalten)
 - **✅ Backup-Verifizierung**: Automatische Überprüfung der Backup-Integrität und Vollständigkeit
 - **📈 Umfassendes Logging**: Detaillierte Logs mit ANSI-freier Ausgabe und race-condition-freiem parallelem Logging
 
@@ -226,7 +226,7 @@ Nach der Installation folgen Sie diesen Schritten in der Reihenfolge:
 - Datei- und Verzeichnisanzahl-Verifizierung
 - ACL- und erweiterte Attribute-Unterstützung (wenn verfügbar)
 - Detaillierte Fehlerberichterstattung mit spezifischer rsync-Exit-Code-Analyse
-- Optionale Post-Backup-Verschlüsselung via **externe** GPG-Pipelines **nach** Backup-Abschluss
+- Externe Verschlüsselung via GPG-Pipelines nach Backup-Abschluss (nicht im Skript integriert)
 
 ## 📊 Überwachung & Logging
 

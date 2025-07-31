@@ -573,7 +573,7 @@ ls -la /volume2/backups/docker-nas_backups/
 
 ### Backup Encryption Basics
 
-The script creates unencrypted backups. For encryption, use external GPG pipelines **after** backup completion as shown below.
+The script creates unencrypted backups. For encryption, use external GPG pipelines after backup completion as shown below.
 
 ### Creating encrypted backup
 

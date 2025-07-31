@@ -44,8 +44,8 @@
 - **📊 Real-time Monitoring**: Live container status tracking with color-coded progress indicators
 
 ### 💾 **Advanced Backup Features**
-- **🔄 Incremental Sync**: rsync-based synchronization without snapshot history, with intelligent flag validation and multi-tier fallback
-- **🔐 Post-Backup Encryption**: Optional encryption via **external** GPG pipelines **after** backup completion (examples provided)
+- **🔄 rsync-based Synchronization**: Standard rsync behavior with intelligent flag validation and multi-tier fallback
+- **🔐 External Encryption**: Script creates unencrypted backups. Encryption via external GPG pipelines after backup completion (examples provided)
 - **✅ Backup Verification**: Automatic verification of backup integrity and completeness
 - **📈 Comprehensive Logging**: Detailed logs with ANSI-free output and race-condition-free parallel logging
 
@@ -226,7 +226,7 @@ After installation, follow these steps in order:
 - File and directory count verification
 - ACL and extended attributes support (when available)
 - Detailed error reporting with specific rsync exit code analysis
-- Optional post-backup encryption via **external** GPG pipelines **after** backup completion
+- External encryption via GPG pipelines after backup completion (not integrated in script)
 
 ## 📊 Monitoring & Logging
 

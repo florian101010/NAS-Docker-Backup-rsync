@@ -166,7 +166,7 @@ sudo ./docker_backup_de.sh --dry-run
 ### 💾 **Storage space:**
 - **Required**: ~100% of source size
 - **Recommended**: 120% for buffer
-- **Backup type**: Incremental sync (only changes, no snapshot history)
+- **Backup type**: rsync-based synchronization (standard rsync behavior)
 
 ---
 

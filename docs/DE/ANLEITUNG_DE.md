@@ -601,7 +601,7 @@ ls -la /volume2/backups/docker-nas_backups/
 
 ### Grundlagen der Backup-Verschlüsselung
 
-Das Script erstellt unverschlüsselte Backups. Für Verschlüsselung verwenden Sie externe GPG-Pipelines **nach** Backup-Abschluss wie unten gezeigt.
+Das Script erstellt unverschlüsselte Backups. Für Verschlüsselung verwenden Sie externe GPG-Pipelines nach Backup-Abschluss wie unten gezeigt.
 
 ### Verschlüsseltes Backup erstellen
 
