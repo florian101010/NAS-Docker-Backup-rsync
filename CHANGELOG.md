@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added fallback mechanisms using `docker inspect` for container status
     - Eliminated `--status running` flag for broader Docker version compatibility
     - Added comprehensive debug logging for troubleshooting
+    - **CRITICAL FIX**: Added `set +e`/`set -e` error handling to prevent script termination
+      - Prevents healthcheck from stopping after first stack due to `set -euo pipefail`
+      - Ensures all stacks are processed even if individual Docker commands fail
+      - Guarantees complete container status overview is displayed
 
 - **Double Container Start Prevention**: Completely eliminated duplicate container startup cycles
   - Moved `trap - EXIT` deactivation before healthcheck to prevent cleanup loop

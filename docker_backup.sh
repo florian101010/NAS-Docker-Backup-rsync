@@ -678,6 +678,9 @@ perform_consolidated_health_check() {
         local running_count=0
         local total_count=0
         
+        # Error handling: Set +e temporarily for robust execution
+        set +e
+        
         # Increased timeouts for 22 stacks and better error handling
         log_message "DEBUG" "Health check: Checking stack $stack_name..."
         
@@ -720,7 +723,13 @@ perform_consolidated_health_check() {
         elif [[ $total_count -gt 0 ]]; then
             ((unhealthy_stacks++))
         fi
+        
+        # Reactivate fail-fast for next iteration
+        set -e
     done
+    
+    # Ensure fail-fast is reactivated
+    set -e
     
     # Compact summary
     echo ""
